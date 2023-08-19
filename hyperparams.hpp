@@ -16,3 +16,10 @@ std::map<std::string, int> evalhyp[1]
         {"king_dist", 2},
     }
 };
+
+std::map<std::string, int> searchhyp[1]
+{
+    {
+        {"max_depth", 6},
+    }
+};
