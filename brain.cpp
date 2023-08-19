@@ -3,7 +3,7 @@
 #include "hyperparams.hpp"
 #include "cache.hpp"
 
-// This is responsible for doing the minimax algorithm using the given interface
+// This is responsible for doing the search algorithms and evaluation using the given interface
 // for the game checkers
 
 int basic_evaluation(board &b){
@@ -12,7 +12,9 @@ int basic_evaluation(board &b){
 
 int advanced_evaluation(board &b, cache &c)
 {
+    int score = 0;
 
+    
     return 
 }
 
@@ -20,6 +22,8 @@ int evaluate(board &b){
     switch(generalhyp["evalution_alg"]){
         case 0:
             return basic_evaluation(b);
+        case 1:
+            return advanced_evaluation(b);
         default:
             return basic_evaluation(b);
     }
