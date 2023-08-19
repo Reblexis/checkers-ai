@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+void init_hashing();
+
 using square = uint_fast8_t;
 std::string square_vis(square sq);
 
@@ -37,7 +39,8 @@ public:
 	bool next;
 	bitboard w, b;
 	bitboard wk, bk;
-	std::stack<std::array<bitboard, 4>> history;
+	uint64_t hash;
+	std::stack<std::array<uint64_t, 5>> history;
 
 	board(bitboard w, bitboard b, bool next=true, bitboard k=0);
 	movelist moves() const;
