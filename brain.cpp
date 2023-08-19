@@ -12,21 +12,15 @@ int get_board_state(board &b){
     movelist moves = b.moves();
     if(moves.size()==0)
         return 2-b.next;
-    if(b.wcount()==0)
+    if(b.w==0)
         return 2;
-    if(b.bcount()==0)
+    if(b.b==0)
         return 1;
     return 0;
 }
 
 int basic_evaluation(board &b, int leftdepth){
     int gamestate = get_board_state(b);
-    if(gamestate==1)
-        return INT32_MIN;
-    if(gamestate==2)
-        return INT32_MAX;
-    if(gamestate==3)
-        return 0;
 
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
@@ -106,7 +100,7 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
 
-    int bestscore = 0;
+    int bestscore = maximazing?INT32_MIN:INT32_MAX;
     for(move nextmove: b.moves())
     {
         b.play(nextmove);
