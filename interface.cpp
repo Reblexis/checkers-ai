@@ -5,15 +5,22 @@
 #define BBFOR(i, v, s) for (bitboard i = (v); i; i &= i-1) { square s = __builtin_ctzll(i);
 #define BBFOREND }
 
+std::string bbvis(bitboard bb) {
+	std::ostringstream oss;
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			const bitboard mask = (1ull << ((7-i)*8 + 7-j));
+			oss << (bb & mask ? '#' : '.');
+		}
+		oss << '\n';
+	}
+	return oss.str();
+}
+
 movelist::movelist() : e(moves) { }
 move *movelist::push() { return e++; }
 move *movelist::begin() { return moves; }
 move *movelist::end() { return e; }
-
-constexpr inline bitboard tl(bitboard x) { return x << 9 & 0xf7f7f7f7f7f7f7f7ull; }
-constexpr inline bitboard tr(bitboard x) { return x << 7 & 0x7f7f7f7f7f7f7f7full; }
-constexpr inline bitboard bl(bitboard x) { return x >> 7 & 0xf7f7f7f7f7f7f7f7ull; }
-constexpr inline bitboard br(bitboard x) { return x >> 9 & 0x7f7f7f7f7f7f7f7full; }
 
 board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), next(next) { }
 void add_simple(movelist &out, bitboard own, int dirshift) {
