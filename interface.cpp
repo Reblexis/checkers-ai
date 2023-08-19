@@ -2,8 +2,21 @@
 #include <math.h>
 #include <sstream>
 
+#include <limits>
+#include <random>
+
 #define BBFOR(i, v, s) for (bitboard i = (v); i; i &= i-1) { square s = __builtin_ctzll(i);
 #define BBFOREND }
+
+uint64_t hash_lookup[32][4];
+void init_hashing() {
+	std::mt19937_64 rand;
+	for (size_t i = 0; i < 32; i++) {
+		for (size_t j = 0; j < 4; j++) {
+			hash_lookup[i][j] = std::uniform_int_distribution<uint64_t>(0, std::numeric_limits<uint64_t>::max())(rand);
+		}
+	}
+}
 
 std::string square_vis(square sq) {
 	return std::string(1, 'h' - (sq & 0x7)) + std::string(1, '1' + (sq >> 3));
@@ -38,7 +51,19 @@ move *movelist::begin() { return moves; }
 move *movelist::end() { return e; }
 size_t movelist::size() const { return e-moves; }
 
-board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), next(next) { }
+board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), next(next), hash(0) {
+	BBFOR(i, w, s)
+		hash ^= hash_lookup[s >> 1][0];
+	BBFOREND
+	BBFOR(i, b, s)
+		hash ^= hash_lookup[s >> 1][1];
+	BBFOREND
+	BBFOR(i, wk | bk, s)
+		hash ^= hash_lookup[s >> 1][2];
+	BBFOREND
+	if (next)
+		hash ^= hash_lookup[0][3];
+}
 void add_simple(movelist &out, bitboard own, int dirshift) {
 	BBFOR(i, own, s)
 		*out.push() = move({ static_cast<uint64_t>(s) << 4 | static_cast<uint64_t>(s + dirshift) << 10, 0 });
@@ -75,38 +100,45 @@ movelist board::moves() const {
 	return out;
 }
 void board::play(const move &m) {
-	history.push({ b, w, bk, wk });
-	const bitboard from = 1ull << ((m[0] >> 4) & 0x3f);
-	if (next) {
-		if ((m[0] & 0xff) == 0) {
-			const bitboard to = 1ull << ((m[0] >> 10) & 0x3f);
+	history.push({ b, w, bk, wk, hash });
+	const square froms = m[0] >> 4 & 0x3f;
+	const bitboard from = 1ull << froms;
+	if ((m[0] & 0xf) == 0) {
+		const square tos = m[0] >> 10 & 0x3f;
+		const bitboard to = 1ull << tos;
+		if (next) {
 			b = b & ~from | to;
-			if (bk & from)
+			hash ^= hash_lookup[froms >> 1][1] ^ hash_lookup[tos >> 1][1];
+			if (bk & from) {
 				bk = bk & ~from | to;
-			else if (to & 0xff00000000000000ull)
+				hash ^= hash_lookup[froms >> 1][2] ^ hash_lookup[tos >> 1][2];
+			} else if (to & 0xff00000000000000ull) {
 				bk |= to;
+				hash ^= hash_lookup[tos >> 1][2];
+			}
 		} else {
-			// TODO: play - jumps
+			w = w & ~from | to;
+			hash ^= hash_lookup[froms >> 1][0] ^ hash_lookup[tos >> 1][0];
+			if (wk & from) {
+				wk = wk & ~from | to;
+				hash ^= hash_lookup[froms >> 1][2] ^ hash_lookup[tos >> 1][2];
+			} else if (to & 0xffull) {
+				wk |= to;
+				hash ^= hash_lookup[tos >> 1][2];
+			}
 		}
 	} else {
-		if ((m[0] & 0xff) == 0) {
-			const bitboard to = 1ull << ((m[0] >> 10) & 0x3f);
-			w = w & ~from | to;
-			if (wk & from)
-				wk = wk & ~from | to;
-			else if (to & 0xffull)
-				wk |= to;
-		} else {
-			// TODO: play - jumps
-		}
+		// TODO: play - jumps
 	}
 	next = !next;
+	hash ^= hash_lookup[0][3];
 }
 void board::undo() {
 	b = history.top()[0];
 	w = history.top()[1];
 	bk = history.top()[2];
 	wk = history.top()[3];
+	hash = history.top()[4];
 	history.pop();
 	next = !next;
 }
