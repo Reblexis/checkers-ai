@@ -28,12 +28,12 @@ std::string square_vis(square sq) {
 
 std::string move_vis(move m) {
 	std::ostringstream oss;
-	oss << "[" << square_vis(m >> 4 & 0x1f) << " -> " << square_vis(m >> 9 & 0x1f) << "] ";
-	if ((m & 0xf) == 0) {
-		oss << "walk";
+	oss << "[" << square_vis(m & 0x1f) << " -> " << square_vis(m >> 5 & 0x1f) << "] ";
+	if ((m >> 10) == 0) {
+		oss << "walk\n";
 	} else {
-		// TODO: other move types
-		oss << "unknown move";
+		oss << "capture\n";
+		oss << bbvis(m >> 10);
 	}
 	return oss.str();
 }
@@ -71,18 +71,34 @@ board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w &
 }
 void add_simple(movelist &out, bitboard own, int8_t dsa, int8_t dsb) {
 	BBFOR(i, own, s)
-		out.push(static_cast<uint64_t>(s) << 4 | static_cast<uint64_t>(s + ((s >> 3 & 1) ? dsb : dsa)) << 9);
+		out.push(static_cast<uint64_t>(s) | static_cast<uint64_t>(s + ((s >> 3 & 1) ? dsb : dsa)) << 5);
 	BBFOREND
+}
+template<bool up, bool down>
+void add_jumps(movelist &out, square start, square from, bitboard to_capture, bitboard nall, bitboard captured=0) {
+	/*move *ce = out.end();
+	if constexpr (up) {
+		if (from >> 2 & 1) {
+			if (to_capture & << ~)
+		}
+	}
+	if (ce == out.end()) {
+		out.push(start | from << 5 | captured << 10);
+	}*/
 }
 movelist board::moves() const {
 	movelist out;
 	const bitboard all = b | w;
 	const bitboard nall = ~all;
 	if (next) {
-		const bitboard norm = b & ~bk;
-		bitboard l = norm & br(w) & ~br(br(all));
-		bitboard r = norm & bl(w) & ~bl(bl(all));
-		BBFOR(i, l, s)
+		const bitboard upc = (br(w) & br(br(nall))) | (bl(w) & bl(bl(nall)));
+		const bitboard j = b & ~bk & upc;
+		const bitboard jk = bk & ((tr(w) & tr(tr(nall))) | (tl(w) & tl(tl(nall))) | upc);
+		BBFOR(i, j, s)
+			add_jumps<true, false>(out, s, s, w, nall);
+		BBFOREND
+		BBFOR(i, jk, s)
+			add_jumps<true, true>(out, s, s, w, nall);
 		BBFOREND
 		if (out.begin() == out.end()) {
 			add_simple(out, b & br(nall), 4, 5);
@@ -91,6 +107,15 @@ movelist board::moves() const {
 			add_simple(out, bk & tl(nall), -5, -4);
 		}
 	} else {
+		const bitboard downc = (tr(b) & tr(tr(nall))) | (tl(b) & tl(tl(nall)));
+		const bitboard j = w & ~wk & downc;
+		const bitboard jk = wk & ((br(b) & br(br(nall))) | (bl(b) & bl(bl(nall))) | downc);
+		BBFOR(i, j, s)
+			add_jumps<true, false>(out, s, s, b, nall);
+		BBFOREND
+		BBFOR(i, jk, s)
+			add_jumps<true, true>(out, s, s, b, nall);
+		BBFOREND
 		if (out.begin() == out.end()) {
 			add_simple(out, w & tr(nall), -4, -3);
 			add_simple(out, w & tl(nall), -5, -4);
@@ -102,10 +127,12 @@ movelist board::moves() const {
 }
 void board::play(const move &m) {
 	history.push({ b | static_cast<uint64_t>(bk) << 32, w | static_cast<uint64_t>(wk) << 32, hash });
-	const square froms = m >> 4 & 0x1f;
+	const square froms = m & 0x1f;
 	const bitboard from = 1 << froms;
-	const square tos = m >> 9 & 0x1f;
+	const square tos = m >> 5 & 0x1f;
 	const bitboard to = 1 << tos;
+	const bitboard captm = m >> 10;
+	const bitboard icaptm = ~captm;
 	if (next) {
 		b = (b & ~from) | to;
 		hash ^= hash_lookup[froms][1] ^ hash_lookup[tos][1];
@@ -116,6 +143,14 @@ void board::play(const move &m) {
 			bk |= to;
 			hash ^= hash_lookup[tos][2];
 		}
+		BBFOR(i, w & captm, s)
+			hash ^= hash_lookup[s][0];
+		BBFOREND
+		BBFOR(i, wk & captm, s)
+			hash ^= hash_lookup[s][2];
+		BBFOREND
+		w &= icaptm;
+		wk &= icaptm;
 	} else {
 		w = w & ~from | to;
 		hash ^= hash_lookup[froms][0] ^ hash_lookup[tos][0];
@@ -126,6 +161,14 @@ void board::play(const move &m) {
 			wk |= to;
 			hash ^= hash_lookup[tos][2];
 		}
+		BBFOR(i, b & captm, s)
+			hash ^= hash_lookup[s][1];
+		BBFOREND
+		BBFOR(i, bk & captm, s)
+			hash ^= hash_lookup[s][2];
+		BBFOREND
+		b &= icaptm;
+		bk &= icaptm;
 	}
 	next = !next;
 	hash ^= hash_lookup[0][3];

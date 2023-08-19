@@ -11,12 +11,12 @@ int main() {
 	std::cout << b.visualize();
 	movelist ml = b.moves();
 	for (move m : ml) {
-		std::cout << move_vis(m) << std::endl;
+		std::cout << move_vis(m);
 	}
 	srand(532904124);
 	move *selected = ml.begin() + (rand() % ml.size());
 	b.play(*selected);
-	std::cout << "selected: " << move_vis(*selected) << "\n" << b.visualize();
+	std::cout << "selected: " << move_vis(*selected) << b.visualize();
 	b.undo();
 	std::cout << b.visualize();
 #endif
