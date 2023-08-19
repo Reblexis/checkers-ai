@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <array>
 #include <stack>
+#include <string>
 #include <vector>
 
 using square = uint_fast8_t;
@@ -29,6 +30,7 @@ public:
 	bitboard wk, bk;
 	std::stack<std::array<bitboard, 4>> history;
 
+	board(bitboard w, bitboard b, bool next=true, bitboard k=0);
 	movelist moves() const;
 	void play(const move &m);
 	void undo();
@@ -37,6 +39,8 @@ public:
 	int bcount() const;
 	int wkcount() const;
 	int bkcount() const;
+
+	std::string visualize() const;
 };
 
 #endif
