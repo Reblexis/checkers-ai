@@ -1,11 +1,9 @@
 #ifndef CACHE_HPP
 #define CACHE_HPP
 
-#include <inttypes.h>
+#include "interface.hpp"
 
-using bitboard = uint64_t;
-
-class cache{
+class cache {
 public:
     cache();
     ~cache();
@@ -14,6 +12,6 @@ public:
     void remove(int key);
     void clear();
     void print();
-}
+};
 
 #endif

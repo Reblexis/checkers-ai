@@ -7,13 +7,16 @@
 int main() {
 	init_hashing();
 #ifdef INTERFACE_TEST
-	board b(0xaa55aa0000000000ull, 0x55aa55ull);
+	board b(0xfff00000, 0xfff);
 	std::cout << b.visualize();
 	movelist ml = b.moves();
+	for (move m : ml) {
+		std::cout << move_vis(m) << std::endl;
+	}
 	srand(532904124);
 	move *selected = ml.begin() + (rand() % ml.size());
 	b.play(*selected);
-	std::cout << move_vis(*selected) << "\n" << b.visualize();
+	std::cout << "selected: " << move_vis(*selected) << "\n" << b.visualize();
 	b.undo();
 	std::cout << b.visualize();
 #endif

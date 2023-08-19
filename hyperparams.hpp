@@ -3,13 +3,13 @@
 
 constexpr int NUM_SQUARES = 32;
 
-std::map<std::string, int> generalhyp
+const std::map<std::string, int> generalhyp
 {
     {"evalution_alg", 0},
     {"search_alg", 0}
 };
 
-std::map<std::string, int> evalhyp[2]
+const std::map<std::string, int> evalhyp[2]
 {
     {
         {"pawn_value", 1},
@@ -22,14 +22,14 @@ std::map<std::string, int> evalhyp[2]
     }
 };
 
-std::map<std::string, int> searchhyp[1]
+const std::map<std::string, int> searchhyp[1]
 {
     {
         {"max_depth", 6},
     }
 };
 
-int pawntable[NUM_SQUARES] = {
+const int pawntable[NUM_SQUARES] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 4, 4, 4,
@@ -40,7 +40,7 @@ int pawntable[NUM_SQUARES] = {
     16, 8, 4, 0
 };
 
-int kingtable[NUM_SQUARES] = {
+const int kingtable[NUM_SQUARES] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 4, 4, 4,
