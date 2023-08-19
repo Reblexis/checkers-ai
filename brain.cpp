@@ -7,25 +7,39 @@
 // This is responsible for doing the search algorithms and evaluation using the given interface
 // for the game checkers
 
+int get_board_state(board &b){
+    // 0 in-game 1 white win 2 black win 3 draw
+    movelist moves = b.moves();
+    if(moves.size()==0)
+        return 2-b.next;
+    if(b.wcount()==0)
+        return 2;
+    if(b.bcount()==0)
+        return 1;
+    return 0;
+}
+
 int basic_evaluation(board &b, int leftdepth){
-    if(b.whitewin)
+    int gamestate = get_board_state(b);
+    if(gamestate==1)
         return INT32_MIN;
-    if(b.blackwin)
+    if(gamestate==2)
         return INT32_MAX;
-    if(b.draw)
+    if(gamestate==3)
         return 0;
 
-    return (b.bpcount() - b.wpcount()) * evalhyparr[0][0] + (b.bkcount() - b.wkcount())*evalhyparr[0][1]; 
+    return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
 
 
 int advanced_evaluation(board &b, int leftdepth)
 {
-    if(b.whitewin)
+    int gamestate = get_board_state(b);
+    if(gamestate==1)
         return INT32_MIN;
-    if(b.blackwin)
+    if(gamestate==2)
         return INT32_MAX;
-    if(b.draw)
+    if(gamestate==3)
         return 0;
 
     int score = 0;
@@ -55,22 +69,22 @@ int advanced_evaluation(board &b, int leftdepth)
 
     int pawndiff = b.bpcount() - b.wpcount();
     int kingdiff = b.bkcount() - b.wkcount();
-    pawndiff *= evalhyparr[1][0];
-    kingdiff *= evalhyparr[1][1];
-    kingposscore *= evalhyparr[1][1];
-    pawnposscore *= evalhyparr[1][0];
+    pawndiff *= allhyperparams[EH_B_PAWN_VALUE];
+    kingdiff *= allhyperparams[EH_B_KING_VALUE];
+    kingposscore *= allhyperparams[EH_B_KING_VALUE];
+    pawnposscore *= allhyperparams[EH_B_PAWN_VALUE];
     
     // Add preference for having bigger difference with less pieces
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    int leftdepthmultiplier = sqrt(leftdepth)/evalhyparr[1][2];    
+    int leftdepthmultiplier = sqrt(leftdepth)/allhyperparams[EH_A_DEPTH_DIVISOR];
     score *= leftdepthmultiplier;
 
     return score;
 }
 
 int evaluate(board &b, int leftdepth){
-    switch(generalhyparr[0]){
+    switch(allhyperparams[GH_EVALUATION_ALG]){
         case 0:
             return basic_evaluation(b, leftdepth);
         case 1:
@@ -83,7 +97,7 @@ int evaluate(board &b, int leftdepth){
 std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazing = true, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
     move bestmove;
 
-    if(usecache&&leftdepth!=searchhyparr[0][0]){
+    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
         cacheval cacheinfo = c.get(b, leftdepth);
         if(leftdepth<=cacheinfo.depth)
             return {cacheinfo.score, bestmove};
@@ -92,7 +106,7 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
 
-    int bestscore = evaluate(b, leftdepth);
+    int bestscore = 0;
     for(move nextmove: b.moves())
     {
         b.play(nextmove);
@@ -122,7 +136,7 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
 
 move findmove(board &b, cache &c){
     move bestmove;
-    switch(generalhyparr[1]){
+    switch(allhyperparams[GH_SEARCH_ALG]){
         case 0:
             bestmove = minimax(b, c).second;
             break;
