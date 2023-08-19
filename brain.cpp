@@ -15,7 +15,7 @@ int basic_evaluation(board &b, int leftdepth){
     if(b.draw)
         return 0;
 
-    return (b.bpcount() - b.wpcount()) * evalhyp[0]["pawn_value"] + (b.bkcount() - b.wkcount())*evalhyp[0]["king_value"]; 
+    return (b.bpcount() - b.wpcount()) * evalhyparr[0][0] + (b.bkcount() - b.wkcount())*evalhyparr[0][1]; 
 }
 
 
@@ -55,22 +55,22 @@ int advanced_evaluation(board &b, int leftdepth)
 
     int pawndiff = b.bpcount() - b.wpcount();
     int kingdiff = b.bkcount() - b.wkcount();
-    pawndiff *= evalhyp[1]["pawn_value"];
-    kingdiff *= evalhyp[1]["king_value"];
-    kingposscore *= evalhyp[1]["king_value"];
-    pawnposscore *= evalhyp[1]["pawn_value"];
+    pawndiff *= evalhyparr[1][0];
+    kingdiff *= evalhyparr[1][1];
+    kingposscore *= evalhyparr[1][1];
+    pawnposscore *= evalhyparr[1][0];
     
     // Add preference for having bigger difference with less pieces
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    int leftdepthmultiplier = sqrt(leftdepth)/evalhyp[1]["depth_divisor"];    
+    int leftdepthmultiplier = sqrt(leftdepth)/evalhyparr[1][2];    
     score *= leftdepthmultiplier;
 
     return score;
 }
 
 int evaluate(board &b, int leftdepth){
-    switch(generalhyp["evalution_alg"]){
+    switch(generalhyparr[0]){
         case 0:
             return basic_evaluation(b, leftdepth);
         case 1:
@@ -83,16 +83,16 @@ int evaluate(board &b, int leftdepth){
 std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazing = true, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
     move bestmove;
 
-    if(usecache&&leftdepth!=searchhyp[0]["max_depth"]){
+    if(usecache&&leftdepth!=searchhyparr[0][0]){
         cacheval cacheinfo = c.get(b, leftdepth);
         if(leftdepth<=cacheinfo.depth)
             return {cacheinfo.score, bestmove};
     }
     
     if(leftdepth==0)
-        return {evaluate(b), bestmove};
+        return {evaluate(b, leftdepth), bestmove};
 
-    int bestscore = evaluate(b);
+    int bestscore = evaluate(b, leftdepth);
     for(move nextmove: b.moves())
     {
         b.play(nextmove);
@@ -122,7 +122,7 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
 
 move findmove(board &b, cache &c){
     move bestmove;
-    switch(generalhyp["search_alg"]){
+    switch(generalhyparr[1]){
         case 0:
             bestmove = minimax(b, c).second;
             break;

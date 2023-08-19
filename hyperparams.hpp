@@ -30,6 +30,16 @@ std::map<std::string, int> searchhyp[1]
     }
 };
 
+
+int generalhyparr[2] = {0, 0};
+
+int evalhyparr[2][3] = {
+    {1, 3, 2},
+    {1, 3, 2}
+};
+
+int searchhyparr[1][1] = {{6}};
+
 int pawntable[NUM_SQUARES] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
