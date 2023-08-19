@@ -1,5 +1,6 @@
 #include "interface.hpp"
 #include <math.h>
+#include <sstream>
 
 #define BBFOR(i, v, s) for (bitboard i = (v); i; i &= i-1) { square s = __builtin_ctzll(i);
 #define BBFOREND }
@@ -14,6 +15,7 @@ constexpr inline bitboard tr(bitboard x) { return x << 7 & 0x7f7f7f7f7f7f7f7full
 constexpr inline bitboard bl(bitboard x) { return x >> 7 & 0xf7f7f7f7f7f7f7f7ull; }
 constexpr inline bitboard br(bitboard x) { return x >> 9 & 0x7f7f7f7f7f7f7f7full; }
 
+board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), next(next) { }
 void add_simple(movelist &out, bitboard own, int dirshift) {
 	BBFOR(i, own, s)
 		*out.push() = move({ static_cast<uint64_t>(s) << 6 | static_cast<uint64_t>(s + dirshift) << 12, 0 });
@@ -58,6 +60,8 @@ void board::play(const move &m) {
 			b = b & ~from | to;
 			if (bk & from)
 				bk = bk & ~from | to;
+			else if (to & 0xff00000000000000ull)
+				bk |= to;
 		} else {
 			// TODO: play - jumps
 		}
@@ -67,6 +71,8 @@ void board::play(const move &m) {
 			w = w & ~from | to;
 			if (wk & from)
 				wk = wk & ~from | to;
+			else if (to & 0xffull)
+				wk |= to;
 		} else {
 			// TODO: play - jumps
 		}
@@ -85,3 +91,28 @@ int board::wcount() const { return __builtin_popcountll(w); }
 int board::bcount() const { return __builtin_popcountll(b); }
 int board::wkcount() const { return __builtin_popcountll(wk); }
 int board::bkcount() const { return __builtin_popcountll(bk); }
+std::string board::visualize() const {
+	std::ostringstream oss;
+	oss << "    a   b   c   d   e   f   g   h\n";
+	oss << "  +---+---+---+---+---+---+---+---+\n";
+	for (int i = 0; i < 8; i++) {
+		oss << (8-i);
+		for (int j = 0; j < 8; j++) {
+			oss << " | ";
+			bitboard mask = (1ull << ((7-i)*8 + 7-j));
+			if (bk & mask)
+				oss << "\u265A";
+			else if (b & mask)
+				oss << "\u25A0";
+			else if (wk & mask)
+				oss << "\u2654";
+			else if (w & mask)
+				oss << "\u25A1";
+			else
+				oss << " ";
+		}
+		oss << " | " << (8-i) << "\n  +---+---+---+---+---+---+---+---+\n";
+	}
+	oss << "    a   b   c   d   e   f   g   h\nnext: " << (next ? "black" : "white") << "\n";
+	return oss.str();
+}
