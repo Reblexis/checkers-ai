@@ -7,7 +7,7 @@
 // This is responsible for doing the search algorithms and evaluation using the given interface
 // for the game checkers
 
-int basic_evaluation(board &b){
+int basic_evaluation(board &b, int leftdepth){
     if(b.whitewin)
         return INT32_MIN;
     if(b.blackwin)
@@ -19,7 +19,7 @@ int basic_evaluation(board &b){
 }
 
 
-int advanced_evaluation(board &b)
+int advanced_evaluation(board &b, int leftdepth)
 {
     if(b.whitewin)
         return INT32_MIN;
@@ -59,26 +59,28 @@ int advanced_evaluation(board &b)
     kingdiff *= evalhyp[1]["king_value"];
     kingposscore *= evalhyp[1]["king_value"];
     pawnposscore *= evalhyp[1]["pawn_value"];
-
+    
     // Add preference for having bigger difference with less pieces
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    
+    int leftdepthmultiplier = sqrt(leftdepth)/evalhyp[1]["depth_divisor"];    
+    score *= leftdepthmultiplier;
+
     return score;
 }
 
-int evaluate(board &b){
+int evaluate(board &b, int leftdepth){
     switch(generalhyp["evalution_alg"]){
         case 0:
-            return basic_evaluation(b);
+            return basic_evaluation(b, leftdepth);
         case 1:
-            return advanced_evaluation(b);
+            return advanced_evaluation(b, leftdepth);
         default:
-            return basic_evaluation(b);
+            return basic_evaluation(b, leftdepth);
     }
 }
 
-std::pair<int, move> minimax(board &b, cache &c, int leftdepth, bool maximazing = true, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
+std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazing = true, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
     move bestmove;
 
     if(usecache&&leftdepth!=searchhyp[0]["max_depth"]){
@@ -89,6 +91,7 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth, bool maximazing 
     
     if(leftdepth==0)
         return {evaluate(b), bestmove};
+
     int bestscore = evaluate(b);
     for(move nextmove: b.moves())
     {
@@ -121,7 +124,7 @@ move findmove(board &b, cache &c){
     move bestmove;
     switch(generalhyp["search_alg"]){
         case 0:
-            bestmove = minimax(b, c, searchhyp[0]["max_depth"]).second;
+            bestmove = minimax(b, c).second;
             break;
         default:
             break;
