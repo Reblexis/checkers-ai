@@ -25,7 +25,7 @@ std::pair<int, move> search(board &b, int leftdepth, bool maximazing = true){
             bestmove = nextmove;
         }
 
-        b.undo(nextmove); 
+        b.undo(); 
     }
 
     return {bestscore, bestmove};
