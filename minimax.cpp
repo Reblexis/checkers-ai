@@ -34,15 +34,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, bool maximazing = true, in
             bestmove = nextmove;
         }
 
-        b.undo(nextmove); 
-
-        if(maximazing)
-            alpha = std::max(alpha, bestscore);
-        else
-            beta = std::min(beta, bestscore);
-        
-        if(beta<=alpha)
-            break;        
+        b.undo(); 
     }
 
     return {bestscore, bestmove};
