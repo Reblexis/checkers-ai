@@ -16,10 +16,10 @@ using move = uint64_t;
 std::string move_vis(move m);
 
 using bitboard = uint32_t;
-constexpr inline bitboard tl(bitboard x) { return (x & 0xf0f0f0f) << 4 | (x & 0x707070) << 5; }
-constexpr inline bitboard tr(bitboard x) { return (x & 0xf0f0f0f0) << 4 | (x & 0xe0e0e0e) << 5; }
-constexpr inline bitboard bl(bitboard x) { return (x & 0xf0f0f00) >> 4 |(x & 0x70707070) >> 3; }
-constexpr inline bitboard br(bitboard x) { return (x & 0xf0f0f0f0) >> 4 | (x & 0xe0e0e00) >> 5; }
+constexpr inline bitboard tl(bitboard x) { return (x & 0x00f0f0f0) << 4 | (x & 0x07070707) << 5; }
+constexpr inline bitboard tr(bitboard x) { return (x & 0x0f0f0f0f) << 4 | (x & 0x00e0e0e0) << 3; }
+constexpr inline bitboard bl(bitboard x) { return (x & 0xf0f0f0f0) >> 4 | (x & 0x07070707) >> 3; }
+constexpr inline bitboard br(bitboard x) { return (x & 0x0f0f0f00) >> 4 | (x & 0xe0e0e0e0) >> 5; }
 std::string bbvis(bitboard bb);
 
 class movelist {

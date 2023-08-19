@@ -7,16 +7,22 @@
 int main() {
 	init_hashing();
 #ifdef INTERFACE_TEST
+	//bitboard x = 0xffffffff;
+	//std::cout << bbvis(x) << "\n" << bbvis(tl(x)) << "\n" << bbvis(tr(x)) << "\n" << bbvis(bl(x)) << "\n" << bbvis(br(x));
 	board b(0xfff00000, 0xfff);
-	std::cout << b.visualize();
-	movelist ml = b.moves();
-	for (move m : ml) {
-		std::cout << move_vis(m);
-	}
 	srand(532904124);
-	move *selected = ml.begin() + (rand() % ml.size());
-	b.play(*selected);
-	std::cout << "selected: " << move_vis(*selected) << b.visualize();
+	std::cout << b.visualize();
+	while (1){
+		movelist ml = b.moves();
+		if (!ml.size())
+			break;
+		for (move m : ml) {
+			std::cout << move_vis(m);
+		}
+		move *selected = ml.begin() + (rand() % ml.size());
+		b.play(*selected);
+		std::cout << "selected: " << move_vis(*selected) << b.visualize();
+	}
 	b.undo();
 	std::cout << b.visualize();
 #endif

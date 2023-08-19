@@ -2,8 +2,7 @@
 #include <math.h>
 #include <sstream>
 
-#include <limits>
-#include <random>
+#include <iostream>
 
 #define BBFOR(i, v, s) for (bitboard i = (v); i; i &= i-1) { square s = __builtin_ctz(i);
 #define BBFOREND }
@@ -23,7 +22,7 @@ void init_hashing() {
 }
 
 std::string square_vis(square sq) {
-	return std::string(1, 'h' - ((sq & 0x3) << 1 | (sq >> 2 & 1))) + std::string(1, '1' + (sq >> 2));
+	return std::string(1, 'h' - ((sq & 0x3) << 1 | (~sq >> 2 & 1))) + std::string(1, '1' + (sq >> 2));
 }
 
 std::string move_vis(move m) {
@@ -42,7 +41,7 @@ std::string bbvis(bitboard bb) {
 	std::ostringstream oss;
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
-			const bitboard mask = (1 << ((7-i)*4 + 7-j/2));
+			const bitboard mask = (1 << ((7-i)*4 + 3-j/2));
 			oss << (((bb & mask) && (i+j)%2) ? '#' : '.');
 		}
 		oss << '\n';
@@ -69,28 +68,49 @@ board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w &
 	if (next)
 		hash ^= hash_lookup[0][3];
 }
-void add_simple(movelist &out, bitboard own, int8_t dsa, int8_t dsb) {
+template<int8_t dsa, int8_t dsb>
+void add_simple(movelist &out, bitboard own) {
 	BBFOR(i, own, s)
-		out.push(static_cast<uint64_t>(s) | static_cast<uint64_t>(s + ((s >> 3 & 1) ? dsb : dsa)) << 5);
+		out.push(static_cast<uint64_t>(s) | static_cast<uint64_t>(s + ((s >> 2 & 1) ? dsb : dsa)) << 5);
 	BBFOREND
 }
 template<bool up, bool down>
 void add_jumps(movelist &out, square start, square from, bitboard to_capture, bitboard nall, bitboard captured=0) {
-	/*move *ce = out.end();
+	//std::cout << "add_jumps(movelist " << out.size() << ", start " << square_vis(start) << ", from " << square_vis(from) << ", to_capture:\n" <<
+	//	bbvis(to_capture) << ", nall:\n" << bbvis(nall) << ", captured:\n" << bbvis(captured) << ");\n";
+	move *ce = out.end();
+	bitboard frombb = 1 << from;
 	if constexpr (up) {
-		if (from >> 2 & 1) {
-			if (to_capture & << ~)
+		const bitboard tlf = tl(frombb);
+		if ((to_capture & tlf) && (nall & tl(tlf))) {
+			add_jumps<up, down>(out, start, from + 9, to_capture & ~tlf, nall, captured | tlf);
+		}
+		const bitboard trf = tr(frombb);
+		if ((to_capture & trf) && (nall & tr(trf))) {
+			add_jumps<up, down>(out, start, from + 7, to_capture & ~trf, nall, captured | trf);
+		}
+	}
+	if constexpr (down) {
+		const bitboard blf = bl(frombb);
+		if ((to_capture & blf) && (nall & bl(blf))) {
+			add_jumps<up, down>(out, start, from - 7, to_capture & ~blf, nall, captured | blf);
+		}
+		const bitboard brf = br(frombb);
+		if ((to_capture & brf) && (nall & br(brf))) {
+			add_jumps<up, down>(out, start, from - 9, to_capture & ~brf, nall, captured | brf);
 		}
 	}
 	if (ce == out.end()) {
-		out.push(start | from << 5 | captured << 10);
-	}*/
+		//std::cout << "add_jumps - move push (start is " << square_vis(start) << ", end is " << square_vis(from) << ", captured is\n" << bbvis(captured) << ")\n";
+		out.push(start | from << 5 | static_cast<move>(captured) << 10);
+	}
 }
 movelist board::moves() const {
 	movelist out;
 	const bitboard all = b | w;
 	const bitboard nall = ~all;
 	if (next) {
+		// jumps
 		const bitboard upc = (br(w) & br(br(nall))) | (bl(w) & bl(bl(nall)));
 		const bitboard j = b & ~bk & upc;
 		const bitboard jk = bk & ((tr(w) & tr(tr(nall))) | (tl(w) & tl(tl(nall))) | upc);
@@ -100,76 +120,80 @@ movelist board::moves() const {
 		BBFOR(i, jk, s)
 			add_jumps<true, true>(out, s, s, w, nall);
 		BBFOREND
-		if (out.begin() == out.end()) {
-			add_simple(out, b & br(nall), 4, 5);
-			add_simple(out, b & bl(nall), 3, 4);
-			add_simple(out, bk & tr(nall), -4, -3);
-			add_simple(out, bk & tl(nall), -5, -4);
+		if (out.begin() == out.end()) { // walks
+			add_simple<5, 4>(out, b & br(nall));
+			add_simple<4, 3>(out, b & bl(nall));
+			add_simple<-3, -4>(out, bk & tr(nall));
+			add_simple<-4, -5>(out, bk & tl(nall));
 		}
 	} else {
+		// jumps
 		const bitboard downc = (tr(b) & tr(tr(nall))) | (tl(b) & tl(tl(nall)));
 		const bitboard j = w & ~wk & downc;
 		const bitboard jk = wk & ((br(b) & br(br(nall))) | (bl(b) & bl(bl(nall))) | downc);
 		BBFOR(i, j, s)
-			add_jumps<true, false>(out, s, s, b, nall);
+			add_jumps<false, true>(out, s, s, b, nall);
 		BBFOREND
 		BBFOR(i, jk, s)
 			add_jumps<true, true>(out, s, s, b, nall);
 		BBFOREND
-		if (out.begin() == out.end()) {
-			add_simple(out, w & tr(nall), -4, -3);
-			add_simple(out, w & tl(nall), -5, -4);
-			add_simple(out, wk & br(nall), 4, 5);
-			add_simple(out, wk & bl(nall), 3, 4);
+		if (out.begin() == out.end()) { // walks
+			add_simple<-3, -4>(out, w & tr(nall));
+			add_simple<-4, -5>(out, w & tl(nall));
+			add_simple<5, 4>(out, wk & br(nall));
+			add_simple<4, 3>(out, wk & bl(nall));
 		}
 	}
 	return out;
 }
 void board::play(const move &m) {
 	history.push({ b | static_cast<uint64_t>(bk) << 32, w | static_cast<uint64_t>(wk) << 32, hash });
+	// unpack move
 	const square froms = m & 0x1f;
 	const bitboard from = 1 << froms;
 	const square tos = m >> 5 & 0x1f;
 	const bitboard to = 1 << tos;
-	const bitboard captm = m >> 10;
+	const bitboard captm = m >> 10; // captured piece bitmask
 	const bitboard icaptm = ~captm;
+	// update board state
 	if (next) {
 		b = (b & ~from) | to;
 		hash ^= hash_lookup[froms][1] ^ hash_lookup[tos][1];
-		if (bk & from) {
+		if (bk & from) { // if it's king, update king info as well
 			bk = bk & ~from | to;
 			hash ^= hash_lookup[froms][2] ^ hash_lookup[tos][2];
-		} else if (to & 0xf0000000u) {
+		} else if (to & 0xf0000000u) { // promotion to king
 			bk |= to;
 			hash ^= hash_lookup[tos][2];
 		}
-		BBFOR(i, w & captm, s)
+		BBFOR(i, w & captm, s) // update hash with captures
 			hash ^= hash_lookup[s][0];
 		BBFOREND
 		BBFOR(i, wk & captm, s)
 			hash ^= hash_lookup[s][2];
 		BBFOREND
-		w &= icaptm;
+		w &= icaptm; // remove captured stones
 		wk &= icaptm;
 	} else {
 		w = w & ~from | to;
 		hash ^= hash_lookup[froms][0] ^ hash_lookup[tos][0];
-		if (wk & from) {
+		if (wk & from) { // if it's king, update king info as well
 			wk = wk & ~from | to;
 			hash ^= hash_lookup[froms][2] ^ hash_lookup[tos][2];
-		} else if (to & 0xfu) {
+		} else if (to & 0xfu) { // promotion to king
 			wk |= to;
 			hash ^= hash_lookup[tos][2];
 		}
-		BBFOR(i, b & captm, s)
+		BBFOR(i, b & captm, s) // update hash with captures
 			hash ^= hash_lookup[s][1];
 		BBFOREND
 		BBFOR(i, bk & captm, s)
 			hash ^= hash_lookup[s][2];
 		BBFOREND
-		b &= icaptm;
+		b &= icaptm; // remove captured stones
 		bk &= icaptm;
 	}
+	// update next player
 	next = !next;
 	hash ^= hash_lookup[0][3];
 }
@@ -197,7 +221,7 @@ std::string board::visualize() const {
 		for (int j = 0; j < 8; j++) {
 			oss << " | ";
 			bitboard mask = (1 << ((7-i)*4 + 3-j/2));
-			if ((i+j) & 1)
+			if (((i+j) & 1) == 0)
 				oss << ' ';
 			else if (bk & mask)
 				oss << "\u265A";
