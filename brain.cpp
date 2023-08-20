@@ -48,15 +48,15 @@ int advanced_evaluation(board &b, int leftdepth)
 
     int pawndiff = b.bpcount() - b.wpcount();
     int kingdiff = b.bkcount() - b.wkcount();
-    pawndiff *= allhyperparams[EH_B_PAWN_VALUE];
-    kingdiff *= allhyperparams[EH_B_KING_VALUE];
+    pawndiff *= allhyperparams[EH_B_PAWN_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
+    kingdiff *= allhyperparams[EH_B_KING_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
     kingposscore *= allhyperparams[EH_B_KING_VALUE];
     pawnposscore *= allhyperparams[EH_B_PAWN_VALUE];
     
     // Add preference for having bigger difference with less pieces
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    int leftdepthmultiplier = sqrt(leftdepth)/allhyperparams[EH_A_DEPTH_DIVISOR];
+    //int leftdepthmultiplier = sqrt(leftdepth)/allhyperparams[EH_A_DEPTH_DIVISOR];
     // score *= leftdepthmultiplier;
 
     return score;
@@ -91,7 +91,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     {
         b.play(nextmove);
 
-        std::pair<int, move> moveinfo = minimax(b, leftdepth-1, !maximazing, alpha, beta);
+        std::pair<int, move> moveinfo = minimax(b, leftdepth-1, alpha, beta);
         if((moveinfo.first<bestscore)^maximazing){
             bestscore = moveinfo.first;
             bestmove = nextmove;

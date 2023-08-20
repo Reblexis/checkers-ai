@@ -5,6 +5,7 @@
 
 constexpr int NUM_SQUARES = 32;
 
+// THESE ARE ONLY INDICES NOT THE ACTUAL VALUES
 constexpr int GH_EVALUATION_ALG = 0;
 constexpr int GH_SEARCH_ALG = 1;
 
@@ -12,9 +13,9 @@ constexpr int EH_B_PAWN_VALUE = 2;
 constexpr int EH_B_KING_VALUE = 3;
 constexpr int EH_B_KING_DIST = 4;
 
-constexpr int EH_A_PAWN_VALUE = 2;
-constexpr int EH_A_KING_VALUE = 10;
-constexpr int EH_A_DEPTH_DIVISOR = 7;
+constexpr int EH_A_PAWN_VALUE = 5;
+constexpr int EH_A_KING_VALUE = 6;
+constexpr int EH_A_DIFF_MULTIPLIER = 7;
 
 constexpr int SH_MAX_DEPTH = 8;
 
@@ -46,7 +47,7 @@ std::map<std::string, int> searchhyp[1]
     }
 };*/
 
-inline int allhyperparams[9] = {0, 0, 1, 3, 2, 1, 3, 2, 6};
+inline int allhyperparams[9] = {0, 0, 1, 3, 2, 1, 3, 3, 10};
 
 inline int pawntable[NUM_SQUARES] = {
     15, 15, 15, 15,
