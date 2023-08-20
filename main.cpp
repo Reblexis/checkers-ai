@@ -103,20 +103,20 @@ void search_algorithm_test(){
 
 }
 int test_game(const board &original_board) {
-	allhyperparams[SH_MAX_DEPTH] = 7;
+	allhyperparams[SH_MAX_DEPTH] = 5;
 	allhyperparams[SH_OPERATION_LIMIT] = 500000;
 	allhyperparams[SH_USE_CACHE] = 0;
-	board b(original_board);
-	movelist ml = b.moves();
 	int res = 0;
-	for (int gameid = 0; gameid < 2;gameid++) {
+	for (int gameid = 0; gameid < 2; gameid++) {
+		board b(original_board);
+		movelist ml = b.moves();
 		int limit = 0;
 		while (ml.size()) {
 			if (limit++ > 300) {
 				res |= 1 << gameid << 2;
 				break;
 			}
-			if (b.nextblack ^ (gameid & 1)) {
+			if (b.nextblack != gameid) {
 				// A hyperparam overrides
 				allhyperparams[EH_A_DIFF_MULTIPLIER] = 0;
 			} else {

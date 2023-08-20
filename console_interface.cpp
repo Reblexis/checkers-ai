@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include "interface.hpp"
+#include "hyperparams.hpp"
 #include "brain.hpp"
 
 template<bool up, bool down>
@@ -63,13 +64,17 @@ void print_square_ci(square s) {
 board b(0xfff00000, 0xfff);
 void run_console_bot() {
 	//std::cerr << "FV bot - running console interface\n";
-	srand(1920312312);
+	bool bnext;
+	{
+		std::string next;
+		std::cin >> next;
+		bnext = next == "black";
+		std::getline(std::cin, next); // skip rest of the line
+	}
 	while (true) {
-		std::string name, next;
-		std::cin >> name >> next;
 		std::string ln;
-		std::getline(std::cin, ln);
-		std::getline(std::cin, ln);
+		std::getline(std::cin, ln); // skip jumps
+		std::getline(std::cin, ln); // skip letters
 		bitboard black = 0, white = 0, king = 0;
 		for (size_t i = 0; i < 8; i++) {
 			std::getline(std::cin, ln);
@@ -88,21 +93,23 @@ void run_console_bot() {
 				}
 			}
 		}
-		b = board(white, black, next == "black", king);
+		b = board(white, black, bnext, king);
 		//std::cerr << b.visualize();
 		auto sm = findmove(b);
 		move m = sm.second;
 		if (m >> 10) {
 			std::vector<square> path = get_path<true, true>(m & 0x1f, m >> 10, ~(b.b | b.w));
 			for (int i = path.size() - 2; i >= 0; i--) {
-				print_square_ci(m & 0x1f);
+				print_square_ci(path[i+1]);
 				switch (static_cast<int8_t>(path[i+1])-static_cast<int8_t>(path[i])) {
 				case 9: std::cout << " tl\n"; break;
 				case 7: std::cout << " tr\n"; break;
 				case -7: std::cout << " dl\n"; break;
 				case -9: std::cout << " dr\n"; break;
 				}
-				for (size_t j = 0; j < 1; j++) { std::getline(std::cin, ln); }
+				if (i >= 1) {
+					for (size_t j = 0; j < 10; j++) { std::getline(std::cin, ln); } // jumps + 9xboard
+				}
 			}
 		} else {
 			print_square_ci(m & 0x1f);
@@ -118,7 +125,7 @@ void run_console_bot() {
 				std::cout << " tl\n";
 			}
 		}
-		b.play(m);
+		//b.play(m);
 		//std::cerr << b.visualize();
 	}
 }
