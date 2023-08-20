@@ -5,6 +5,7 @@
 #include "brain.hpp"
 #include "hyperparams.hpp"
 #include "cache.hpp"
+#include "console_interface.hpp"
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
@@ -103,12 +104,12 @@ int main() {
 	init_hashing();
 #if defined(INTERFACE_TEST)
 	interface_test();
-#endif
-#if defined(INTERFACE_PERFT)
+#elif defined(INTERFACE_PERFT)
 	interface_perft();
-#endif
-#if defined(SEARCH_ALGORITHM_TEST)
+#elif defined(SEARCH_ALGORITHM_TEST)
 	search_algorithm_test();
+#else
+	run_console_bot();
 #endif
-return 0;
+	return 0;
 }
