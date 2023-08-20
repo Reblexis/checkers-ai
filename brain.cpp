@@ -11,7 +11,7 @@ extern cache<> c;
 
 int basic_evaluation(board &b, int leftdepth){
     if(b.moves().size()==0)
-        return b.nextblack?-INT32_MAX:INT32_MAX;
+        return b.nextblack?-INT32_MAX+1:INT32_MAX-1;
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
 int curdepthlim = 0;
@@ -19,7 +19,7 @@ int curdepthlim = 0;
 int advanced_evaluation(board &b, int leftdepth)
 {
     if (b.moves().size() == 0)
-        return b.nextblack ? -INT32_MAX : INT32_MAX;
+        return b.nextblack ? -INT32_MAX+1 : INT32_MAX-1;
 
     int score = 0;
     int pawnposscore = 0;
@@ -81,7 +81,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     move bestmove=0;
     ops++;
     bool maximazing = b.nextblack;
-    int bestscore = maximazing?INT32_MIN:INT32_MAX;
+    int bestscore = maximazing?-INT32_MAX:INT32_MAX;
 
     if(allhyperparams[SH_USE_CACHE]&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
         const cache_entry &cacheinfo = c.get(b.hash);
