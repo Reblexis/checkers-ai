@@ -1,5 +1,7 @@
+#ifndef HYPERPARAMS_HPP
+#define HYPERPARAMS_HPP
 
-#include <bits/stdc++.h>
+#include <map>
 
 constexpr int NUM_SQUARES = 32;
 
@@ -17,7 +19,7 @@ constexpr int EH_A_DEPTH_DIVISOR = 7;
 constexpr int SH_MAX_DEPTH = 8;
 
 
-std::map<std::string, int> generalhyp
+/*std::map<std::string, int> generalhyp
 {
     {"evalution_alg", 0},
     {"search_alg", 0}
@@ -42,11 +44,11 @@ std::map<std::string, int> searchhyp[1]
     {
         {"max_depth", 6},
     }
-};
+};*/
 
-int allhyperparams[9] = {0, 0, 1, 3, 2, 1, 3, 2, 6};
+inline int allhyperparams[9] = {0, 0, 1, 3, 2, 1, 3, 2, 6};
 
-int pawntable[NUM_SQUARES] = {
+inline int pawntable[NUM_SQUARES] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 4, 4, 4,
@@ -57,7 +59,7 @@ int pawntable[NUM_SQUARES] = {
     16, 8, 4, 0
 };
 
-int kingtable[NUM_SQUARES] = {
+inline int kingtable[NUM_SQUARES] = {
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 4, 4, 4,
@@ -67,3 +69,5 @@ int kingtable[NUM_SQUARES] = {
     0, 4, 8, 16,
     16, 8, 4, 0
 };
+
+#endif

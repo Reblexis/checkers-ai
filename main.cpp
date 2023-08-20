@@ -3,6 +3,7 @@
 #include <iostream>
 #include "interface.hpp"
 #include "brain.hpp"
+#include "hyperparams.hpp"
 
 // #define INTERFACE_TEST
 // #define INTERFACE_PERFT
@@ -75,18 +76,25 @@ void search_algorithm_test(){
 	
 	const int num_moves = 10;
 
-	for(int i=0; i<num_moves; i++){
+	while(1){
 		movelist ml = b.moves();
 		if (!ml.size())
 			break;
-		/*for (move m : ml) {
-			std::cout << move_vis(m);
-		}*/
+		
+		// Change different strategy for diff colors 
+		if(b.nextblack)
+			allhyperparams[GH_EVALUATION_ALG] = 0;
+		else
+			allhyperparams[GH_EVALUATION_ALG] = 1;
+
 		move selected = findmove(b);
+		if(selected == 0)
+			break;
+			
 		b.play(selected);
 		std::cout << "selected: " << move_vis(selected) << b.visualize();
 	}
-	b.undo();
+	message("Game over", true);
 	std::cout << b.visualize();
 
 }
