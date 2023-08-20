@@ -78,11 +78,11 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     bool maximazing = b.nextblack;
     int bestscore = maximazing?INT32_MIN:INT32_MAX;
 
-    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
+    /*if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
         const cache_entry &cacheinfo = c.get(b.hash);
         if(leftdepth+1 <= cacheinfo.depth)
             return {cacheinfo.score, 0};
-    }
+    }*/
     
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
@@ -108,17 +108,17 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
             break;
     }
 
-    if(usecache)
-        c.set(b.hash, leftdepth+1, bestscore);
+    //if(usecache)
+    //    c.set(b.hash, leftdepth+1, bestscore);
 
     return {bestscore, bestmove};
 }
 
-move findmove(board &b){
-    move bestmove;
+std::pair<int, move> findmove(board &b) {
+    std::pair<int, move> bestmove;
     switch(allhyperparams[GH_SEARCH_ALG]){
         case 0:
-            bestmove = minimax(b, allhyperparams[SH_MAX_DEPTH]).second;
+            bestmove = minimax(b, allhyperparams[SH_MAX_DEPTH]);
             break;
         default:
             break;

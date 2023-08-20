@@ -4,6 +4,6 @@
 #include "interface.hpp"
 //#include "cache.hpp"
 
-move findmove(board &b);
+std::pair<int, move> findmove(board &b);
 
 #endif
