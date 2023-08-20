@@ -7,34 +7,18 @@
 // This is responsible for doing the search algorithms and evaluation using the given interface
 // for the game checkers
 
-int get_board_state(board &b){
-    // 0 in-game 1 white win 2 black win 3 draw
-    movelist moves = b.moves();
-    if(moves.size()==0)
-        return 2-b.nextblack;
-    if(b.w==0)
-        return 2;
-    if(b.b==0)
-        return 1;
-    return 0;
-}
 
 int basic_evaluation(board &b, int leftdepth){
-    int gamestate = get_board_state(b);
-
+    if(b.moves().size()==0)
+        return b.nextblack?INT32_MIN:INT32_MAX;
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
 
 
 int advanced_evaluation(board &b, int leftdepth)
 {
-    int gamestate = get_board_state(b);
-    if(gamestate==1)
-        return INT32_MIN;
-    if(gamestate==2)
-        return INT32_MAX;
-    if(gamestate==3)
-        return 0;
+    if (b.moves().size() == 0)
+        return b.nextblack ? INT32_MIN : INT32_MAX;
 
     int score = 0;
     int pawnposscore = 0;
@@ -72,7 +56,7 @@ int advanced_evaluation(board &b, int leftdepth)
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
     int leftdepthmultiplier = sqrt(leftdepth)/allhyperparams[EH_A_DEPTH_DIVISOR];
-    score *= leftdepthmultiplier;
+    // score *= leftdepthmultiplier;
 
     return score;
 }
@@ -91,6 +75,8 @@ int evaluate(board &b, int leftdepth){
 std::pair<int, move> minimax(board &b, int leftdepth=0, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
     move bestmove;
     bool maximazing = b.nextblack;
+    int bestscore = maximazing?INT32_MIN:INT32_MAX;
+
 /*    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
         cacheval cacheinfo = c.get(b, leftdepth);
         if(leftdepth<=cacheinfo.depth)
@@ -100,7 +86,6 @@ std::pair<int, move> minimax(board &b, int leftdepth=0, int alpha = INT32_MIN, i
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
 
-    int bestscore = maximazing?INT32_MIN:INT32_MAX;
     for(move nextmove: b.moves())
     {
         b.play(nextmove);

@@ -2,13 +2,20 @@
 #include <chrono>
 #include <iostream>
 #include "interface.hpp"
-#include "hyperparams.hpp"
-#include "cache.hpp"
 #include "brain.hpp"
 
-#define INTERFACE_TEST
-//#define INTERFACE_PERFT
+// #define INTERFACE_TEST
+// #define INTERFACE_PERFT
 #define SEARCH_ALGORITHM_TEST
+
+void message(std::string message, bool important = false){
+	if(important)
+		std::cout << "--------------------------\n";
+	std::cout << message << "\n";
+	if(important)
+		std::cout << "--------------------------\n";
+}
+
 
 uint64_t perft(board &b, int depth) {
 	if (depth < 1)
@@ -28,6 +35,9 @@ uint64_t perft(board &b, int depth) {
 void interface_test() {
 	//bitboard x = 0xffffffff;
 	//std::cout << bbvis(x) << "\n" << bbvis(tl(x)) << "\n" << bbvis(tr(x)) << "\n" << bbvis(bl(x)) << "\n" << bbvis(br(x));
+
+	message("Running interface test", true);
+
 	board b(0xfff00000, 0xfff);
 	srand(532904124);
 	std::cout << b.visualize();
@@ -48,6 +58,7 @@ void interface_test() {
 
 void interface_perft() {
 	board b(0xfff00000, 0xfff);
+	message("Running interface perft test", true);
 	for (int d = 1; d < 13; d++) {
 		auto start = std::chrono::high_resolution_clock::now();
 		uint64_t res = perft(b, d);
@@ -58,8 +69,13 @@ void interface_perft() {
 
 void search_algorithm_test(){
 	board b(0xfff00000, 0xfff);
+	
+	message("Running search algorithm test", true);
+	std::cout << b.visualize();
+	
+	const int num_moves = 10;
 
-	while (1){
+	for(int i=0; i<num_moves; i++){
 		movelist ml = b.moves();
 		if (!ml.size())
 			break;
@@ -79,9 +95,12 @@ int main() {
 	init_hashing();
 #if defined(INTERFACE_TEST)
 	interface_test();
-#elif defined(INTERFACE_PERFT)
-	interface_perft();
-#el
 #endif
-	return 0;
+#if defined(INTERFACE_PERFT)
+	interface_perft();
+#endif
+#if defined(SEARCH_ALGORITHM_TEST)
+	search_algorithm_test();
+#endif
+return 0;
 }
