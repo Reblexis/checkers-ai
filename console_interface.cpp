@@ -18,7 +18,7 @@ void run_console_bot() {
 		std::getline(std::cin, ln);
 		for (size_t j = 0; j < 4; j++) {
 			bitboard bb = 1 << (j + i*4);
-			size_t idx0 = 3 + j * 2;
+			size_t idx0 = 3 + j * 4;
 			char sel = std::max(ln[idx0], ln[idx0+2]);
 			if (isupper(sel)) {
 				king |= bb;
