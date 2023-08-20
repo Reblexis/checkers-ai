@@ -38,8 +38,8 @@ std::string move_vis(move m) {
 	if ((m >> 10) == 0) {
 		oss << "walk\n";
 	} else {
-		oss << "capture\n";
-		oss << bbvis(m >> 10);
+		oss << "capture of " << __builtin_popcount(m >> 10) << " stones\n";
+		//oss << bbvis(m >> 10);
 	}
 	return oss.str();
 }

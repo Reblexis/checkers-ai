@@ -56,10 +56,10 @@ int advanced_evaluation(board &b, int leftdepth)
     // Add preference for having bigger difference with less pieces
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    float leftdepthmultiplier = (float)((leftdepth-curdepthlim)+20)/(float)+5;
-    float fscore = (float)score*leftdepthmultiplier;
+    //float leftdepthmultiplier = (float)((leftdepth-curdepthlim)+20)/(float)+5;
+    //float fscore = (float)score*leftdepthmultiplier;
 
-    score = (int)fscore;
+    //score = (int)fscore;
 
     return score;
 }
@@ -77,29 +77,48 @@ int evaluate(board &b, int leftdepth){
 
 long long ops = 0;
 
+template<bool toplevel=true>
 std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     move bestmove=0;
     ops++;
     bool maximazing = b.nextblack;
     int bestscore = maximazing?-INT32_MAX:INT32_MAX;
 
-    if(allhyperparams[SH_USE_CACHE]&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
-        const cache_entry &cacheinfo = c.get(b.hash);
-        if(leftdepth+1 <= cacheinfo.depth)
-            return {cacheinfo.score, 0};
-    }
+	move cache_best = 0;
+
+	if constexpr(!toplevel) {
+ 	   if(allhyperparams[SH_USE_CACHE]){
+ 	       const cache_entry &cacheinfo = c.get(b.hash);
+ 	       if(leftdepth+1 <= cacheinfo.depth)
+ 	           return {cacheinfo.score, cacheinfo.best};
+			cache_best = cacheinfo.best;
+ 	   }
+	}
     
-    if(leftdepth==0)
-        return {evaluate(b, leftdepth), bestmove};
+    if(leftdepth==0) {
+		int sc = evaluate(b, leftdepth);
+    	if(allhyperparams[SH_USE_CACHE])
+    	    c.set(b.hash, 1, sc, 0);
+        return {sc, bestmove};
+	}
 
 	movelist moves = b.moves();
 	if (moves.size() == 0)
         return {b.nextblack?-INT32_MAX+1:INT32_MAX-1, 0};
+	if (cache_best) {
+		for (move *mit = moves.begin(); mit != moves.end(); mit++) {
+			if (*mit == cache_best) {
+				*mit = *moves.begin();
+				*moves.begin() = cache_best;
+				break;
+			}
+		}
+	}
     for(move nextmove : moves)
     {
         b.play(nextmove);
 
-        std::pair<int, move> moveinfo = minimax(b, leftdepth-1, alpha, beta);
+        std::pair<int, move> moveinfo = minimax<toplevel>(b, leftdepth-1, alpha, beta);
 		constexpr int fade_treshold = 2000000000;
 		if (moveinfo.first < -fade_treshold) {
 			moveinfo.first++;
@@ -118,12 +137,12 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
         else
             beta = std::min(beta, bestscore);
         
-        //if(beta<=alpha)
-          //  break;
+        if(beta<=alpha)
+            break;
     }
 
     if(allhyperparams[SH_USE_CACHE])
-        c.set(b.hash, leftdepth+1, bestscore);
+        c.set(b.hash, leftdepth+1, bestscore, bestmove);
 
     return {bestscore, bestmove};
 }
@@ -131,9 +150,14 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
     ops = 0;
-    for(int i = 1; ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
+    for(int i = 3; i < allhyperparams[SH_MAX_DEPTH] && ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
         curdepthlim = i;
+		std::cerr << "depth " << i << std::flush;
+		auto starttime = std::chrono::high_resolution_clock::now();
         bestmove = minimax(b, i);
+		auto endtime = std::chrono::high_resolution_clock::now();
+		std::cerr << " [" << std::chrono::duration_cast<std::chrono::milliseconds>(endtime - starttime).count() <<
+			"ms] {" << bestmove.first << "} " << move_vis(bestmove.second);
     }
     return bestmove;
 }
