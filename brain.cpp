@@ -78,8 +78,8 @@ template<bool toplevel=true>
 std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     ops++;
 
-    bool maximazing = b.nextblack;
-    int bestscore = maximazing?INT32_MIN:INT32_MAX;
+    bool maximizing = b.nextblack;
+    int bestscore = maximizing?INT32_MIN:INT32_MAX;
     
     move bestmove=0;
  
@@ -108,14 +108,14 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
         b.play(nextmove);
 
         std::pair<int, move> moveinfo = minimax<false>(b, leftdepth-1, alpha, beta);
-        if(((moveinfo.first>=bestscore)&&maximazing)||((moveinfo.first<=bestscore)&&!maximazing)){
+        if(((moveinfo.first>=bestscore)&&maximizing)||((moveinfo.first<=bestscore)&&!maximizing)){
             bestscore = moveinfo.first;
             bestmove = nextmove;
         }
 
         b.undo(); 
 
-        if(maximazing)
+        if(maximizing)
             alpha = std::max(alpha, bestscore);
         else
             beta = std::min(beta, bestscore);
