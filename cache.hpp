@@ -35,9 +35,9 @@ public:
 		if (table[idx].hash == hash)
 			return table[idx];
 		if (table[idx+1].hash == hash)
-			return table[idx];
+			return table[idx+1];
 		if (table[idx+2].hash == hash)
-			return table[idx];
+			return table[idx+2];
 		return null_entry;
 	}
 #ifdef MEASURE_CACHE_FILL
