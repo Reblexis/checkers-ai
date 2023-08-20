@@ -9,7 +9,7 @@
 constexpr uint16_t unset_depth = 0;
 struct cache_entry {
 	uint64_t hash;
-	move best;
+	move best=0;
 	int score;
 	uint16_t depth = unset_depth;
 };

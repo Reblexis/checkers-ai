@@ -11,15 +11,14 @@ extern cache<> c;
 
 int basic_evaluation(board &b, int leftdepth){
     if(b.moves().size()==0)
-        return b.nextblack?-INT32_MAX:INT32_MAX;
+        return b.nextblack ? INT32_MIN : INT32_MAX;
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
-int curdepthlim = 0;
 
 int advanced_evaluation(board &b, int leftdepth)
 {
     if (b.moves().size() == 0)
-        return b.nextblack ? -INT32_MAX : INT32_MAX;
+        return b.nextblack ? INT32_MIN : INT32_MAX;
 
     int score = 0;
     int pawnposscore = 0;
@@ -48,12 +47,10 @@ int advanced_evaluation(board &b, int leftdepth)
 
     int pawndiff = b.bpcount() - b.wpcount();
     int kingdiff = b.bkcount() - b.wkcount();
-    pawndiff *= allhyperparams[EH_B_PAWN_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
-    kingdiff *= allhyperparams[EH_B_KING_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
-    kingposscore *= allhyperparams[EH_B_KING_VALUE];
-    pawnposscore *= allhyperparams[EH_B_PAWN_VALUE];
-    
-    // Add preference for having bigger difference with less pieces
+    pawndiff *= allhyperparams[EH_A_PAWN_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
+    kingdiff *= allhyperparams[EH_A_KING_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
+    kingposscore *= allhyperparams[EH_A_KING_VALUE];
+    pawnposscore *= allhyperparams[EH_A_PAWN_VALUE];
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
     //float leftdepthmultiplier = (float)((leftdepth-curdepthlim)+20)/(float)+5;
@@ -81,89 +78,69 @@ template<bool toplevel=true>
 std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     ops++;
     bool maximazing = b.nextblack;
+    int bestscore = maximazing?INT32_MIN:INT32_MAX;
 
-	move cache_best = 0;
+    move bestmove=0;
+ 
 	if constexpr(!toplevel) { // check cache
  	   if(allhyperparams[SH_USE_CACHE]){
  	       const cache_entry &cacheinfo = c.get(b.hash);
  	       if(leftdepth+1 <= cacheinfo.depth)
  	           return {cacheinfo.score, cacheinfo.best};
-			cache_best = cacheinfo.best;
+            if(cacheinfo.depth!=0){
+                bestmove = cacheinfo.best;
+                bestscore = cacheinfo.score;
+            }
  	   }
 	}
     
     if(leftdepth==0) { // eval at leaf nodes
-		int sc = evaluate(b, leftdepth);
+		int score = evaluate(b, leftdepth);
     	if(allhyperparams[SH_USE_CACHE])
-    	    c.set(b.hash, 1, sc, 0);
-        return {sc, 0};
+    	    c.set(b.hash, 1, score, 0);
+        return {score, 0};
 	}
 
-	movelist moves = b.moves();
-	move bestmove = *moves.begin();
-	if (moves.size() == 0)
-        return {b.nextblack?-INT32_MAX:INT32_MAX, 0};
-	if (cache_best) { // first consider best move from previous search in hopes of increasing the number of cutoffs
-		for (move *mit = moves.begin(); mit != moves.end(); mit++) {
-			if (*mit == cache_best) {
-				*mit = *moves.begin();
-				*moves.begin() = cache_best;
-				break;
-			}
-		}
-	}
-    for(move nextmove : moves) // search
+    movelist possiblemoves = b.moves();
+    for(move nextmove: possiblemoves)
     {
         b.play(nextmove);
+
         std::pair<int, move> moveinfo = minimax<false>(b, leftdepth-1, alpha, beta);
+        if(((moveinfo.first>=bestscore)&&maximazing)||(moveinfo.first<=bestscore&&!maximazing))){
+            bestscore = moveinfo.first;
+            bestmove = nextmove;
+        }
+
         b.undo(); 
 
-		// fade wins to prefer shortest path to win / longest path to lose
-		constexpr int fade_treshold = 2000000000;
-		if (moveinfo.first < -fade_treshold) {
-			moveinfo.first++;
-		} else if (moveinfo.first > fade_treshold) {
-			moveinfo.first--;
-		}
-
-		// update scores
-        if(maximazing) {
-			if (!toplevel && moveinfo.first >= beta) {
-				return {beta, 0}; // beta cutoff
-			} else if (moveinfo.first >= alpha) {
-				alpha = moveinfo.first;
-				bestmove = nextmove;
-			}
-        } else {
-			if (!toplevel && moveinfo.first <= alpha) {
-				return {alpha, 0}; // alpha cutoff
-			} else if (moveinfo.first <= beta) {
-				beta = moveinfo.first;
-				bestmove = nextmove;
-			}
-		}
+        if(maximazing)
+            alpha = std::max(alpha, bestscore);
+        else
+            beta = std::min(beta, bestscore);
+        
+        if(beta<=alpha)
+            break;
     }
 
-	// update cache and return
-	if (maximazing) {
-    	if(allhyperparams[SH_USE_CACHE])
-    	    c.set(b.hash, leftdepth+1, alpha, bestmove);
-		return {alpha, bestmove};
-	} else {
-    	if(allhyperparams[SH_USE_CACHE])
-    	    c.set(b.hash, leftdepth+1, beta, bestmove);
-		return {beta, bestmove};
-	}
+    if(allhyperparams[SH_USE_CACHE])
+        c.set(b.hash, leftdepth+1, bestscore);
+
+    return {bestscore, bestmove};
 }
 
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
     ops = 0;
     for(int i = 3; i < allhyperparams[SH_MAX_DEPTH] && ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
-        curdepthlim = i;
 		//std::cerr << "depth " << i << std::flush;
 		//auto starttime = std::chrono::high_resolution_clock::now();
         bestmove = minimax(b, i);
+        if((bestmove.first==INT32_MAX&&b.nextblack) || (bestmove.first==INT32_MIN&&!b.nextblack))
+        {
+            std::cout<<"Found forced win / loss at depth "<<i<<"\n";
+            break;
+        }
 		//auto endtime = std::chrono::high_resolution_clock::now();
 		//std::cerr << " [" << std::chrono::duration_cast<std::chrono::milliseconds>(endtime - starttime).count() <<
 		//	"ms] {" << bestmove.first << "} " << move_vis(bestmove.second);
