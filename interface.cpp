@@ -14,7 +14,7 @@ uint64_t rand64(uint64_t s) {
     return s * 2685821657736338717LL;
 }
 void init_hashing() {
-	uint64_t rnd = 5819027489127048391ll; // <- seed
+	uint64_t rnd = 6819020487127948391ll; // <- seed
 	for (size_t i = 0; i < 32; i++) {
 		for (size_t j = 0; j < 4; j++) {
 			hash_lookup[i][j] = rnd = rand64(rnd);
