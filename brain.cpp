@@ -62,7 +62,7 @@ int advanced_evaluation(board &b, int leftdepth)
 }
 
 int evaluate(board &b, int leftdepth){
-    switch(allhyperparams[GH_EVALUATION_ALG]^b.nextblack){
+    switch(allhyperparams[GH_EVALUATION_ALG]){
         case 0:
             return basic_evaluation(b, leftdepth);
         case 1:
