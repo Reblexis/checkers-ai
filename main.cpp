@@ -142,7 +142,7 @@ void play_test() {
 	int win_B_white = 0;
 	int draw = 0;
 	int p2counter = 0;
-	int test_games = 100;
+	int test_games = 200;
 
 	for(int i = 0; i < test_games; i++){
 		// Do first 4 moves randomly
@@ -166,6 +166,10 @@ void play_test() {
 		else
 			draw++;
 		std::cout << '.' << std::flush;
+
+		if (i % 50 == 49) {
+			std::cout << "[" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
+		}
 
 		b = board(0xfff00000, 0xfff);
 	}
