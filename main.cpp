@@ -4,6 +4,7 @@
 #include "interface.hpp"
 #include "brain.hpp"
 #include "hyperparams.hpp"
+#include "cache.hpp"
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
@@ -66,31 +67,32 @@ void interface_perft() {
 	}
 }
 
+extern cache<> c;
 void search_algorithm_test(){
 	board b(0xfff00000, 0xfff);
 	
 	message("Running search algorithm test", true);
 	std::cout << b.visualize();
 	
-	const int num_moves = 10;
+	int num_moves = 10;
 
 	while(1){
+		if (!num_moves--)
+			break;
 		movelist ml = b.moves();
 		if (!ml.size())
 			break;
-		
-		// Change different strategy for diff colors 
 		if(b.nextblack)
 			allhyperparams[GH_EVALUATION_ALG] = 0;
 		else
 			allhyperparams[GH_EVALUATION_ALG] = 1;
-
-		move selected = findmove(b);
-		if(selected == 0)
-			break;
-			
-		b.play(selected);
-		std::cout << "selected: " << move_vis(selected) << b.visualize();
+		/*for (move m : ml) {
+			std::cout << move_vis(m);
+		}*/
+		auto selected = findmove(b);
+		b.play(selected.second);
+		std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second) << b.visualize();
+		std::cout << "cache fill rate: " << (c.fill_rate() * 100) << "%\n";
 	}
 	message("Game over", true);
 	std::cout << b.visualize();
