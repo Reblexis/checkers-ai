@@ -23,7 +23,13 @@ void init_hashing() {
 }
 
 std::string square_vis(square sq) {
-	return std::string(1, 'h' - ((sq & 0x3) << 1 | (~sq >> 2 & 1))) + std::string(1, '1' + (sq >> 2));
+	return std::string(1, 
+#if BOARD_ORIENTATION_CHESS
+		'h' - ((sq & 0x3) << 1 | (~sq >> 2 & 1))
+#else
+		'h' - ((sq & 0x3) << 1 | (sq >> 2 & 1))
+#endif
+		) + std::string(1, '1' + (sq >> 2));
 }
 
 std::string move_vis(move m) {
@@ -43,7 +49,13 @@ std::string bbvis(bitboard bb) {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			const bitboard mask = (1 << ((7-i)*4 + 3-j/2));
-			oss << (((bb & mask) && (i+j)%2) ? '#' : '.');
+			oss << (((bb & mask) &&
+#if BOARD_ORIENTATION_CHESS
+				(i+j)%2
+#else
+				(i+j)%2 == 0
+#endif
+				) ? '#' : '.');
 		}
 		oss << '\n';
 	}
@@ -77,7 +89,13 @@ board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w &
 template<int8_t dsa, int8_t dsb>
 void add_simple(movelist &out, bitboard own) {
 	BBFOR(i, own, s)
-		out.push(static_cast<uint64_t>(s) | static_cast<uint64_t>(s + ((s >> 2 & 1) ? dsb : dsa)) << 5);
+		out.push(static_cast<uint64_t>(s) | static_cast<uint64_t>(s +
+#if BOARD_ORIENTATION_CHESS
+			((s >> 2 & 1) ? dsb : dsa)
+#else
+			((s >> 2 & 1) ? dsa : dsb)
+#endif
+		) << 5);
 	BBFOREND
 }
 template<bool up, bool down>
@@ -159,7 +177,6 @@ void board::play(const move &m) {
 		exit(1);
 		return;
 	}
-
 	history.push({ b | static_cast<uint64_t>(bk) << 32, w | static_cast<uint64_t>(wk) << 32, hash });
 	// unpack move
 	const square froms = m & 0x1f;
@@ -234,7 +251,11 @@ std::string board::visualize() const {
 		for (int j = 0; j < 8; j++) {
 			oss << " | ";
 			bitboard mask = (1 << ((7-i)*4 + 3-j/2));
+#if BOARD_ORIENTATION_CHESS
 			if (((i+j) & 1) == 0)
+#else
+			if ((i+j) & 1)
+#endif
 				oss << ' ';
 			else if (wk & mask)
 				oss << "\u265A";
