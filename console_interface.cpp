@@ -94,7 +94,7 @@ void run_console_bot() {
 			}
 		}
 		b = board(white, black, bnext, king);
-		//std::cerr << b.visualize();
+		std::cerr << b.visualize();
 		auto sm = findmove(b);
 		move m = sm.second;
 		if (m >> 10) {
@@ -107,7 +107,9 @@ void run_console_bot() {
 				case -7: std::cout << " dl\n"; break;
 				case -9: std::cout << " dr\n"; break;
 				}
-				for (size_t j = 0; j < 10; j++) { std::getline(std::cin, ln); } // jumps + 9xboard
+				if (i >= 1) {
+					for (size_t j = 0; j < 10; j++) { std::getline(std::cin, ln); } // jumps + 9xboard
+				}
 			}
 		} else {
 			print_square_ci(m & 0x1f);
@@ -123,7 +125,7 @@ void run_console_bot() {
 				std::cout << " tl\n";
 			}
 		}
-		b.play(m);
+		//b.play(m);
 		//std::cerr << b.visualize();
 	}
 }
