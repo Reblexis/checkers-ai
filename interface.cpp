@@ -223,13 +223,13 @@ std::string board::visualize() const {
 			bitboard mask = (1 << ((7-i)*4 + 3-j/2));
 			if (((i+j) & 1) == 0)
 				oss << ' ';
-			else if (bk & mask)
-				oss << "\u265A";
-			else if (b & mask)
-				oss << "\u25A0";
 			else if (wk & mask)
-				oss << "\u2654";
+				oss << "\u265A";
 			else if (w & mask)
+				oss << "\u25A0";
+			else if (bk & mask)
+				oss << "\u2654";
+			else if (b & mask)
 				oss << "\u25A1";
 			else
 				oss << " ";
