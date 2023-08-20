@@ -147,6 +147,13 @@ movelist board::moves() const {
 	return out;
 }
 void board::play(const move &m) {
+	if(m == 0)
+	{
+		std::cout << "move "<< "is INVALID\n";
+		exit(1);
+		return;
+	}
+
 	history.push({ b | static_cast<uint64_t>(bk) << 32, w | static_cast<uint64_t>(wk) << 32, hash });
 	// unpack move
 	const square froms = m & 0x1f;

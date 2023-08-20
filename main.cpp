@@ -79,9 +79,9 @@ void search_algorithm_test(){
 		movelist ml = b.moves();
 		if (!ml.size())
 			break;
-		for (move m : ml) {
+		/*for (move m : ml) {
 			std::cout << move_vis(m);
-		}
+		}*/
 		move selected = findmove(b);
 		b.play(selected);
 		std::cout << "selected: " << move_vis(selected) << b.visualize();

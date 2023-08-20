@@ -72,8 +72,8 @@ int evaluate(board &b, int leftdepth){
     }
 }
 
-std::pair<int, move> minimax(board &b, int leftdepth=0, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
-    move bestmove;
+std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
+    move bestmove=0;
     bool maximazing = b.nextblack;
     int bestscore = maximazing?INT32_MIN:INT32_MAX;
 
@@ -117,7 +117,7 @@ move findmove(board &b){
     move bestmove;
     switch(allhyperparams[GH_SEARCH_ALG]){
         case 0:
-            bestmove = minimax(b).second;
+            bestmove = minimax(b, allhyperparams[SH_MAX_DEPTH]).second;
             break;
         default:
             break;
