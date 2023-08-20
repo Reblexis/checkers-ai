@@ -63,6 +63,11 @@ std::string bbvis(bitboard bb) {
 }
 
 movelist::movelist() : e(moves) { }
+movelist::movelist(const movelist &o) : e(moves) {
+	for (const move *i = o.cbegin(); i != o.cend(); i++) {
+		push(*i);
+	}
+}
 void movelist::push(move m) { *(e++) = m; }
 move *movelist::begin() { return moves; }
 move *movelist::end() { return e; }
@@ -171,9 +176,8 @@ movelist board::moves() const {
 	return out;
 }
 void board::play(const move &m) {
-	if(m == 0)
-	{
-		std::cout << "move "<< "is INVALID\n";
+	if(m == 0) {
+		std::cout << "move "<< "is INVALID\n" << visualize();
 		exit(1);
 		return;
 	}

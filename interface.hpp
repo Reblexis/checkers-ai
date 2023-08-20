@@ -37,6 +37,7 @@ public:
 	move *e;
 
 	movelist();
+	movelist(const movelist &);
 	void push(move m);
 	move *begin();
 	move *end();
