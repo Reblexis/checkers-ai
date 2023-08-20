@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include "interface.hpp"
 #include "brain.hpp"
@@ -9,7 +10,8 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-#define SEARCH_ALGORITHM_TEST
+//#define SEARCH_ALGORITHM_TEST
+#define PLAY_TEST
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -100,6 +102,77 @@ void search_algorithm_test(){
 	std::cout << b.visualize();
 
 }
+int test_game(const board &original_board) {
+	board b(original_board);
+	movelist ml = b.moves();
+	int res = 0;
+	for (int gameid = 0; gameid < 2;gameid++) {
+		int limit = 0;
+		while (ml.size()) {
+			if (limit++ > 5000) {
+				res |= 1 << gameid << 2;
+				break;
+			}
+			if (b.nextblack ^ (gameid & 1)) {
+				// A hyperparam overrides
+				allhyperparams[SH_MAX_DEPTH] = 8;
+				allhyperparams[SH_OPERATION_LIMIT] = 500000;
+			} else {
+				// B hyperparam overrides
+				allhyperparams[SH_MAX_DEPTH] = 8;
+				allhyperparams[SH_OPERATION_LIMIT] = 500000;
+			}
+			move m = findmove(b).second;
+			if (!m)
+				break;
+			b.play(m);
+			ml = b.moves();
+		}
+		res |= b.nextblack << gameid;
+	}
+	return res;
+}
+void play_test() {
+	message("Play test", true);
+	board b(0xfff00000, 0xfff);
+	int win_A_black = 0;
+	int win_B_black = 0;
+	int win_A_white = 0;
+	int win_B_white = 0;
+	int draw = 0;
+	for (move m : b.moves()) {
+		b.play(m);
+		for (move m : b.moves()) {
+			b.play(m);
+			for (move m : b.moves()) {
+				b.play(m);
+				for (move m : b.moves()) {
+					b.play(m);
+					int win = test_game(b);
+					if (!(win & 0b100))
+						(win & 1 ? win_B_white : win_A_black)++;
+					else
+					 	draw++;
+					if (!(win & 0b1000))
+						(win >> 1 ? win_A_white : win_B_black)++;
+					else
+						draw++;
+					std::cout << '.' << std::flush;
+					b.undo();
+				}
+				b.undo();
+			}
+			std::cout << " one 2-ply state search done - [" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
+			b.undo();
+		}
+		b.undo();
+	}
+	message("result:", true);
+	std::cout << "wins  |  A  |  B  |\n" <<
+				 "black |" << std::setw(5) << win_A_black << "|" << std::setw(5) << win_B_black << "|\n" <<
+				 "white |" << std::setw(5) << win_A_white << "|" << std::setw(5) << win_B_white << "|\n" <<
+				 "draws " << draw << "\n";
+}
 
 int main() {
 	init_hashing();
@@ -109,6 +182,8 @@ int main() {
 	interface_perft();
 #elif defined(SEARCH_ALGORITHM_TEST)
 	search_algorithm_test();
+#elif defined(PLAY_TEST)
+	play_test();
 #else
 	run_console_bot();
 #endif
