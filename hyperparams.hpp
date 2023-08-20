@@ -12,8 +12,8 @@ constexpr int EH_B_PAWN_VALUE = 2;
 constexpr int EH_B_KING_VALUE = 3;
 constexpr int EH_B_KING_DIST = 4;
 
-constexpr int EH_A_PAWN_VALUE = 5;
-constexpr int EH_A_KING_VALUE = 6;
+constexpr int EH_A_PAWN_VALUE = 2;
+constexpr int EH_A_KING_VALUE = 10;
 constexpr int EH_A_DEPTH_DIVISOR = 7;
 
 constexpr int SH_MAX_DEPTH = 8;
@@ -49,25 +49,25 @@ std::map<std::string, int> searchhyp[1]
 inline int allhyperparams[9] = {0, 0, 1, 3, 2, 1, 3, 2, 6};
 
 inline int pawntable[NUM_SQUARES] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 4, 4, 4,
-    4, 4, 4, 0,
-    0, 4, 8, 8,
-    8, 8, 4, 0,
-    0, 4, 8, 16,
-    16, 8, 4, 0
+    15, 15, 15, 15,
+    6, 6, 6, 4,
+    6, 6, 4, 4,
+    6, 8, 4, 2,
+    2, 4, 4, 2,
+    2, 4, 4, 2,
+    4, 4, 6, 6,
+    7, 8, 8, 6
 };
 
 inline int kingtable[NUM_SQUARES] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 4, 4, 4,
-    4, 4, 4, 0,
-    0, 4, 8, 8,
-    8, 8, 4, 0,
-    0, 4, 8, 16,
-    16, 8, 4, 0
+    0, 2, 2, 0,
+    1, 3, 3, 1,
+    1, 4, 4, 4,
+    1, 4, 4, 1,
+    1, 4, 4, 1,
+    1, 4, 4, 0,
+    0, 2, 2, 0,
+    0, 1, 1, 0
 };
 
 #endif

@@ -4,6 +4,6 @@
 #include "interface.hpp"
 //#include "cache.hpp"
 
-inline move findmove(board &b);
+move findmove(board &b);
 
 #endif
