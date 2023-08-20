@@ -1,5 +1,6 @@
 #include "interface.hpp"
 #include <math.h>
+#include <algorithm>
 #include <sstream>
 
 #include <iostream>
@@ -53,7 +54,12 @@ movelist::movelist() : e(moves) { }
 void movelist::push(move m) { *(e++) = m; }
 move *movelist::begin() { return moves; }
 move *movelist::end() { return e; }
+const move *movelist::cbegin() const { return moves; }
+const move *movelist::cend() const { return e; }
 size_t movelist::size() const { return e-moves; }
+bool movelist::contains(move m) const {
+	return std::find(cbegin(), cend(), m) != cend();
+}
 
 board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), nextblack(next), hash(0) {
 	BBFOR(i, w, s)

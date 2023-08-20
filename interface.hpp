@@ -31,7 +31,10 @@ public:
 	void push(move m);
 	move *begin();
 	move *end();
+	const move *cbegin() const;
+	const move *cend() const;
 	size_t size() const;
+	bool contains(move m) const;
 };
 
 class board {
