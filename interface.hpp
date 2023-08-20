@@ -36,7 +36,7 @@ public:
 
 class board {
 public:
-	bool next;
+	bool nextblack;
 	bitboard w, b;
 	bitboard wk, bk;
 	uint64_t hash;

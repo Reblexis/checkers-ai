@@ -1,7 +1,7 @@
 #include "interface.hpp"
 #include <bits/stdc++.h>
 #include "hyperparams.hpp"
-#include "cache.hpp"
+//#include "cache.hpp"
 
 
 // This is responsible for doing the search algorithms and evaluation using the given interface
@@ -11,7 +11,7 @@ int get_board_state(board &b){
     // 0 in-game 1 white win 2 black win 3 draw
     movelist moves = b.moves();
     if(moves.size()==0)
-        return 2-b.next;
+        return 2-b.nextblack;
     if(b.w==0)
         return 2;
     if(b.b==0)
@@ -88,9 +88,9 @@ int evaluate(board &b, int leftdepth){
     }
 }
 
-std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazing = true, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
+std::pair<int, move> minimax(board &b, int leftdepth=0, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
     move bestmove;
-
+    bool maximazing = b.nextblack;
 /*    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
         cacheval cacheinfo = c.get(b, leftdepth);
         if(leftdepth<=cacheinfo.depth)
@@ -105,7 +105,7 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
     {
         b.play(nextmove);
 
-        std::pair<int, move> moveinfo = minimax(b, c, leftdepth-1, !maximazing, alpha, beta);
+        std::pair<int, move> moveinfo = minimax(b, leftdepth-1, !maximazing, alpha, beta);
         if((moveinfo.first<bestscore)^maximazing){
             bestscore = moveinfo.first;
             bestmove = nextmove;
@@ -128,11 +128,11 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
     return {bestscore, bestmove};
 }
 
-move findmove(board &b, cache &c){
+move findmove(board &b){
     move bestmove;
     switch(allhyperparams[GH_SEARCH_ALG]){
         case 0:
-            bestmove = minimax(b, c).second;
+            bestmove = minimax(b).second;
             break;
         default:
             break;

@@ -55,7 +55,7 @@ move *movelist::begin() { return moves; }
 move *movelist::end() { return e; }
 size_t movelist::size() const { return e-moves; }
 
-board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), next(next), hash(0) {
+board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), nextblack(next), hash(0) {
 	BBFOR(i, w, s)
 		hash ^= hash_lookup[s][0];
 	BBFOREND
@@ -109,7 +109,7 @@ movelist board::moves() const {
 	movelist out;
 	const bitboard all = b | w;
 	const bitboard nall = ~all;
-	if (next) {
+	if (nextblack) {
 		// jumps
 		const bitboard upc = (br(w) & br(br(nall))) | (bl(w) & bl(bl(nall)));
 		const bitboard j = b & ~bk & upc;
@@ -156,7 +156,7 @@ void board::play(const move &m) {
 	const bitboard captm = m >> 10; // captured piece bitmask
 	const bitboard icaptm = ~captm;
 	// update board state
-	if (next) {
+	if (nextblack) {
 		b = (b & ~from) | to;
 		hash ^= hash_lookup[froms][1] ^ hash_lookup[tos][1];
 		if (bk & from) { // if it's king, update king info as well
@@ -194,7 +194,7 @@ void board::play(const move &m) {
 		bk &= icaptm;
 	}
 	// update next player
-	next = !next;
+	nextblack = !nextblack;
 	hash ^= hash_lookup[0][3];
 }
 void board::undo() {
@@ -204,7 +204,7 @@ void board::undo() {
 	wk = history.top()[1] >> 32;
 	hash = history.top()[2];
 	history.pop();
-	next = !next;
+	nextblack = !nextblack;
 }
 int board::wcount() const { return __builtin_popcountll(w); }
 int board::bcount() const { return __builtin_popcountll(b); }
@@ -236,6 +236,6 @@ std::string board::visualize() const {
 		}
 		oss << " | " << (8-i) << "\n  +---+---+---+---+---+---+---+---+\n";
 	}
-	oss << "    a   b   c   d   e   f   g   h\nnext: " << (next ? "black" : "white") << ", hash: " << hash << "\n";
+	oss << "    a   b   c   d   e   f   g   h\nnext: " << (nextblack ? "black" : "white") << ", hash: " << hash << "\n";
 	return oss.str();
 }

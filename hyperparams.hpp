@@ -44,7 +44,6 @@ std::map<std::string, int> searchhyp[1]
     }
 };
 
-std::vector<int> allhyperparams;
 int allhyperparams[9] = {0, 0, 1, 3, 2, 1, 3, 2, 6};
 
 int pawntable[NUM_SQUARES] = {
