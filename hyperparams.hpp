@@ -48,12 +48,12 @@ std::map<std::string, int> searchhyp[1]
     }
 };*/
 
-inline int allhyperparams[10] = {0, 0, 1, 3, 2, 1, 3, 3, 15, 1};
+inline int allhyperparams[10] = {0, 0, 1, 3, 2, 1, 3, 3, 7, 1};
 
 inline int pawntable[NUM_SQUARES] = {
     15, 15, 15, 15,
-    6, 6, 6, 4,
-    6, 6, 4, 4,
+    8, 8, 6, 4,
+    8, 8, 4, 4,
     6, 8, 4, 2,
     2, 4, 4, 2,
     2, 4, 4, 2,

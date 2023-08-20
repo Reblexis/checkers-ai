@@ -91,7 +91,7 @@ void search_algorithm_test(){
 		}*/
 
 		if(b.nextblack)
-			allhyperparams[GH_EVALUATION_ALG] = 0;
+			allhyperparams[GH_EVALUATION_ALG] = 1;
 		else
 			allhyperparams[GH_EVALUATION_ALG] = 1;
 
