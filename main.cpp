@@ -68,7 +68,7 @@ void interface_perft() {
 	}
 }
 
-extern cache<> c;
+cache<> c;
 void search_algorithm_test(){
 	board b(0xfff00000, 0xfff);
 	

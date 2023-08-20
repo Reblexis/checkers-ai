@@ -7,7 +7,7 @@
 // This is responsible for doing the search algorithms and evaluation using the given interface
 // for the game checkers
 
-cache<> c;
+extern cache<> c;
 
 int basic_evaluation(board &b, int leftdepth){
     if(b.moves().size()==0)
