@@ -75,21 +75,26 @@ void search_algorithm_test(){
 	message("Running search algorithm test", true);
 	std::cout << b.visualize();
 	
-	int num_moves = 10;
+	int num_moves = 1000;
 
 	while(1){
-		if (!num_moves--)
+		if (!num_moves--){
+			message("Moves limit reached", true);
 			break;
+		}
 		movelist ml = b.moves();
 		if (!ml.size())
 			break;
+		/*message("Possible moves:", true);
+		for (move m : ml) {
+			std::cout << move_vis(m);
+		}*/
+
 		if(b.nextblack)
 			allhyperparams[GH_EVALUATION_ALG] = 0;
 		else
 			allhyperparams[GH_EVALUATION_ALG] = 1;
-		/*for (move m : ml) {
-			std::cout << move_vis(m);
-		}*/
+
 		auto selected = findmove(b);
 		b.play(selected.second);
 		std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second) << b.visualize();
