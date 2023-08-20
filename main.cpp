@@ -167,8 +167,7 @@ void play_test() {
 			draw++;
 		std::cout << '.' << std::flush;
 
-		for(int j = 0; j<4; j++)
-			b.undo();
+		b = board(0xfff00000, 0xfff);
 	}
 
 	message("result:", true);
