@@ -81,6 +81,7 @@ template<bool toplevel=true>
 std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     ops++;
     bool maximazing = b.nextblack;
+	int bestscore = maximazing ? INT32_MIN : INT32_MAX;
 
 	move cache_best = 0;
 	if constexpr(!toplevel) { // check cache
@@ -100,7 +101,6 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 	}
 
 	movelist moves = b.moves();
-	move bestmove = *moves.begin();
 	if (moves.size() == 0)
         return {b.nextblack?-INT32_MAX:INT32_MAX, 0};
 	if (cache_best) { // first consider best move from previous search in hopes of increasing the number of cutoffs
@@ -112,6 +112,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 			}
 		}
 	}
+	move bestmove = *moves.begin();
     for(move nextmove : moves) // search
     {
         b.play(nextmove);
@@ -125,35 +126,28 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 		} else if (moveinfo.first > fade_treshold) {
 			moveinfo.first--;
 		}
-
-		// update scores
-        if(maximazing) {
-			if (!toplevel && moveinfo.first >= beta) {
-				return {beta, 0}; // beta cutoff
-			} else if (moveinfo.first >= alpha) {
-				alpha = moveinfo.first;
+		
+		if(maximazing) {
+			if (moveinfo.first >= bestscore) {
+				bestscore = moveinfo.first;
 				bestmove = nextmove;
+            	alpha = std::max(alpha, bestscore);
 			}
-        } else {
-			if (!toplevel && moveinfo.first <= alpha) {
-				return {alpha, 0}; // alpha cutoff
-			} else if (moveinfo.first <= beta) {
-				beta = moveinfo.first;
+		} else {
+			if (moveinfo.first <= bestscore) {
+				bestscore = moveinfo.first;
 				bestmove = nextmove;
+            	beta = std::min(beta, bestscore);
 			}
 		}
+        if(beta<=alpha)
+        	break;
     }
 
 	// update cache and return
-	if (maximazing) {
-    	if(allhyperparams[SH_USE_CACHE])
-    	    c.set(b.hash, leftdepth+1, alpha, bestmove);
-		return {alpha, bestmove};
-	} else {
-    	if(allhyperparams[SH_USE_CACHE])
-    	    c.set(b.hash, leftdepth+1, beta, bestmove);
-		return {beta, bestmove};
-	}
+    if(allhyperparams[SH_USE_CACHE])
+       	c.set(b.hash, leftdepth+1, bestscore, bestmove);
+	return {bestscore, bestmove};
 }
 
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
