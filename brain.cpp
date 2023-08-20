@@ -26,22 +26,22 @@ int advanced_evaluation(board &b, int leftdepth)
     int kingposscore = 0;
 
     // Add to pawnposscore score for pawns at the positions specified in the pawn table
-    // White has the table flipped
+    // Black has the table flipped
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(b.b & (1 << i))
-            pawnposscore += pawntable[i]; 
+            pawnposscore += pawntable[NUM_SQUARES-i]; 
         else if(b.w & (1 << i))
-            pawnposscore -= pawntable[NUM_SQUARES-i];
+            pawnposscore -= pawntable[i];
     }
     
     // Add score for kings at the positions specified in the king table
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(b.bk & (1 << i))
-            kingposscore += kingtable[i];
+            kingposscore += kingtable[NUM_SQUARES-i];
         else if(b.wk & (1 << i))
-            kingposscore -= kingtable[NUM_SQUARES-i];
+            kingposscore -= kingtable[i];
     }       
 
     // Add score for the difference 
