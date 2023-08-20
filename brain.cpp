@@ -1,16 +1,17 @@
 #include "interface.hpp"
 #include <bits/stdc++.h>
 #include "hyperparams.hpp"
-//#include "cache.hpp"
+#include "cache.hpp"
 
 
 // This is responsible for doing the search algorithms and evaluation using the given interface
 // for the game checkers
 
+cache<> c;
 
 int basic_evaluation(board &b, int leftdepth){
     if(b.moves().size()==0)
-        return b.nextblack?INT32_MIN:INT32_MAX;
+        return b.nextblack?-INT32_MAX:INT32_MAX;
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
 
@@ -18,7 +19,7 @@ int basic_evaluation(board &b, int leftdepth){
 int advanced_evaluation(board &b, int leftdepth)
 {
     if (b.moves().size() == 0)
-        return b.nextblack ? INT32_MIN : INT32_MAX;
+        return b.nextblack ? -INT32_MAX : INT32_MAX;
 
     int score = 0;
     int pawnposscore = 0;
@@ -77,11 +78,11 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     bool maximazing = b.nextblack;
     int bestscore = maximazing?INT32_MIN:INT32_MAX;
 
-/*    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
-        cacheval cacheinfo = c.get(b, leftdepth);
-        if(leftdepth<=cacheinfo.depth)
-            return {cacheinfo.score, bestmove};
-    }*/
+    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
+        const cache_entry &cacheinfo = c.get(b.hash);
+        if(leftdepth+1 <= cacheinfo.depth)
+            return {cacheinfo.score, 0};
+    }
     
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
@@ -107,8 +108,8 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
             break;
     }
 
-    //if(usecache)
-      //  c.set(b, leftdepth, bestscore);
+    if(usecache)
+        c.set(b.hash, leftdepth+1, bestscore);
 
     return {bestscore, bestmove};
 }

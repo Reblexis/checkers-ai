@@ -4,8 +4,8 @@
 #include "interface.hpp"
 #include "brain.hpp"
 
-// #define INTERFACE_TEST
-// #define INTERFACE_PERFT
+//#define INTERFACE_TEST
+//#define INTERFACE_PERFT
 #define SEARCH_ALGORITHM_TEST
 
 void message(std::string message, bool important = false){
@@ -52,8 +52,6 @@ void interface_test() {
 		b.play(*selected);
 		std::cout << "selected: " << move_vis(*selected) << b.visualize();
 	}
-	b.undo();
-	std::cout << b.visualize();
 }
 
 void interface_perft() {
@@ -86,9 +84,6 @@ void search_algorithm_test(){
 		b.play(selected);
 		std::cout << "selected: " << move_vis(selected) << b.visualize();
 	}
-	b.undo();
-	std::cout << b.visualize();
-
 }
 
 int main() {
