@@ -92,11 +92,20 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
 
-    for(move nextmove: b.moves())
+	movelist moves = b.moves();
+	if (moves.size() == 0)
+        return {b.nextblack?-INT32_MAX+1:INT32_MAX-1, 0};
+    for(move nextmove : moves)
     {
         b.play(nextmove);
 
         std::pair<int, move> moveinfo = minimax(b, leftdepth-1, alpha, beta);
+		constexpr int fade_treshold = 2000000000;
+		if (moveinfo.first < -fade_treshold) {
+			moveinfo.first++;
+		} else if (moveinfo.first > fade_treshold) {
+			moveinfo.first--;
+		}
         if((moveinfo.first<bestscore)^maximazing){
             bestscore = moveinfo.first;
             bestmove = nextmove;

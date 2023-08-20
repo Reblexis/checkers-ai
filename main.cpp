@@ -9,7 +9,7 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-//#define SEARCH_ALGORITHM_TEST
+#define SEARCH_ALGORITHM_TEST
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -41,16 +41,16 @@ void interface_test() {
 
 	message("Running interface test", true);
 
-	board b(0xfff00000, 0xfff);
+	board b(3430946816, 524288, true, 2048);
 	srand(532904124);
 	std::cout << b.visualize();
 	while (1){
 		movelist ml = b.moves();
-		if (!ml.size())
-			break;
 		for (move m : ml) {
 			std::cout << move_vis(m);
 		}
+		if (!ml.size())
+			break;
 		move *selected = ml.begin() + (rand() % ml.size());
 		b.play(*selected);
 		std::cout << "selected: " << move_vis(*selected) << b.visualize();
@@ -91,8 +91,9 @@ void search_algorithm_test(){
 		}*/
 
 		auto selected = findmove(b);
+		std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second);
 		b.play(selected.second);
-		std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second) << b.visualize();
+		std::cout << b.visualize();
 		std::cout << "cache fill rate: " << (c.fill_rate() * 100) << "%\n";
 	}
 	message("Game over", true);
