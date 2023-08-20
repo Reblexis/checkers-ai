@@ -107,7 +107,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
         b.play(nextmove);
 
         std::pair<int, move> moveinfo = minimax<false>(b, leftdepth-1, alpha, beta);
-        if(((moveinfo.first>=bestscore)&&maximazing)||(moveinfo.first<=bestscore&&!maximazing))){
+        if(((moveinfo.first>=bestscore)&&maximazing)||((moveinfo.first<=bestscore)&&!maximazing)){
             bestscore = moveinfo.first;
             bestmove = nextmove;
         }

@@ -49,14 +49,14 @@ std::map<std::string, int> searchhyp[1]
     }
 };*/
 
-inline int allhyperparams[11] = {1, 0, 1, 3, 2, 1, 3, 10, 14, 1, 5000000};
-/*                               e  s  p  k  k  p  k  k   d   c  m
+inline int allhyperparams[11] = {1, 0, 1, 3, 2, 1, 3, 7, 999, 1, 5000000};
+/*                               e  s  p  k  k  p  k  d   d   c  m
                                  v  e  a  i  i  a  i  i   e   a  a
-								 a  a  w  n  n  w  n  n   p   c  x
-								 l  r  n  g  g  n  g  g   t   h  O
-								 A  c  V  V  D  V  V  D   h   e  p
-								 l  g  a  a  i  a  a  i          s
-								 g  A  l  l  s  l  l  s
+								 a  a  w  n  n  w  n  f   p   c  x
+								 l  r  n  g  g  n  g  f   t   h  O
+								 A  c  V  V  D  V  V  m   h   e  p
+								 l  g  a  a  i  a  a  u          s
+								 g  A  l  l  s  l  l  l
 								             t        t
 */
 
