@@ -94,13 +94,13 @@ void run_console_bot() {
 			}
 		}
 		b = board(white, black, bnext, king);
-		std::cerr << b.visualize();
+		//std::cerr << b.visualize();
 		auto sm = findmove(b);
 		move m = sm.second;
 		if (m >> 10) {
 			std::vector<square> path = get_path<true, true>(m & 0x1f, m >> 10, ~(b.b | b.w));
 			for (int i = path.size() - 2; i >= 0; i--) {
-				print_square_ci(m & 0x1f);
+				print_square_ci(path[i+1]);
 				switch (static_cast<int8_t>(path[i+1])-static_cast<int8_t>(path[i])) {
 				case 9: std::cout << " tl\n"; break;
 				case 7: std::cout << " tr\n"; break;
