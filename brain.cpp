@@ -123,10 +123,10 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
             break;
     }
 
+	// update cache and return
     if(allhyperparams[SH_USE_CACHE])
-        c.set(b.hash, leftdepth+1, bestscore);
-
-    return {bestscore, bestmove};
+       	c.set(b.hash, leftdepth+1, bestscore, bestmove);
+	return {bestscore, bestmove};
 }
 
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
@@ -154,6 +154,13 @@ std::pair<int, move> findmove(board &b) {
         case 0:
             bestmove = iterative_minimax(b, allhyperparams[SH_MAX_DEPTH]);
             break;
+		case 1:
+			{
+				movelist ml = b.moves();
+				if (ml.size() == 0)
+					return {0, 0};
+				return {0, ml.begin()[rand64(b.hash) % ml.size()]};
+			}
         default:
             break;
     }

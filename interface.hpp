@@ -9,6 +9,7 @@
 
 #define BOARD_ORIENTATION_CHESS 1
 
+uint64_t rand64(uint64_t s);
 void init_hashing();
 
 using square = uint_fast8_t;
