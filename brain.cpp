@@ -133,13 +133,13 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
     ops = 0;
-    for(int i = 3; i < allhyperparams[SH_MAX_DEPTH] && ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
+    for(int i = 3; i <= allhyperparams[SH_MAX_DEPTH] && ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
 		//std::cerr << "depth " << i << std::flush;
 		//auto starttime = std::chrono::high_resolution_clock::now();
         bestmove = minimax(b, i);
         if((bestmove.first==INT32_MAX&&b.nextblack) || (bestmove.first==INT32_MIN&&!b.nextblack))
         {
-            std::cout<<"Found forced win / loss at depth "<<i<<"\n";
+            //std::cout<<"Found forced win / loss at depth "<<i<<"\n";
             break;
         }
 		//auto endtime = std::chrono::high_resolution_clock::now();
