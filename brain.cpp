@@ -177,6 +177,13 @@ std::pair<int, move> findmove(board &b) {
         case 0:
             bestmove = iterative_minimax(b, allhyperparams[SH_MAX_DEPTH]);
             break;
+		case 1:
+			{
+				movelist ml = b.moves();
+				if (ml.size() == 0)
+					return {0, 0};
+				return {0, ml.begin()[rand64(b.hash) % ml.size()]};
+			}
         default:
             break;
     }

@@ -103,24 +103,25 @@ void search_algorithm_test(){
 
 }
 int test_game(const board &original_board) {
+	allhyperparams[SH_MAX_DEPTH] = 7;
+	allhyperparams[SH_OPERATION_LIMIT] = 500000;
+	allhyperparams[SH_USE_CACHE] = 0;
 	board b(original_board);
 	movelist ml = b.moves();
 	int res = 0;
 	for (int gameid = 0; gameid < 2;gameid++) {
 		int limit = 0;
 		while (ml.size()) {
-			if (limit++ > 5000) {
+			if (limit++ > 3000) {
 				res |= 1 << gameid << 2;
 				break;
 			}
 			if (b.nextblack ^ (gameid & 1)) {
 				// A hyperparam overrides
-				allhyperparams[SH_MAX_DEPTH] = 8;
-				allhyperparams[SH_OPERATION_LIMIT] = 500000;
+				allhyperparams[GH_SEARCH_ALG] = 0;
 			} else {
 				// B hyperparam overrides
-				allhyperparams[SH_MAX_DEPTH] = 8;
-				allhyperparams[SH_OPERATION_LIMIT] = 500000;
+				allhyperparams[GH_SEARCH_ALG] = 1;
 			}
 			move m = findmove(b).second;
 			if (!m)
@@ -140,6 +141,7 @@ void play_test() {
 	int win_A_white = 0;
 	int win_B_white = 0;
 	int draw = 0;
+	int p2counter = 0;
 	for (move m : b.moves()) {
 		b.play(m);
 		for (move m : b.moves()) {
@@ -150,11 +152,11 @@ void play_test() {
 					b.play(m);
 					int win = test_game(b);
 					if (!(win & 0b100))
-						(win & 1 ? win_B_white : win_A_black)++;
+						((win & 1) ? win_B_white : win_A_black)++;
 					else
 					 	draw++;
 					if (!(win & 0b1000))
-						(win >> 1 ? win_A_white : win_B_black)++;
+						((win >> 1 & 1) ? win_A_white : win_B_black)++;
 					else
 						draw++;
 					std::cout << '.' << std::flush;
@@ -162,7 +164,7 @@ void play_test() {
 				}
 				b.undo();
 			}
-			std::cout << " one 2-ply state search done - [" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
+			std::cout << " " << (++p2counter) << ". 2-ply state search done - [" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
 			b.undo();
 		}
 		b.undo();
