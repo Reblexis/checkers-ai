@@ -15,7 +15,6 @@ int basic_evaluation(board &b, int leftdepth){
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
 
-
 int advanced_evaluation(board &b, int leftdepth)
 {
     if (b.moves().size() == 0)
@@ -57,7 +56,7 @@ int advanced_evaluation(board &b, int leftdepth)
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
     //int leftdepthmultiplier = sqrt(leftdepth)/allhyperparams[EH_A_DEPTH_DIVISOR];
-    // score *= leftdepthmultiplier;
+    //score *= leftdepthmultiplier;
 
     return score;
 }
@@ -73,8 +72,11 @@ int evaluate(board &b, int leftdepth){
     }
 }
 
-std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
+long long ops = 0;
+
+std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     move bestmove=0;
+    ops++;
     bool maximazing = b.nextblack;
     int bestscore = maximazing?INT32_MIN:INT32_MAX;
 
@@ -104,8 +106,8 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
         else
             beta = std::min(beta, bestscore);
         
-        if(beta<=alpha)
-            break;
+        //if(beta<=alpha)
+          //  break;
     }
 
     if(allhyperparams[SH_USE_CACHE])
@@ -114,11 +116,20 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     return {bestscore, bestmove};
 }
 
+std::pair<int, move> iterative_minimax(board &b, int maxdepth){
+    std::pair<int, move> bestmove;
+    ops = 0;
+    for(int i = 1; ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
+        bestmove = minimax(b, i);
+    }
+    return bestmove;
+}
+
 std::pair<int, move> findmove(board &b) {
     std::pair<int, move> bestmove;
     switch(allhyperparams[GH_SEARCH_ALG]){
         case 0:
-            bestmove = minimax(b, allhyperparams[SH_MAX_DEPTH]);
+            bestmove = iterative_minimax(b, allhyperparams[SH_MAX_DEPTH]);
             break;
         default:
             break;

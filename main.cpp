@@ -90,11 +90,6 @@ void search_algorithm_test(){
 			std::cout << move_vis(m);
 		}*/
 
-		if(b.nextblack)
-			allhyperparams[GH_EVALUATION_ALG] = 1;
-		else
-			allhyperparams[GH_EVALUATION_ALG] = 1;
-
 		auto selected = findmove(b);
 		b.play(selected.second);
 		std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second) << b.visualize();

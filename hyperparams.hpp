@@ -19,6 +19,7 @@ constexpr int EH_A_DIFF_MULTIPLIER = 7;
 
 constexpr int SH_MAX_DEPTH = 8;
 constexpr int SH_USE_CACHE = 9;
+constexpr int SH_OPERATION_LIMIT = 10;
 
 
 /*std::map<std::string, int> generalhyp
@@ -48,7 +49,7 @@ std::map<std::string, int> searchhyp[1]
     }
 };*/
 
-inline int allhyperparams[10] = {0, 0, 1, 3, 2, 1, 3, 3, 10, 1};
+inline int allhyperparams[11] = {0, 0, 1, 3, 2, 1, 3, 3, 8, 0, 2000000};
 
 inline int pawntable[NUM_SQUARES] = {
     15, 15, 15, 15,
