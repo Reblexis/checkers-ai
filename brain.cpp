@@ -91,11 +91,11 @@ int evaluate(board &b, int leftdepth){
 std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazing = true, int alpha = INT32_MIN, int beta = INT32_MAX, bool usecache = true){
     move bestmove;
 
-    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
+/*    if(usecache&&leftdepth!=allhyperparams[SH_MAX_DEPTH]){
         cacheval cacheinfo = c.get(b, leftdepth);
         if(leftdepth<=cacheinfo.depth)
             return {cacheinfo.score, bestmove};
-    }
+    }*/
     
     if(leftdepth==0)
         return {evaluate(b, leftdepth), bestmove};
@@ -122,8 +122,8 @@ std::pair<int, move> minimax(board &b, cache &c, int leftdepth=0, bool maximazin
             break;
     }
 
-    if(usecache)
-        c.set(b, leftdepth, bestscore);
+    //if(usecache)
+      //  c.set(b, leftdepth, bestscore);
 
     return {bestscore, bestmove};
 }
