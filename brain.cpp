@@ -14,6 +14,7 @@ int basic_evaluation(board &b, int leftdepth){
         return b.nextblack?-INT32_MAX:INT32_MAX;
     return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
 }
+int curdepthlim = 0;
 
 int advanced_evaluation(board &b, int leftdepth)
 {
@@ -55,14 +56,16 @@ int advanced_evaluation(board &b, int leftdepth)
     // Add preference for having bigger difference with less pieces
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    //int leftdepthmultiplier = sqrt(leftdepth)/allhyperparams[EH_A_DEPTH_DIVISOR];
-    //score *= leftdepthmultiplier;
+    float leftdepthmultiplier = (float)((leftdepth-curdepthlim)+20)/(float)+5;
+    float fscore = (float)score*leftdepthmultiplier;
+
+    score = (int)fscore;
 
     return score;
 }
 
 int evaluate(board &b, int leftdepth){
-    switch(allhyperparams[GH_EVALUATION_ALG]){
+    switch(allhyperparams[GH_EVALUATION_ALG]^b.nextblack){
         case 0:
             return basic_evaluation(b, leftdepth);
         case 1:
@@ -120,6 +123,7 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
     ops = 0;
     for(int i = 1; ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
+        curdepthlim = i;
         bestmove = minimax(b, i);
     }
     return bestmove;
