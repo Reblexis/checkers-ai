@@ -10,8 +10,8 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-#define SEARCH_ALGORITHM_TEST
-// #define PLAY_TEST
+//#define SEARCH_ALGORITHM_TEST
+#define PLAY_TEST
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -112,16 +112,16 @@ int test_game(const board &original_board) {
 	for (int gameid = 0; gameid < 2;gameid++) {
 		int limit = 0;
 		while (ml.size()) {
-			if (limit++ > 3000) {
+			if (limit++ > 300) {
 				res |= 1 << gameid << 2;
 				break;
 			}
 			if (b.nextblack ^ (gameid & 1)) {
 				// A hyperparam overrides
-				allhyperparams[GH_SEARCH_ALG] = 0;
+				allhyperparams[EH_A_DIFF_MULTIPLIER] = 0;
 			} else {
 				// B hyperparam overrides
-				allhyperparams[GH_SEARCH_ALG] = 1;
+				allhyperparams[EH_A_DIFF_MULTIPLIER] = 5;
 			}
 			move m = findmove(b).second;
 			if (!m)
@@ -142,33 +142,35 @@ void play_test() {
 	int win_B_white = 0;
 	int draw = 0;
 	int p2counter = 0;
-	for (move m : b.moves()) {
-		b.play(m);
-		for (move m : b.moves()) {
-			b.play(m);
-			for (move m : b.moves()) {
-				b.play(m);
-				for (move m : b.moves()) {
-					b.play(m);
-					int win = test_game(b);
-					if (!(win & 0b100))
-						((win & 1) ? win_B_white : win_A_black)++;
-					else
-					 	draw++;
-					if (!(win & 0b1000))
-						((win >> 1 & 1) ? win_A_white : win_B_black)++;
-					else
-						draw++;
-					std::cout << '.' << std::flush;
-					b.undo();
+	int test_games = 100;
+
+	for(int i = 0; i < test_games; i++){
+		// Do first 4 moves randomly
+		for(int j = 0; j<4; j++){
+			movelist ml = b.moves();
+			int random_idx = rand()%ml.size();
+			for(auto it = ml.begin(); it != ml.end(); it++){
+				if(random_idx-- == 0){
+					b.play(*it);
+					break;
 				}
-				b.undo();
-			}
-			std::cout << " " << (++p2counter) << ". 2-ply state search done - [" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
-			b.undo();
+			}			
 		}
-		b.undo();
+		int win = test_game(b);
+		if (!(win & 0b100))
+			((win & 1) ? win_B_white : win_A_black)++;
+		else
+			draw++;
+		if (!(win & 0b1000))
+			((win >> 1 & 1) ? win_A_white : win_B_black)++;
+		else
+			draw++;
+		std::cout << '.' << std::flush;
+
+		for(int j = 0; j<4; j++)
+			b.undo();
 	}
+
 	message("result:", true);
 	std::cout << "wins  |  A  |  B  |\n" <<
 				 "black |" << std::setw(5) << win_A_black << "|" << std::setw(5) << win_B_black << "|\n" <<
