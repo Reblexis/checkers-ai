@@ -77,9 +77,10 @@ long long ops = 0;
 template<bool toplevel=true>
 std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     ops++;
+
     bool maximazing = b.nextblack;
     int bestscore = maximazing?INT32_MIN:INT32_MAX;
-
+    
     move bestmove=0;
  
 	if constexpr(!toplevel) { // check cache
