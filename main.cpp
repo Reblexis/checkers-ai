@@ -106,6 +106,7 @@ int test_game(const board &original_board) {
 	allhyperparams[SH_MAX_DEPTH] = 5;
 	allhyperparams[SH_OPERATION_LIMIT] = 500000;
 	allhyperparams[SH_USE_CACHE] = 0;
+	allhyperparams[GH_SEARCH_ALG] = 2;
 	int res = 0;
 	for (int gameid = 0; gameid < 2; gameid++) {
 		board b(original_board);
