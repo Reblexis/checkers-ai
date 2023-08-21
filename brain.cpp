@@ -9,13 +9,13 @@
 
 extern cache<> c;
 
-int basic_evaluation(board &b, int leftdepth){
+int basic_evaluation(board &b){
     if(b.moves().size()==0)
         return b.nextblack ? INT32_MIN : INT32_MAX;
     return (b.bpcount() - b.wpcount()) * currenthyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*currenthyperparams[EH_B_KING_VALUE]; 
 }
 
-int advanced_evaluation(board &b, int leftdepth)
+int advanced_evaluation(board &b)
 {
     if (b.moves().size() == 0)
         return b.nextblack ? INT32_MIN : INT32_MAX;
@@ -53,22 +53,16 @@ int advanced_evaluation(board &b, int leftdepth)
     pawnposscore *= currenthyperparams[EH_A_PAWN_VALUE];
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    //float leftdepthmultiplier = (float)((leftdepth-curdepthlim)+20)/(float)+5;
-    //float fscore = (float)score*leftdepthmultiplier;
-
-    //score = (int)fscore;
-
     return score;
 }
-
-int evaluate(board &b, int leftdepth){
+int evaluate(board &b){
     switch(currenthyperparams[GH_EVALUATION_ALG]){
         case 0:
-            return basic_evaluation(b, leftdepth);
+            return basic_evaluation(b);
         case 1:
-            return advanced_evaluation(b, leftdepth);
+            return advanced_evaluation(b);
         default:
-            return basic_evaluation(b, leftdepth);
+            return basic_evaluation(b);
     }
 }
 
@@ -97,7 +91,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 	}
     
     if(leftdepth==0) { // eval at leaf nodes
-		int score = evaluate(b, leftdepth);
+		int score = evaluate(b);
     	if(currenthyperparams[SH_USE_CACHE])
     	    c.set(b.hash, 1, score, 0);
         return {score, 0};

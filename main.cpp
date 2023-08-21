@@ -39,9 +39,6 @@ uint64_t perft(board &b, int depth) {
 }
 
 void interface_test() {
-	//bitboard x = 0xffffffff;
-	//std::cout << bbvis(x) << "\n" << bbvis(tl(x)) << "\n" << bbvis(tr(x)) << "\n" << bbvis(bl(x)) << "\n" << bbvis(br(x));
-
 	message("Running interface test", true);
 
 	board b(3430946816, 524288, true, 2048);
