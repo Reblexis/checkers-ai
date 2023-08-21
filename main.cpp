@@ -234,6 +234,12 @@ void player_versus_bot(int player_color = 0){
 			std::string sel;
 			while (sel.empty())
 				std::cin >> sel;
+				if(sel=="undo"){
+					b.undo();
+					b.undo();
+					i--;
+					continue;
+				}
 			if (std::find_if_not(sel.begin(), sel.end(), isdigit) == sel.end()) {
 				b.play(ml.begin()[std::stoi(sel)]);
 			} else {
