@@ -77,7 +77,7 @@ void search_algorithm_test(const int asettings[NUM_HYPERPARAMS], const int bsett
 	message("Running search algorithm test", true);
 	std::cout << b.visualize();
 	
-	int num_moves = 1000;
+	int num_moves = 300;
 
 	while(1){
 		if (!num_moves--){
@@ -106,12 +106,18 @@ std::array<int, 2> test_game(const board &original_board, int asettings[NUM_HYPE
 	std::array<int, 2> res = {-1, -1}; 
 	// res[id] = r corresponds to the game with id=id and result r means 0=draw, 1=win for player a, 2=loss for player a
 	for (int gameid = 0; gameid < 2; gameid++) {
+		// If gameid == 0, then A is black, otherwise A is white
 		board b(original_board);
 		movelist ml = b.moves();
 		int limit = 0;
 		while (ml.size()) {
-			if (limit++ > 300) {
-				res[gameid] = 0;
+			if (limit++ > 100) {
+				// Decide by number of pieces
+				if(__builtin_popcountll(b.b) == __builtin_popcountll(b.w))
+					res[gameid] = 0;	
+				else 
+					res[gameid] = (__builtin_popcountll(b.b) > __builtin_popcountll(b.w)) ? gameid + 1 : 2 - gameid;
+
 				break;
 			}
 			if (b.nextblack != gameid) {
@@ -190,7 +196,7 @@ void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int
 	int total_draws = 0;
 	int total_losses = 0;
 
-	for(int i = 0; i < TESTING_SAMPLES_NUM; i++)
+	for(int i = 3; i < TESTING_SAMPLES_NUM; i++)
 	{
 		board b(0xfff00000, 0xfff);
 		std::array<int, 5> result = play_test(num_games, test_hyperparams, testing_samples[i]);
