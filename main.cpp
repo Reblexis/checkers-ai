@@ -10,8 +10,9 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-#define SEARCH_ALGORITHM_TEST
+//#define SEARCH_ALGORITHM_TEST
 //#define PLAY_TEST
+#define PLAYER_VERSUS_BOT
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -218,6 +219,36 @@ void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int
 	std::cout<<"Draws: "<<total_draws<<"\n";
 }
 
+void player_versus_bot(int player_color = 0){
+	// player color = 0 means player plays black
+	board b(0xfff00000, 0xfff);
+	std::cout << b.visualize();
+	
+	for(int i = 0; i<200; i++){
+		if(i%2==player_color){
+			// First cout possible moves and then let player choose the index of the move
+			movelist ml = b.moves();
+			std::cout << "Possible moves:\n";
+			for(int j = 0; j<ml.size(); j++){
+				std::cout << j << ": " << move_vis(ml.begin()[j]);
+			}
+
+			int selected_index;
+			std::cin >> selected_index;
+			b.play(ml.begin()[selected_index]);
+		}
+		else{
+			auto selected = findmove(b);
+			std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second);
+			b.play(selected.second);
+		}
+		std::cout<<b.visualize();
+	}
+
+	message("Game over", true);
+	std::cout << b.visualize();
+}
+
 int main() {
 	init_hashing();
 	for(int i = 0; i < NUM_HYPERPARAMS; i++)
@@ -231,6 +262,8 @@ int main() {
 	search_algorithm_test(allhyperparams, allhyperparams);
 #elif defined(PLAY_TEST)
 	test_performance();
+#elif defined(PLAYER_VERSUS_BOT)
+	player_versus_bot();
 #else
 	run_console_bot();
 #endif
