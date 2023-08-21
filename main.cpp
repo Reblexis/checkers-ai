@@ -10,8 +10,8 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-//#define SEARCH_ALGORITHM_TEST
-#define PLAY_TEST
+#define SEARCH_ALGORITHM_TEST
+//#define PLAY_TEST
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -71,7 +71,7 @@ void interface_perft() {
 }
 
 cache<> c;
-void search_algorithm_test(){
+void search_algorithm_test(const int asettings[NUM_HYPERPARAMS], const int bsettings[NUM_HYPERPARAMS]) {
 	board b(0xfff00000, 0xfff);
 	
 	message("Running search algorithm test", true);
@@ -102,15 +102,16 @@ void search_algorithm_test(){
 	std::cout << b.visualize();
 
 }
-int test_game(const board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
-	int res = 0;
+std::array<int, 2> test_game(const board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
+	std::array<int, 2> res = {-1, -1}; 
+	// res[id] = r corresponds to the game with id=id and result r means 0=draw, 1=win for player a, 2=loss for player a
 	for (int gameid = 0; gameid < 2; gameid++) {
 		board b(original_board);
 		movelist ml = b.moves();
 		int limit = 0;
 		while (ml.size()) {
 			if (limit++ > 300) {
-				res |= 1 << gameid << 2;
+				res[gameid] = 0;
 				break;
 			}
 			if (b.nextblack != gameid) {
@@ -126,9 +127,12 @@ int test_game(const board &original_board, int asettings[NUM_HYPERPARAMS], int b
 			if (!m)
 				break;
 			b.play(m);
+			// show board
 			ml = b.moves();
 		}
-		res |= b.nextblack << gameid;
+		if(res[gameid] == -1){
+			res[gameid] = (b.nextblack == gameid) ? 1 : 2;
+		}
 	}
 	return res;
 }
@@ -148,23 +152,17 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
 		// Do first 4 moves randomly
 		for(int j = 0; j<4; j++){
 			movelist ml = b.moves();
-			int random_idx = rand()%ml.size();
-			for(auto it = ml.begin(); it != ml.end(); it++){
-				if(random_idx-- == 0){
-					b.play(*it);
-					break;
-				}
-			}			
+			move randommove = ml.begin()[rand64(b.hash) % ml.size()];	
+			b.play(randommove);
 		}
-		int win = test_game(b, asettings, bsettings);
-		if (!(win & 0b100))
-			((win & 1) ? win_B_white : win_A_black)++;
-		else
-			draw++;
-		if (!(win & 0b1000))
-			((win >> 1 & 1) ? win_A_white : win_B_black)++;
-		else
-			draw++;
+		std :: array<int, 2> game_res = test_game(b, asettings, bsettings);
+		
+		draw += (game_res[0] == 0) + (game_res[1] == 0);
+		win_A_black += (game_res[0] == 1);
+		win_B_black += (game_res[0] == 2);
+		win_A_white += (game_res[1] == 1);
+		win_B_white += (game_res[1] == 2);
+
 		std::cout << '.' << std::flush;
 /*
 		if (i % 50 == 49) {
@@ -182,7 +180,7 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
 				 "draws " << draw << "\n";*/
 }
 
-void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int num_games = 100)
+void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int num_games = 20)
 {
 	int test_hyperparams[NUM_HYPERPARAMS];
 	for(int i = 0; i < NUM_HYPERPARAMS; i++)
@@ -224,7 +222,7 @@ int main() {
 #elif defined(INTERFACE_PERFT)
 	interface_perft();
 #elif defined(SEARCH_ALGORITHM_TEST)
-	search_algorithm_test();
+	search_algorithm_test(allhyperparams, allhyperparams);
 #elif defined(PLAY_TEST)
 	test_performance();
 #else

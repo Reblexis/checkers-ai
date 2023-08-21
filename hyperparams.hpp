@@ -50,7 +50,7 @@ std::map<std::string, int> searchhyp[1]
     }
 };*/
 
-inline const int allhyperparams[NUM_HYPERPARAMS] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 0, 10000};
+inline const int allhyperparams[NUM_HYPERPARAMS] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 0, 10000000};
 /*                               e  s  p  k  k  p  k  d   d   c  m
                                  v  e  a  i  i  a  i  i   e   a  a
 								 a  a  w  n  n  w  n  f   p   c  x
@@ -63,7 +63,7 @@ inline const int allhyperparams[NUM_HYPERPARAMS] = {1, 0, 1, 3, 2, 1, 3, 10, 999
 inline int currenthyperparams[NUM_HYPERPARAMS]; // Hyperparams used at the moment by the engine, can change during runtime
 // Samples used for performance testing
 
-constexpr int TESTING_SAMPLES_NUM = 5;
+constexpr int TESTING_SAMPLES_NUM = 6;
 constexpr int NUM_OPS = 10000;
 constexpr int USE_CACHE = 0;
 
@@ -78,6 +78,8 @@ inline int testing_samples[TESTING_SAMPLES_NUM][NUM_HYPERPARAMS] = {
     {1, 2, 1, 3, 2, 1, 3, 10,  5, USE_CACHE, NUM_OPS},
     // Iterative minimax with advanced eval
     {1, 0, 1, 3, 2, 1, 3, 10, 999, USE_CACHE, NUM_OPS},    
+    // Iterative minimax with advanced eval and cache
+    {1, 0, 1, 3, 2, 1, 3, 10, 999, 0, NUM_OPS},
 };
 
 

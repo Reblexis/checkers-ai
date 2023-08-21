@@ -73,6 +73,7 @@ int evaluate(board &b, int leftdepth){
 }
 
 long long ops = 0;
+bool finished = true;
 
 template<bool toplevel=true>
 std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
@@ -110,6 +111,11 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 		bestmove = *possiblemoves.begin();
     for(move nextmove: possiblemoves)
     {
+        if(ops>=currenthyperparams[SH_OPERATION_LIMIT]&&currenthyperparams[GH_SEARCH_ALG]==0)
+        {
+            finished = false;
+            return {0, 0};
+        }
         b.play(nextmove);
 
         std::pair<int, move> moveinfo = minimax<false>(b, leftdepth-1, alpha, beta);
@@ -138,10 +144,16 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
     ops = 0;
+    finished = true;
     for(int i = 3; i <= currenthyperparams[SH_MAX_DEPTH] && ops<currenthyperparams[SH_OPERATION_LIMIT]; i++){
 		//std::cerr << "depth " << i << std::flush;
 		auto starttime = std::chrono::high_resolution_clock::now();
-        bestmove = minimax(b, i);
+
+        std::pair<int, move> candidate = minimax(b, i);
+        if(!finished)
+            break;
+        bestmove = candidate;
+
         if((bestmove.first==INT32_MAX&&b.nextblack) || (bestmove.first==INT32_MIN&&!b.nextblack))
         {
             //std::cout<<"Found forced win / loss at depth "<<i<<"\n";
