@@ -105,8 +105,6 @@ void add_simple(movelist &out, bitboard own) {
 }
 template<bool up, bool down>
 void add_jumps(movelist &out, square start, square from, bitboard to_capture, bitboard nall, bitboard captured=0) {
-	//std::cout << "add_jumps(movelist " << out.size() << ", start " << square_vis(start) << ", from " << square_vis(from) << ", to_capture:\n" <<
-	//	bbvis(to_capture) << ", nall:\n" << bbvis(nall) << ", captured:\n" << bbvis(captured) << ");\n";
 	move *ce = out.end();
 	bitboard frombb = 1 << from;
 	if constexpr (up) {
@@ -130,7 +128,6 @@ void add_jumps(movelist &out, square start, square from, bitboard to_capture, bi
 		}
 	}
 	if (ce == out.end()) {
-		//std::cout << "add_jumps - move push (start is " << square_vis(start) << ", end is " << square_vis(from) << ", captured is\n" << bbvis(captured) << ")\n";
 		out.push(start | from << 5 | static_cast<move>(captured) << 10);
 	}
 }
