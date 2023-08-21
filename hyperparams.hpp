@@ -25,12 +25,12 @@ inline const int allhyperparams[NUM_HYPERPARAMS] =
     1, // Evaluation algorithm (0 - basic, 1 - advanced)
     0, // Search algorithm (0 - iterative minimax, 1 - random, 2 - basic minimax)
     1, // Pawn value for evaluation algorithm
-    3, // King value for evaluation algorithm
+    5, // King value for evaluation algorithm
     2, // King distance weight for evaluation algorithm
     10, // Difference multiplier for pieces for evaluation algorithm
     999, // Max depth for search algorithm
     0, // Use cache for search algorithm (0 - no, 1 - yes)
-    10000000, // Operation limit for search algorithm
+    10000, // Operation limit for search algorithm
 };
 
 inline int currenthyperparams[NUM_HYPERPARAMS]; // Hyperparams used at the moment by the engine, can change during runtime
@@ -39,20 +39,21 @@ inline int currenthyperparams[NUM_HYPERPARAMS]; // Hyperparams used at the momen
 constexpr int TESTING_SAMPLES_NUM = 6;
 constexpr int NUM_OPS = 10000;
 constexpr int USE_CACHE = 0;
+constexpr int DEBUG_BIT = 0;
 
 inline int testing_samples[TESTING_SAMPLES_NUM][NUM_HYPERPARAMS] = {
     // Random 
-    {0, 1, 1, 3, 2, 10, 5, USE_CACHE, NUM_OPS},
+    {0, 1, 1, 3, DEBUG_BIT, 10, 5, USE_CACHE, NUM_OPS},
     // Basic minimax with basic eval
-    {0, 2, 1, 3, 2, 10, 5, USE_CACHE, NUM_OPS},
+    {0, 2, 1, 3, DEBUG_BIT, 10, 5, USE_CACHE, NUM_OPS},
     // Iterative minimax with basic eval
-    {0, 0, 1, 3, 2, 10, 999, USE_CACHE, NUM_OPS},
+    {0, 0, 1, 3, DEBUG_BIT, 10, 999, USE_CACHE, NUM_OPS},
     // Basic minimax with advanced eval
-    {1, 2, 1, 3, 2, 10,  5, USE_CACHE, NUM_OPS},
+    {1, 2, 1, 3, DEBUG_BIT, 10,  5, USE_CACHE, NUM_OPS},
     // Iterative minimax with advanced eval
-    {1, 0, 1, 3, 2, 10, 999, USE_CACHE, NUM_OPS},    
+    {1, 0, 1, 3, DEBUG_BIT, 10, 999, USE_CACHE, NUM_OPS},    
     // Iterative minimax with advanced eval and cache
-    {1, 0, 1, 3, 2, 10, 999, 0, NUM_OPS},
+    {1, 0, 1, 3, DEBUG_BIT, 10, 999, 0, NUM_OPS},
 };
 
 

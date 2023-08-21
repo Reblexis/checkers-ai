@@ -137,6 +137,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
+    bestmove.first = b.nextblack ? INT32_MIN : INT32_MAX;
     ops = 0;
     finished = true;
     for(int i = 3; i <= currenthyperparams[SH_MAX_DEPTH] && ops<currenthyperparams[SH_OPERATION_LIMIT]; i++){
@@ -146,7 +147,9 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
         std::pair<int, move> candidate = minimax(b, i);
         if(!finished)
             break;
-        bestmove = candidate;
+
+        if((candidate.first>bestmove.first&&b.nextblack) || (candidate.first<bestmove.first&&!b.nextblack)||allhyperparams[EH_KING_DIST]==0)
+            bestmove = candidate;
 
         if((bestmove.first==INT32_MAX&&b.nextblack) || (bestmove.first==INT32_MIN&&!b.nextblack))
         {

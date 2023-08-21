@@ -12,8 +12,8 @@
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
 //#define SEARCH_ALGORITHM_TEST
-//#define PLAY_TEST
-#define PLAYER_VERSUS_BOT
+#define PLAY_TEST
+//#define PLAYER_VERSUS_BOT
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -195,7 +195,7 @@ void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int
 	int total_draws = 0;
 	int total_losses = 0;
 
-	for(int i = 3; i < TESTING_SAMPLES_NUM; i++)
+	for(int i = 0; i < TESTING_SAMPLES_NUM; i++)
 	{
 		board b(0xfff00000, 0xfff);
 		std::array<int, 5> result = play_test(num_games, test_hyperparams, testing_samples[i]);
