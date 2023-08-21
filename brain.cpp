@@ -12,7 +12,7 @@ extern cache<> c;
 int basic_evaluation(board &b){
     if(b.moves().size()==0)
         return b.nextblack ? INT32_MIN : INT32_MAX;
-    return (b.bpcount() - b.wpcount()) * currenthyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*currenthyperparams[EH_B_KING_VALUE]; 
+    return (b.bpcount() - b.wpcount()) * currenthyperparams[EH_PAWN_VALUE] + (b.bkcount() - b.wkcount())*currenthyperparams[EH_KING_VALUE]; 
 }
 
 int advanced_evaluation(board &b)
@@ -47,10 +47,10 @@ int advanced_evaluation(board &b)
 
     int pawndiff = b.bpcount() - b.wpcount();
     int kingdiff = b.bkcount() - b.wkcount();
-    pawndiff *= currenthyperparams[EH_A_PAWN_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
-    kingdiff *= currenthyperparams[EH_A_KING_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
-    kingposscore *= currenthyperparams[EH_A_KING_VALUE];
-    pawnposscore *= currenthyperparams[EH_A_PAWN_VALUE];
+    pawndiff *= currenthyperparams[EH_PAWN_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
+    kingdiff *= currenthyperparams[EH_KING_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
+    kingposscore *= currenthyperparams[EH_KING_VALUE];
+    pawnposscore *= currenthyperparams[EH_PAWN_VALUE];
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
     return score;
