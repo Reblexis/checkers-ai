@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <algorithm>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -230,9 +231,25 @@ void player_versus_bot(int player_color = 0){
 				std::cout << j << ": " << move_vis(ml.begin()[j]);
 			}
 
-			int selected_index;
-			std::cin >> selected_index;
-			b.play(ml.begin()[selected_index]);
+			std::string sel;
+			while (sel.empty())
+				std::cin >> sel;
+			if (std::find_if_not(sel.begin(), sel.end(), isdigit) == sel.end()) {
+				b.play(ml.begin()[std::stoi(sel)]);
+			} else {
+				const square sq1 = (('h' - sel[0]) / 2) | (sel[1] - '1') << 2;
+				const square sq2 = (('h' - sel[2]) / 2) | (sel[3] - '1') << 2;
+				move sel = 0;
+				for (move m : ml) {
+					if ((m & 0x3ff) == (sq1 | sq2 << 5)) {
+						sel = m;
+					}
+				}
+				std::cout << "playing " << move_vis(sel);
+				if (sel) {
+					b.play(sel);
+				}
+			}
 		}
 		else{
 			auto selected = findmove(b);
