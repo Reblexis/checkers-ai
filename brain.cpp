@@ -103,12 +103,17 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 	}
 
     movelist possiblemoves = b.moves();
+	if (possiblemoves.size() == 0) {
+		return {maximazing ? -INT32_MAX : INT32_MAX, 0};
+	}
+	if (!bestmove)
+		bestmove = *possiblemoves.begin();
     for(move nextmove: possiblemoves)
     {
         b.play(nextmove);
 
         std::pair<int, move> moveinfo = minimax<false>(b, leftdepth-1, alpha, beta);
-        if(((moveinfo.first>=bestscore)&&maximizing)||((moveinfo.first<=bestscore)&&!maximizing)){
+        if(maximazing ? moveinfo.first > bestscore : moveinfo.first < bestscore){
             bestscore = moveinfo.first;
             bestmove = nextmove;
         }
@@ -163,6 +168,8 @@ std::pair<int, move> findmove(board &b) {
 				return {0, ml.begin()[rand64(b.hash) % ml.size()]};
 			}
         default:
+		case 2:
+			bestmove = minimax(b, allhyperparams[SH_MAX_DEPTH]);
             break;
     }
     return bestmove;

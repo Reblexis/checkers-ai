@@ -106,6 +106,7 @@ int test_game(const board &original_board) {
 	allhyperparams[SH_MAX_DEPTH] = 5;
 	allhyperparams[SH_OPERATION_LIMIT] = 500000;
 	allhyperparams[SH_USE_CACHE] = 0;
+	allhyperparams[GH_SEARCH_ALG] = 2;
 	int res = 0;
 	for (int gameid = 0; gameid < 2; gameid++) {
 		board b(original_board);
@@ -142,7 +143,7 @@ void play_test() {
 	int win_B_white = 0;
 	int draw = 0;
 	int p2counter = 0;
-	int test_games = 100;
+	int test_games = 200;
 
 	for(int i = 0; i < test_games; i++){
 		// Do first 4 moves randomly
@@ -166,6 +167,10 @@ void play_test() {
 		else
 			draw++;
 		std::cout << '.' << std::flush;
+
+		if (i % 50 == 49) {
+			std::cout << "[" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
+		}
 
 		b = board(0xfff00000, 0xfff);
 	}

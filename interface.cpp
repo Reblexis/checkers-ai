@@ -139,39 +139,51 @@ movelist board::moves() const {
 	const bitboard all = b | w;
 	const bitboard nall = ~all;
 	if (nextblack) {
-		// jumps
+		// king jumps
 		const bitboard upc = (br(w) & br(br(nall))) | (bl(w) & bl(bl(nall)));
-		const bitboard j = b & ~bk & upc;
 		const bitboard jk = bk & ((tr(w) & tr(tr(nall))) | (tl(w) & tl(tl(nall))) | upc);
-		BBFOR(i, j, s)
-			add_jumps<true, false>(out, s, s, w, nall);
-		BBFOREND
 		BBFOR(i, jk, s)
 			add_jumps<true, true>(out, s, s, w, nall);
 		BBFOREND
-		if (out.begin() == out.end()) { // walks
-			add_simple<5, 4>(out, b & br(nall));
-			add_simple<4, 3>(out, b & bl(nall));
-			add_simple<-3, -4>(out, bk & tr(nall));
-			add_simple<-4, -5>(out, bk & tl(nall));
-		}
-	} else {
-		// jumps
-		const bitboard downc = (tr(b) & tr(tr(nall))) | (tl(b) & tl(tl(nall)));
-		const bitboard j = w & ~wk & downc;
-		const bitboard jk = wk & ((br(b) & br(br(nall))) | (bl(b) & bl(bl(nall))) | downc);
+		if (out.begin() != out.end())
+			return out;
+
+		// normal jumps
+		const bitboard j = b & ~bk & upc;
 		BBFOR(i, j, s)
-			add_jumps<false, true>(out, s, s, b, nall);
+			add_jumps<true, false>(out, s, s, w, nall);
 		BBFOREND
+		if (out.begin() != out.end())
+			return out;
+		
+		// walks
+		add_simple<5, 4>(out, b & br(nall));
+		add_simple<4, 3>(out, b & bl(nall));
+		add_simple<-3, -4>(out, bk & tr(nall));
+		add_simple<-4, -5>(out, bk & tl(nall));
+	} else {
+		// king jumps
+		const bitboard downc = (tr(b) & tr(tr(nall))) | (tl(b) & tl(tl(nall)));
+		const bitboard jk = wk & ((br(b) & br(br(nall))) | (bl(b) & bl(bl(nall))) | downc);
 		BBFOR(i, jk, s)
 			add_jumps<true, true>(out, s, s, b, nall);
 		BBFOREND
-		if (out.begin() == out.end()) { // walks
-			add_simple<-3, -4>(out, w & tr(nall));
-			add_simple<-4, -5>(out, w & tl(nall));
-			add_simple<5, 4>(out, wk & br(nall));
-			add_simple<4, 3>(out, wk & bl(nall));
-		}
+		if (out.begin() != out.end())
+			return out;
+
+		// normal jumps
+		const bitboard j = w & ~wk & downc;
+		BBFOR(i, j, s)
+			add_jumps<false, true>(out, s, s, b, nall);
+		BBFOREND
+		if (out.begin() != out.end())
+			return out;
+
+		// walks
+		add_simple<-3, -4>(out, w & tr(nall));
+		add_simple<-4, -5>(out, w & tl(nall));
+		add_simple<5, 4>(out, wk & br(nall));
+		add_simple<4, 3>(out, wk & bl(nall));
 	}
 	return out;
 }
