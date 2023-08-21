@@ -10,8 +10,8 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-//#define SEARCH_ALGORITHM_TEST
-#define PLAY_TEST
+#define SEARCH_ALGORITHM_TEST
+//#define PLAY_TEST
 
 void message(std::string message, bool important = false){
 	if(important)
