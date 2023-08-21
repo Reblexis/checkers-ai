@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <algorithm>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -39,9 +40,6 @@ uint64_t perft(board &b, int depth) {
 }
 
 void interface_test() {
-	//bitboard x = 0xffffffff;
-	//std::cout << bbvis(x) << "\n" << bbvis(tl(x)) << "\n" << bbvis(tr(x)) << "\n" << bbvis(bl(x)) << "\n" << bbvis(br(x));
-
 	message("Running interface test", true);
 
 	board b(3430946816, 524288, true, 2048);
@@ -233,15 +231,25 @@ void player_versus_bot(int player_color = 0){
 				std::cout << j << ": " << move_vis(ml.begin()[j]);
 			}
 
-			int selected_index;
-			std::cin >> selected_index;
-			if(selected_index==-1){
-				b.undo();
-				b.undo();
-				i--;
-				continue;
+			std::string sel;
+			while (sel.empty())
+				std::cin >> sel;
+			if (std::find_if_not(sel.begin(), sel.end(), isdigit) == sel.end()) {
+				b.play(ml.begin()[std::stoi(sel)]);
+			} else {
+				const square sq1 = (('h' - sel[0]) / 2) | (sel[1] - '1') << 2;
+				const square sq2 = (('h' - sel[2]) / 2) | (sel[3] - '1') << 2;
+				move sel = 0;
+				for (move m : ml) {
+					if ((m & 0x3ff) == (sq1 | sq2 << 5)) {
+						sel = m;
+					}
+				}
+				std::cout << "playing " << move_vis(sel);
+				if (sel) {
+					b.play(sel);
+				}
 			}
-			b.play(ml.begin()[selected_index]);
 		}
 		else{
 			auto selected = findmove(b);

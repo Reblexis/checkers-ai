@@ -6,4 +6,4 @@ project(checkers)
 add_executable(checkers ./main.cpp ./interface.cpp
 	./brain.cpp ./cache.cpp ./console_interface.cpp)
 set_property(TARGET checkers PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
