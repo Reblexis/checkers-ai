@@ -30,7 +30,7 @@ inline const int allhyperparams[NUM_HYPERPARAMS] =
     10, // Difference multiplier for pieces for evaluation algorithm
     999, // Max depth for search algorithm
     0, // Use cache for search algorithm (0 - no, 1 - yes)
-    10000000, // Operation limit for search algorithm
+    10000, // Operation limit for search algorithm
 };
 
 inline int currenthyperparams[NUM_HYPERPARAMS]; // Hyperparams used at the moment by the engine, can change during runtime
