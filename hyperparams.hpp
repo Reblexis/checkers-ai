@@ -22,34 +22,6 @@ constexpr int SH_MAX_DEPTH = 8;
 constexpr int SH_USE_CACHE = 9;
 constexpr int SH_OPERATION_LIMIT = 10;
 
-
-/*std::map<std::string, int> generalhyp
-{
-    {"evalution_alg", 0},
-    {"search_alg", 0}
-};
-
-std::map<std::string, int> evalhyp[2]
-{
-    {
-        {"pawn_value", 1},
-        {"king_value", 3},
-        {"king_dist", 2},
-    },
-    {
-        {"pawn_value", 1},
-        {"king_value", 3}, 
-        {"depth_divisor", 2},
-    }
-};
-
-std::map<std::string, int> searchhyp[1]
-{
-    {
-        {"max_depth", 6},
-    }
-};*/
-
 inline const int allhyperparams[NUM_HYPERPARAMS] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 0, 10000000};
 /*                               e  s  p  k  k  p  k  d   d   c  m
                                  v  e  a  i  i  a  i  i   e   a  a
