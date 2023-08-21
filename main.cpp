@@ -10,8 +10,8 @@
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
-#define SEARCH_ALGORITHM_TEST
-//#define PLAY_TEST
+//#define SEARCH_ALGORITHM_TEST
+#define PLAY_TEST
 
 void message(std::string message, bool important = false){
 	if(important)
@@ -102,11 +102,7 @@ void search_algorithm_test(){
 	std::cout << b.visualize();
 
 }
-int test_game(const board &original_board) {
-	allhyperparams[SH_MAX_DEPTH] = 5;
-	allhyperparams[SH_OPERATION_LIMIT] = 500000;
-	allhyperparams[SH_USE_CACHE] = 0;
-	allhyperparams[GH_SEARCH_ALG] = 2;
+int test_game(const board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
 	int res = 0;
 	for (int gameid = 0; gameid < 2; gameid++) {
 		board b(original_board);
@@ -118,11 +114,13 @@ int test_game(const board &original_board) {
 				break;
 			}
 			if (b.nextblack != gameid) {
-				// A hyperparam overrides
-				allhyperparams[EH_A_DIFF_MULTIPLIER] = 0;
+				// Current player - A
+				for(int i = 0; i < NUM_HYPERPARAMS; i++)
+					currenthyperparams[i] = asettings[i];
 			} else {
-				// B hyperparam overrides
-				allhyperparams[EH_A_DIFF_MULTIPLIER] = 5;
+				// Current player - B
+				for(int i = 0; i < NUM_HYPERPARAMS; i++)
+					currenthyperparams[i] = bsettings[i];
 			}
 			move m = findmove(b).second;
 			if (!m)
@@ -134,7 +132,9 @@ int test_game(const board &original_board) {
 	}
 	return res;
 }
-void play_test() {
+
+std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
+	// return {win_A_black, win_B_black, win_A_white, win_B_white, draw}
 	message("Play test", true);
 	board b(0xfff00000, 0xfff);
 	int win_A_black = 0;
@@ -143,9 +143,8 @@ void play_test() {
 	int win_B_white = 0;
 	int draw = 0;
 	int p2counter = 0;
-	int test_games = 200;
 
-	for(int i = 0; i < test_games; i++){
+	for(int i = 0; i < num_games; i++){
 		// Do first 4 moves randomly
 		for(int j = 0; j<4; j++){
 			movelist ml = b.moves();
@@ -157,7 +156,7 @@ void play_test() {
 				}
 			}			
 		}
-		int win = test_game(b);
+		int win = test_game(b, asettings, bsettings);
 		if (!(win & 0b100))
 			((win & 1) ? win_B_white : win_A_black)++;
 		else
@@ -167,23 +166,59 @@ void play_test() {
 		else
 			draw++;
 		std::cout << '.' << std::flush;
-
+/*
 		if (i % 50 == 49) {
 			std::cout << "[" << (win_A_black + win_A_white) << "/" << (win_B_black + win_B_white) << "]\n";
-		}
+		}*/
 
 		b = board(0xfff00000, 0xfff);
 	}
 
-	message("result:", true);
+	return {win_A_black, win_B_black, win_A_white, win_B_white, draw};
+	/*message("result:", true);
 	std::cout << "wins  |  A  |  B  |\n" <<
 				 "black |" << std::setw(5) << win_A_black << "|" << std::setw(5) << win_B_black << "|\n" <<
 				 "white |" << std::setw(5) << win_A_white << "|" << std::setw(5) << win_B_white << "|\n" <<
-				 "draws " << draw << "\n";
+				 "draws " << draw << "\n";*/
+}
+
+void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int num_games = 100)
+{
+	int test_hyperparams[NUM_HYPERPARAMS];
+	for(int i = 0; i < NUM_HYPERPARAMS; i++)
+		test_hyperparams[i] = input_test_hyperparams ? input_test_hyperparams[i] : allhyperparams[i];
+
+	int total_wins = 0;
+	int total_draws = 0;
+	int total_losses = 0;
+
+	for(int i = 0; i < TESTING_SAMPLES_NUM; i++)
+	{
+		board b(0xfff00000, 0xfff);
+		std::array<int, 5> result = play_test(num_games, test_hyperparams, testing_samples[i]);
+		message("Result of test game " + std::to_string(i) + ":", true);
+		std::cout<<"Total games: "<<num_games<<"\n";
+		std::cout<<"Wins: "<<result[0]+result[2]<<"\n";
+		std::cout<<"Losses: "<<result[1]+result[3]<<"\n";
+		std::cout<<"Draws: "<<result[4]<<"\n";
+
+		total_draws += result[4];
+		total_losses += result[1] + result[3];
+		total_wins += result[0] + result[2];
+	}
+
+	message("Final result:", true);
+	std::cout<<"Total games: "<<num_games*TESTING_SAMPLES_NUM<<"\n";
+	std::cout<<"Wins: "<<total_wins<<"\n";
+	std::cout<<"Losses: "<<total_losses<<"\n";
+	std::cout<<"Draws: "<<total_draws<<"\n";
 }
 
 int main() {
 	init_hashing();
+	for(int i = 0; i < NUM_HYPERPARAMS; i++)
+		currenthyperparams[i] = allhyperparams[i];
+
 #if defined(INTERFACE_TEST)
 	interface_test();
 #elif defined(INTERFACE_PERFT)
@@ -191,7 +226,7 @@ int main() {
 #elif defined(SEARCH_ALGORITHM_TEST)
 	search_algorithm_test();
 #elif defined(PLAY_TEST)
-	play_test();
+	test_performance();
 #else
 	run_console_bot();
 #endif

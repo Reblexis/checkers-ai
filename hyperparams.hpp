@@ -4,6 +4,7 @@
 #include <map>
 
 constexpr int NUM_SQUARES = 32;
+constexpr int NUM_HYPERPARAMS = 11;
 
 // THESE ARE ONLY INDICES NOT THE ACTUAL VALUES
 constexpr int GH_EVALUATION_ALG = 0;
@@ -49,7 +50,7 @@ std::map<std::string, int> searchhyp[1]
     }
 };*/
 
-inline int allhyperparams[11] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 1, 10000000};
+inline const int allhyperparams[NUM_HYPERPARAMS] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 0, 10000};
 /*                               e  s  p  k  k  p  k  d   d   c  m
                                  v  e  a  i  i  a  i  i   e   a  a
 								 a  a  w  n  n  w  n  f   p   c  x
@@ -59,6 +60,27 @@ inline int allhyperparams[11] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 1, 10000000};
 								 g  A  l  l  s  l  l  l
 								             t        t
 */
+inline int currenthyperparams[NUM_HYPERPARAMS]; // Hyperparams used at the moment by the engine, can change during runtime
+// Samples used for performance testing
+
+constexpr int TESTING_SAMPLES_NUM = 5;
+constexpr int NUM_OPS = 10000;
+constexpr int USE_CACHE = 0;
+
+inline int testing_samples[TESTING_SAMPLES_NUM][NUM_HYPERPARAMS] = {
+    // Random 
+    {0, 1, 1, 3, 2, 1, 3, 10, 5, USE_CACHE, NUM_OPS},
+    // Basic minimax with basic eval
+    {0, 2, 1, 3, 2, 1, 3, 10, 5, USE_CACHE, NUM_OPS},
+    // Iterative minimax with basic eval
+    {0, 0, 1, 3, 2, 1, 3, 10, 999, USE_CACHE, NUM_OPS},
+    // Basic minimax with advanced eval
+    {1, 2, 1, 3, 2, 1, 3, 10,  5, USE_CACHE, NUM_OPS},
+    // Iterative minimax with advanced eval
+    {1, 0, 1, 3, 2, 1, 3, 10, 999, USE_CACHE, NUM_OPS},    
+};
+
+
 
 inline int pawntable[NUM_SQUARES] = {
     15, 15, 15, 15,
@@ -80,5 +102,6 @@ inline int kingtable[NUM_SQUARES] = {
     0, 2, 2, 0,
     0, 1, 1, 0
 };
+
 
 #endif

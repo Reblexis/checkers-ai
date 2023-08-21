@@ -12,7 +12,7 @@ extern cache<> c;
 int basic_evaluation(board &b, int leftdepth){
     if(b.moves().size()==0)
         return b.nextblack ? INT32_MIN : INT32_MAX;
-    return (b.bpcount() - b.wpcount()) * allhyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*allhyperparams[EH_B_KING_VALUE]; 
+    return (b.bpcount() - b.wpcount()) * currenthyperparams[EH_B_PAWN_VALUE] + (b.bkcount() - b.wkcount())*currenthyperparams[EH_B_KING_VALUE]; 
 }
 
 int advanced_evaluation(board &b, int leftdepth)
@@ -47,10 +47,10 @@ int advanced_evaluation(board &b, int leftdepth)
 
     int pawndiff = b.bpcount() - b.wpcount();
     int kingdiff = b.bkcount() - b.wkcount();
-    pawndiff *= allhyperparams[EH_A_PAWN_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
-    kingdiff *= allhyperparams[EH_A_KING_VALUE]*allhyperparams[EH_A_DIFF_MULTIPLIER];
-    kingposscore *= allhyperparams[EH_A_KING_VALUE];
-    pawnposscore *= allhyperparams[EH_A_PAWN_VALUE];
+    pawndiff *= currenthyperparams[EH_A_PAWN_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
+    kingdiff *= currenthyperparams[EH_A_KING_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
+    kingposscore *= currenthyperparams[EH_A_KING_VALUE];
+    pawnposscore *= currenthyperparams[EH_A_PAWN_VALUE];
 
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
     //float leftdepthmultiplier = (float)((leftdepth-curdepthlim)+20)/(float)+5;
@@ -62,7 +62,7 @@ int advanced_evaluation(board &b, int leftdepth)
 }
 
 int evaluate(board &b, int leftdepth){
-    switch(allhyperparams[GH_EVALUATION_ALG]){
+    switch(currenthyperparams[GH_EVALUATION_ALG]){
         case 0:
             return basic_evaluation(b, leftdepth);
         case 1:
@@ -84,7 +84,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     move bestmove=0;
  
 	if constexpr(!toplevel) { // check cache
- 	   if(allhyperparams[SH_USE_CACHE]){
+ 	   if(currenthyperparams[SH_USE_CACHE]){
  	       const cache_entry &cacheinfo = c.get(b.hash);
  	       if(leftdepth+1 <= cacheinfo.depth)
  	           return {cacheinfo.score, cacheinfo.best};
@@ -97,7 +97,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     
     if(leftdepth==0) { // eval at leaf nodes
 		int score = evaluate(b, leftdepth);
-    	if(allhyperparams[SH_USE_CACHE])
+    	if(currenthyperparams[SH_USE_CACHE])
     	    c.set(b.hash, 1, score, 0);
         return {score, 0};
 	}
@@ -130,7 +130,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
     }
 
 	// update cache and return
-    if(allhyperparams[SH_USE_CACHE])
+    if(currenthyperparams[SH_USE_CACHE])
        	c.set(b.hash, leftdepth+1, bestscore, bestmove);
 	return {bestscore, bestmove};
 }
@@ -138,7 +138,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     std::pair<int, move> bestmove;
     ops = 0;
-    for(int i = 3; i <= allhyperparams[SH_MAX_DEPTH] && ops<allhyperparams[SH_OPERATION_LIMIT]; i++){
+    for(int i = 3; i <= currenthyperparams[SH_MAX_DEPTH] && ops<currenthyperparams[SH_OPERATION_LIMIT]; i++){
 		//std::cerr << "depth " << i << std::flush;
 		auto starttime = std::chrono::high_resolution_clock::now();
         bestmove = minimax(b, i);
@@ -156,9 +156,9 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
 
 std::pair<int, move> findmove(board &b) {
     std::pair<int, move> bestmove;
-    switch(allhyperparams[GH_SEARCH_ALG]){
+    switch(currenthyperparams[GH_SEARCH_ALG]){
         case 0:
-            bestmove = iterative_minimax(b, allhyperparams[SH_MAX_DEPTH]);
+            bestmove = iterative_minimax(b, currenthyperparams[SH_MAX_DEPTH]);
             break;
 		case 1:
 			{
@@ -169,7 +169,7 @@ std::pair<int, move> findmove(board &b) {
 			}
         default:
 		case 2:
-			bestmove = minimax(b, allhyperparams[SH_MAX_DEPTH]);
+			bestmove = minimax(b, currenthyperparams[SH_MAX_DEPTH]);
             break;
     }
     return bestmove;
