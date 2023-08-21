@@ -22,7 +22,7 @@ constexpr int SH_MAX_DEPTH = 8;
 constexpr int SH_USE_CACHE = 9;
 constexpr int SH_OPERATION_LIMIT = 10;
 
-inline const int allhyperparams[NUM_HYPERPARAMS] = {1, 0, 1, 3, 2, 1, 3, 10, 999, 0, 10000000};
+inline const int allhyperparams[NUM_HYPERPARAMS] = {0, 0, 1, 3, 2, 1, 3, 10, 999, 0, 10000000};
 /*                               e  s  p  k  k  p  k  d   d   c  m
                                  v  e  a  i  i  a  i  i   e   a  a
 								 a  a  w  n  n  w  n  f   p   c  x

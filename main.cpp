@@ -222,9 +222,9 @@ void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int
 void player_versus_bot(int player_color = 0){
 	// player color = 0 means player plays black
 	board b(0xfff00000, 0xfff);
-	std::cout << b.visualize();
 	
 	for(int i = 0; i<200; i++){
+		std::cout<<b.visualize();
 		if(i%2==player_color){
 			// First cout possible moves and then let player choose the index of the move
 			movelist ml = b.moves();
@@ -235,6 +235,12 @@ void player_versus_bot(int player_color = 0){
 
 			int selected_index;
 			std::cin >> selected_index;
+			if(selected_index==-1){
+				b.undo();
+				b.undo();
+				i--;
+				continue;
+			}
 			b.play(ml.begin()[selected_index]);
 		}
 		else{
@@ -242,7 +248,6 @@ void player_versus_bot(int player_color = 0){
 			std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second);
 			b.play(selected.second);
 		}
-		std::cout<<b.visualize();
 	}
 
 	message("Game over", true);
