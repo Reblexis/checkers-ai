@@ -70,7 +70,9 @@ void interface_perft() {
 }
 
 cache<> c;
-void search_algorithm_test(const int asettings[NUM_HYPERPARAMS], const int bsettings[NUM_HYPERPARAMS]) {
+void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int settings_b[NUM_HYPERPARAMS]) {
+    // settings_a corresponds to the first player (black)
+
 	board b(0xfff00000, 0xfff);
 	
 	message("Running search algorithm test", true);
@@ -78,7 +80,7 @@ void search_algorithm_test(const int asettings[NUM_HYPERPARAMS], const int bsett
 	
 	int num_moves = 300;
 
-	while(1){
+	while(true){
 		if (!num_moves--){
 			message("Moves limit reached", true);
 			break;
@@ -86,6 +88,11 @@ void search_algorithm_test(const int asettings[NUM_HYPERPARAMS], const int bsett
 		movelist ml = b.moves();
 		if (!ml.size())
 			break;
+
+        for(int i = 0; i < NUM_HYPERPARAMS; i++)
+            currenthyperparams[i] = b.nextblack ? settings_a[i] : settings_b[i];
+
+
 		/*message("Possible moves:", true);
 		for (move m : ml) {
 			std::cout << move_vis(m);
@@ -157,7 +164,7 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
 		// Do first 4 moves randomly
 		for(int j = 0; j<4; j++){
 			movelist ml = b.moves();
-			move randommove = ml.begin()[rand64(b.hash) % ml.size()];	
+			move randommove = ml.begin()[rand() % ml.size()];
 			b.play(randommove);
 		}
 		std :: array<int, 2> game_res = test_game(b, asettings, bsettings);
@@ -232,14 +239,16 @@ void player_versus_bot(int player_color = 0){
 			}
 
 			std::string sel;
-			while (sel.empty())
+			while (sel.empty()) {
 				std::cin >> sel;
 				if(sel=="undo"){
 					b.undo();
 					b.undo();
 					i--;
+					sel.clear();
 					continue;
 				}
+			}
 			if (std::find_if_not(sel.begin(), sel.end(), isdigit) == sel.end()) {
 				b.play(ml.begin()[std::stoi(sel)]);
 			} else {
