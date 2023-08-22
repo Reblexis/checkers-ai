@@ -118,11 +118,13 @@ std::array<int, 2> test_game(const board &original_board, int asettings[NUM_HYPE
 		int limit = 0;
 		while (ml.size()) {
 			if (limit++ > 100) {
-				// Decide by number of pieces
+				/* Decide by number of pieces
 				if(__builtin_popcountll(b.b) == __builtin_popcountll(b.w))
 					res[gameid] = 0;	
 				else 
 					res[gameid] = (__builtin_popcountll(b.b) > __builtin_popcountll(b.w)) ? gameid + 1 : 2 - gameid;
+                */
+                res[gameid] = 0;
 
 				break;
 			}

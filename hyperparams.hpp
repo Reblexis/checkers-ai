@@ -25,8 +25,8 @@ inline const int allhyperparams[NUM_HYPERPARAMS] =
     1, // Evaluation algorithm (0 - basic, 1 - advanced)
     0, // Search algorithm (0 - iterative minimax, 1 - random, 2 - basic minimax)
     1, // Pawn value for evaluation algorithm
-    5, // King value for evaluation algorithm
-    2, // King distance weight for evaluation algorithm
+    3, // King value for evaluation algorithm
+    0, // King distance weight for evaluation algorithm
     10, // Difference multiplier for pieces for evaluation algorithm
     999, // Max depth for search algorithm
     0, // Use cache for search algorithm (0 - no, 1 - yes)

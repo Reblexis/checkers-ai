@@ -29,7 +29,7 @@ int advanced_evaluation(board &b)
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(b.b & (1 << i))
-            pawnposscore += pawntable[NUM_SQUARES-i]; 
+            pawnposscore += pawntable[NUM_SQUARES-i-1];
         else if(b.w & (1 << i))
             pawnposscore -= pawntable[i];
     }
@@ -38,7 +38,7 @@ int advanced_evaluation(board &b)
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(b.bk & (1 << i))
-            kingposscore += kingtable[NUM_SQUARES-i];
+            kingposscore += kingtable[NUM_SQUARES-i-1];
         else if(b.wk & (1 << i))
             kingposscore -= kingtable[i];
     }       
@@ -140,7 +140,7 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     bestmove.first = b.nextblack ? INT32_MIN : INT32_MAX;
     ops = 0;
     finished = true;
-    for(int i = 3; i <= currenthyperparams[SH_MAX_DEPTH] && ops<currenthyperparams[SH_OPERATION_LIMIT]; i++){
+    for(int i = 1; i <= currenthyperparams[SH_MAX_DEPTH] && ops<currenthyperparams[SH_OPERATION_LIMIT]; i++){
 		//std::cerr << "depth " << i << std::flush;
 		auto starttime = std::chrono::high_resolution_clock::now();
 
@@ -148,8 +148,8 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
         if(!finished)
             break;
 
-        if((candidate.first>bestmove.first&&b.nextblack) || (candidate.first<bestmove.first&&!b.nextblack)||allhyperparams[EH_KING_DIST]==0)
-            bestmove = candidate;
+        //if((candidate.first>bestmove.first&&b.nextblack) || (candidate.first<bestmove.first&&!b.nextblack)||allhyperparams[EH_KING_DIST]==0)
+          //  bestmove = candidate;
 
         if((bestmove.first==INT32_MAX&&b.nextblack) || (bestmove.first==INT32_MIN&&!b.nextblack))
         {
