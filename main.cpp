@@ -148,6 +148,7 @@ std::array<int, 2> test_game(const board &original_board, int asettings[NUM_HYPE
 			res[gameid] = (b.nextblack == gameid) ? 1 : 2;
 		}
 	}
+
 	return res;
 }
 
@@ -169,6 +170,7 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
 			move randommove = ml.begin()[rand() % ml.size()];
 			b.play(randommove);
 		}
+
 		std :: array<int, 2> game_res = test_game(b, asettings, bsettings);
 		
 		draw += (game_res[0] == 0) + (game_res[1] == 0);
@@ -289,7 +291,7 @@ int main() {
 #elif defined(INTERFACE_PERFT)
 	interface_perft();
 #elif defined(SEARCH_ALGORITHM_TEST)
-	search_algorithm_test(allhyperparams, allhyperparams);
+	search_algorithm_test(allhyperparams, testing_samples[1]);
 #elif defined(PLAY_TEST)
 	test_performance();
 #elif defined(PLAYER_VERSUS_BOT)

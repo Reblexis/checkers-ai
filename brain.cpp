@@ -140,6 +140,7 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
     bestmove.first = b.nextblack ? INT32_MIN : INT32_MAX;
     ops = 0;
     finished = true;
+
     for(int i = 1; i <= currenthyperparams[SH_MAX_DEPTH] && ops<currenthyperparams[SH_OPERATION_LIMIT]; i++){
 		//std::cerr << "depth " << i << std::flush;
 		auto starttime = std::chrono::high_resolution_clock::now();
@@ -148,8 +149,7 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
         if(!finished)
             break;
 
-        //if((candidate.first>bestmove.first&&b.nextblack) || (candidate.first<bestmove.first&&!b.nextblack)||allhyperparams[EH_KING_DIST]==0)
-          //  bestmove = candidate;
+        bestmove = candidate;
 
         if((bestmove.first==INT32_MAX&&b.nextblack) || (bestmove.first==INT32_MIN&&!b.nextblack))
         {
@@ -160,6 +160,7 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
 		//std::cerr << " [" << std::chrono::duration_cast<std::chrono::milliseconds>(endtime - starttime).count() <<
 		//	"ms]\n"; // {" << bestmove.first << "} " << move_vis(bestmove.second);
     }
+
     return bestmove;
 }
 

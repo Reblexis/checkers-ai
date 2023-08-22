@@ -12,7 +12,7 @@ constexpr int GH_SEARCH_ALG = 1;
 
 constexpr int EH_PAWN_VALUE = 2;
 constexpr int EH_KING_VALUE = 3;
-constexpr int EH_KING_DIST = 4;
+constexpr int GH_DEBUG_BIT = 4;
 
 constexpr int EH_A_DIFF_MULTIPLIER = 5;
 
@@ -26,11 +26,11 @@ inline const int allhyperparams[NUM_HYPERPARAMS] =
     0, // Search algorithm (0 - iterative minimax, 1 - random, 2 - basic minimax)
     1, // Pawn value for evaluation algorithm
     3, // King value for evaluation algorithm
-    0, // King distance weight for evaluation algorithm
+    1, // Debug bit
     10, // Difference multiplier for pieces for evaluation algorithm
     999, // Max depth for search algorithm
     0, // Use cache for search algorithm (0 - no, 1 - yes)
-    10000, // Operation limit for search algorithm
+    100000, // Operation limit for search algorithm
 };
 
 inline int currenthyperparams[NUM_HYPERPARAMS]; // Hyperparams used at the moment by the engine, can change during runtime
