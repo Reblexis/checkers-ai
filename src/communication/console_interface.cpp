@@ -2,9 +2,9 @@
 #include <ctype.h>
 #include <algorithm>
 #include <iostream>
-#include "interface.hpp"
-#include "hyperparams.hpp"
-#include "brain.hpp"
+#include "../ai/interface.hpp"
+#include "../ai/hyperparams.hpp"
+#include "../ai/brain.hpp"
 
 template<bool up, bool down>
 std::vector<square> get_path(square from, bitboard todo, bitboard free) {

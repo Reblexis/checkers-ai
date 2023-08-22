@@ -3,11 +3,11 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
-#include "interface.hpp"
-#include "brain.hpp"
-#include "hyperparams.hpp"
-#include "cache.hpp"
-#include "console_interface.hpp"
+#include "ai/interface.hpp"
+#include "ai/brain.hpp"
+#include "ai/hyperparams.hpp"
+#include "ai/cache.hpp"
+#include "communication/console_interface.hpp"
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
