@@ -12,8 +12,8 @@
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
 //#define SEARCH_ALGORITHM_TEST
-#define PLAY_TEST
-//#define PLAYER_VERSUS_BOT
+//#define PLAY_TEST
+#define PLAYER_VERSUS_BOT
 
 void message(std::string message, bool important = false){
 	if(important)
