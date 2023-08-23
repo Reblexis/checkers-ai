@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 
-void message(std::string message, bool important = false, bool newline = true, bool error = false)){
+void message(std::string message, bool important = false, bool newline = true, bool error = false){
     if(important)
         std::cout << "--------------------------\n";
     std::cout << message;

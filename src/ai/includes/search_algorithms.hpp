@@ -1,8 +1,8 @@
 #ifndef SEARCH_ALGORITHM_HPP
 #define SEARCH_ALGORITHM_HPP
 
-#include "../communication/includes/debugging.hpp"
-#include "../communication/includes/interface.hpp"
+#include "../../communication/includes/debugging.hpp"
+#include "../../communication/includes/interface.hpp"
 #include "hyperparameters.hpp"
 #include "cache.hpp"
 #include "evaluation.hpp"

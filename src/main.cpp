@@ -5,9 +5,7 @@
 #include <iostream>
 
 #include "communication/includes/interface.hpp"
-#include "ai/includes/search_algorithms.hpp"
-#include "ai/includes/hyperparameters.hpp"
-#include "ai/includes/cache.hpp"
+#include "ai/includes/agent.hpp"
 
 #include "communication/includes/console_interface.hpp"
 
@@ -20,25 +18,18 @@
 //#define PLAY_TEST
 #define PLAYER_VERSUS_BOT
 
-Cache<> c;
+void playerVersusBot() {
+    Board board(0xfff00000, 0xfff);
+    Agent agent(CURRENT_BOT_PATH);
 
-int main() {
+    agent.findBestMove(board);
+}
+
+int main()
+{
     initializeHashing();
-	for(int i = 0; i < NUM_HYPERPARAMS; i++)
-		currenthyperparams[i] = allhyperparams[i];
 
-#if defined(INTERFACE_TEST)
-	interface_test();
-#elif defined(INTERFACE_PERFT)
-	interface_perft();
-#elif defined(SEARCH_ALGORITHM_TEST)
-	search_algorithm_test(allhyperparams, testing_samples[1]);
-#elif defined(PLAY_TEST)
-	test_performance();
-#elif defined(PLAYER_VERSUS_BOT)
-	player_versus_bot();
-#else
-	run_console_bot();
+#ifdef PLAYER_VERSUS_BOT
+    playerVersusBot();
 #endif
-	return 0;
 }

@@ -1,11 +1,16 @@
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
+
+#include <filesystem>
 #include <string>
 
 // Paths
-const std::string DATA_PATH = "data/";
-const std::string BOTS_PATH = DATA_PATH + "bots/";
-const std::string CURRENT_BOT_PATH = BOTS_PATH + "version_0/";
-const std::string EXECUTABLE_PATH = "bot";
-const std::string HYPERPARAMETERS_PATH = "hyperparameters.json";
+const std::filesystem::path DATA_PATH = std::filesystem::current_path().parent_path() / "data/";
+const std::filesystem::path BOTS_PATH = DATA_PATH / "agents/";
+const std::filesystem::path CURRENT_BOT_PATH = BOTS_PATH / "version_0/";
+const std::filesystem::path EXECUTABLE_PATH = "bot";
+const std::filesystem::path DEFAULT_HYPERPARAMETERS_PATH = DATA_PATH / "default_hyperparameters.json";
+const std::filesystem::path HYPERPARAMETERS_PATH = "hyperparameters.json";
 
 // Game constants
 constexpr int NUM_SQUARES = 32;
@@ -36,3 +41,5 @@ constexpr int USE_CACHE = 1;
 
 const std::string OPERATION_LIMIT_ID = "operation_limit";
 const std::string DEBUG_BIT_ID = "debug_bit";
+
+#endif

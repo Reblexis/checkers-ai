@@ -1,40 +1,42 @@
+#include <filesystem>
+
+#include "../communication/includes/debugging.hpp"
+
+#include "includes/hyperparameters.hpp"
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <string>
 #include <utility>
+#include "../includes/constants.hpp"
 
-class Hyperparameters {
-private:
-    nlohmann::json data{};
-    std::string filePath;
-
-public:
-    // Constructor to initialize the hyperparameters object with a file path
-    explicit Hyperparameters(std::string path) : filePath(std::move(path)) {
-        // Load data from the file, if it exists
-        std::ifstream input(filePath);
-        if (input.is_open()) {
-            input >> data;
-            input.close();
+Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(path)
+{
+    std::filesystem::create_directories(path.parent_path());
+    std::ifstream input(filePath);
+    if (input.is_open())
+    {
+        input >> data;
+        input.close();
+    }
+    else
+    {
+        std::ifstream defaultInput(DEFAULT_HYPERPARAMETERS_PATH);
+        if (defaultInput.is_open())
+        {
+            defaultInput >> data;
+            defaultInput.close();
+            save();
         }
     }
+    message("Hyperparameters loaded from " + filePath);
+}
 
-    // Template function to set a hyperparameter with a given key and value
-    template<typename T>
-    void set(const std::string& key, const T& value) {
-        data[key] = value;
-    }
-
-    // Template function to get a hyperparameter value for a given key
-    template<typename T>
-    T get(const std::string& key) const {
-        return data[key].get<T>();
-    }
-
-    // Save the current hyperparameters to the file
-    void save() const {
-        std::ofstream output(filePath);
+void Hyperparameters::save() const
+{
+    std::ofstream output(filePath);
+    if (output.is_open())
+    {
         output << std::setw(4) << data << std::endl;
         output.close();
     }
-};
+}

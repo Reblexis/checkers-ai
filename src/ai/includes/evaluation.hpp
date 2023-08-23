@@ -1,3 +1,6 @@
+#ifndef EVALUATION_HPP
+#define EVALUATION_HPP
+
 #include <map>
 #include <string>
 #include <vector>
@@ -26,8 +29,17 @@ public:
 };
 
 class AdvancedEvaluation : public Evaluation {
+private:
+    int pawnValue;
+    int kingValue;
+    int diffMultiplier;
+    std::vector<int> kingTable;
+    std::vector<int> pawnTable;
+
 public:
     explicit AdvancedEvaluation(Hyperparameters &hyperparameters);
 
     int evaluate(const Board& b) override;
 };
+
+#endif

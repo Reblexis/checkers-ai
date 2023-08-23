@@ -3,28 +3,30 @@
 #include "../communication/includes/interface.hpp"
 #include "../ai/includes/hyperparameters.hpp"
 #include "../ai/includes/search_algorithms.hpp"
+#include "../ai/includes/evaluation.hpp"
+#include "../ai/includes/agent.hpp"
 
-void interface_test() {
+void interfaceTest() {
     message("Running interface test", true);
 
-    Board b(3430946816, 524288, true, 2048);
+    Board board(3430946816, 524288, true, 2048);
     srand(532904124);
-    std::cout << b.visualize();
+    message(board.visualize());
     while (1){
-        moveList ml = b.moves();
+        moveList ml = board.moves();
         for (move m : ml) {
-            std::cout << visualizeMove(m);
+            message(visualizeMove(m) );
         }
         if (!ml.size())
             break;
         move *selected = ml.begin() + (rand() % ml.size());
-        b.play(*selected);
+        board.play(*selected);
         message("selected: " + visualizeMove(*selected), false);
     }
 }
 
 
-void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int settings_b[NUM_HYPERPARAMS]) {
+void searchAlgorithmTest(Agent &agent1, Agent &agent2){
     // settings_a corresponds to the first player (black)
 
     Board b(0xfff00000, 0xfff);
@@ -43,12 +45,10 @@ void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int sett
         if (!ml.size())
             break;
 
-        for(int i = 0; i < NUM_HYPERPARAMS; i++)
-            currenthyperparams[i] = b.nextblack ? settings_a[i] : settings_b[i];
+        std::pair<int, move> chosenMove = (b.nextblack ? agent1 : agent2).findBestMove(b);
 
-        auto selected = findmove(b);
-        message("score: " + std::to_string(selected.first) + "\nselected: " + visualizeMove(selected.secoond));
-        b.play(selected.second);
+        message("score: " + std::to_string(chosenMove.first) + "\nselected: " + visualizeMove(chosenMove.second));
+        b.play(chosenMove.second);
         message(b.visualize());
     }
     message("Game over", true);

@@ -2,9 +2,11 @@
 #include <ctype.h>
 #include <algorithm>
 #include <iostream>
+
 #include "includes/interface.hpp"
 #include "../ai/includes/hyperparameters.hpp"
 #include "../ai/includes/search_algorithms.hpp"
+#include "../ai/includes/agent.hpp"
 
 template<bool up, bool down>
 std::vector<square> get_path(square from, bitboard todo, bitboard free) {
@@ -62,7 +64,7 @@ void print_square_ci(square s) {
 }
 
 Board b(0xfff00000, 0xfff);
-void run_console_bot() {
+void run_console_bot(Agent &agent) {
 	//std::cerr << "FV bot - running console interface\n";
 	bool bnext;
 	{
@@ -95,7 +97,7 @@ void run_console_bot() {
 		}
 		b = Board(white, black, bnext, king);
 		//std::cerr << b.visualize();
-		auto sm = findmove(b);
+		auto sm = agent.findBestMove(b);
 		move m = sm.second;
 		if (m >> 10) {
 			std::vector<square> path = get_path<true, true>(m & 0x1f, m >> 10, ~(b.b | b.w));

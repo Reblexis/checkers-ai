@@ -1,25 +1,45 @@
+#pragma once
+
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <string>
-#include <utility>
+#include <filesystem>
 
-class Hyperparameters {
+// Forward declarations (if necessary)
+class Board;
+
+class Hyperparameters
+{
 private:
-    nlohmann::json data{};
+    nlohmann::json data;
     std::string filePath;
 
+    // Private member functions if any...
+
 public:
-    explicit Hyperparameters(std::string path);
+    // Constructor
+    explicit Hyperparameters(const std::filesystem::path &path);
 
-    // Template function to set a hyperparameter with a given key and value
+    // Template functions for getting and setting values in the json data
     template<typename T>
-    void set(const std::string& key, const T& value);
+    inline void set(const std::string& key, const T& value){
+        data[key] = value;
+        save();
+    };
 
-    // Template function to get a hyperparameter value for a given key
     template<typename T>
-    T get(const std::string& key) const;
+    inline T get(const std::string& key)
+    {
+        if (data.find(key) == data.end())
+        {
+            T defaultValue;
+            set(key, defaultValue);
+        }
+        return data[key].get<T>();
+    };
 
-    // Save the current hyperparameters to the file
+    // Functions to save the current data back to the file
     void save() const;
 };
+
 

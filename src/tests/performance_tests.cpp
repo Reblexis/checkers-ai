@@ -4,6 +4,9 @@
 
 #include "../communication/includes/interface.hpp"
 #include "../ai/includes/hyperparameters.hpp"
+#include "../ai/includes/agent.hpp"
+#include "../ai/includes/search_algorithms.hpp"
+#include "../ai/includes/evaluation.hpp"
 
 
 uint64_t getTreeSize(Board &b, int depth){
@@ -32,13 +35,13 @@ void interface_performance_test() {
     }
 }
 
-std::array<int, 2> testGame(const Board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS], bool decide_by_num_pieces = false) {
+std::array<int, 2> testGame(const Board &original_board, Agent &agent1, Agent &agent2, bool decide_by_num_pieces = false) {
     std::array<int, 2> res = {-1, -1};
-    // res[id] = r corresponds to the game with id=id and result r means 0=draw, 1=win for player a, 2=loss for player a
+    // res[id] = r corresponds to the game with id=id and result r means 0=draw, 1=win for agent1 2=loss for agent1
     for (int game_id = 0; game_id < 2; game_id++) {
-        // If game_id == 0, then A is black, otherwise A is white
-        Board b(original_board);
-        moveList ml = b.moves();
+        // If game_id == 0, then agent1 is black, otherwise white
+        Board board(original_board);
+        moveList ml = board.moves();
         int limit = 0;
         while (ml.size()) {
             if (limit++ > 100) {
@@ -46,40 +49,32 @@ std::array<int, 2> testGame(const Board &original_board, int asettings[NUM_HYPER
                 res[game_id] = 0;
 
                 if(decide_by_num_pieces) {
-                    if (__builtin_popcountll(b.b) == __builtin_popcountll(b.w))
+                    if (__builtin_popcountll(board.b) == __builtin_popcountll(board.w))
                         res[game_id] = 0;
                     else
-                        res[game_id] = (__builtin_popcountll(b.b) > __builtin_popcountll(b.w)) ? game_id + 1 : 2 - game_id;
+                        res[game_id] = (__builtin_popcountll(board.b) > __builtin_popcountll(board.w)) ? game_id + 1 : 2 - game_id;
                 }
 
                 break;
             }
+            move chosenMove = board.nextblack != game_id ? agent1.findBestMove(board).second : agent2.findBestMove(board).second;
 
-            if (b.nextblack != game_id) {
-                // Current player - A
-                for(int i = 0; i < NUM_HYPERPARAMS; i++)
-                    currenthyperparams[i] = asettings[i];
-            } else {
-                // Current player - B
-                for(int i = 0; i < NUM_HYPERPARAMS; i++)
-                    currenthyperparams[i] = bsettings[i];
-            }
-            move m = findmove(b).second;
-            if (!m)
+            if (!chosenMove)
                 break;
-            b.play(m);
+            board.play(chosenMove);
             // show Board
-            ml = b.moves();
+            ml = board.moves();
         }
         if(res[game_id] == -1){
-            res[game_id] = (b.nextblack == game_id) ? 1 : 2;
+            res[game_id] = (board.nextblack == game_id) ? 1 : 2;
         }
     }
 
     return res;
 }
 
-std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
+std::array<int, 5> play_test(int num_games, Agent &agent1, Agent &agent2, bool decide_by_num_pieces = false)
+{
     // return {win_A_black, win_B_black, win_A_white, win_B_white, draw}
     message("Play test", true);
     Board b(0xfff00000, 0xfff);
@@ -98,7 +93,7 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
             b.play(random_move);
         }
 
-        std :: array<int, 2> gameRes = testGame(b, asettings, bsettings);
+        std :: array<int, 2> gameRes = testGame(b, agent1, agent2, decide_by_num_pieces);
 
         draw += (gameRes[0] == 0) + (gameRes[1] == 0);
         win_A_black += (gameRes[0] == 1);
@@ -113,8 +108,8 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
 
     return {win_A_black, win_B_black, win_A_white, win_B_white, draw};
 }
-
-void test_brain_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int num_games = 20)
+/*
+void testAgentPerformance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int num_games = 20)
 {
     int test_hyperparams[NUM_HYPERPARAMS];
     for(int i = 0; i < NUM_HYPERPARAMS; i++)
@@ -145,3 +140,4 @@ void test_brain_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullpt
     message("Losses: " + std::to_string(total_losses), false);
     message("Draws: " + std::to_string(total_draws), false);
 }
+*/
