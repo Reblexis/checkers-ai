@@ -18,6 +18,7 @@ const std::string KING_VALUE_ID = "king_value";
 const std::string DIFF_MULTIPLIER_ID = "diff_multiplier";
 const std::string KING_TABLE_ID = "king_table";
 const std::string PAWN_TABLE_ID = "pawn_table";
+const std::string USE_ALPHA_BETA_ID = "use_alpha_beta";
 const std::string MAX_DEPTH_ID = "max_depth";
 const std::string USE_CACHE_ID = "use_cache";
 const std::string OPERATION_LIMIT_ID = "operation_limit";

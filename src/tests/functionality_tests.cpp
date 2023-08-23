@@ -2,7 +2,7 @@
 
 #include "../communication/includes/interface.hpp"
 #include "../ai/includes/hyperparameters.hpp"
-#include "../ai/includes/brain.hpp"
+#include "../ai/includes/search_algorithms.hpp"
 
 void interface_test() {
     message("Running interface test", true);

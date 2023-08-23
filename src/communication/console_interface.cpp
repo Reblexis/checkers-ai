@@ -4,7 +4,7 @@
 #include <iostream>
 #include "includes/interface.hpp"
 #include "../ai/includes/hyperparameters.hpp"
-#include "../ai/includes/brain.hpp"
+#include "../ai/includes/search_algorithms.hpp"
 
 template<bool up, bool down>
 std::vector<square> get_path(square from, bitboard todo, bitboard free) {

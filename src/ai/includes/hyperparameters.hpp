@@ -22,3 +22,4 @@ public:
     // Save the current hyperparameters to the file
     void save() const;
 };
+

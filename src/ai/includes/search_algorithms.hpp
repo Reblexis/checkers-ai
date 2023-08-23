@@ -2,7 +2,7 @@
 #define BRAIN_HPP
 
 #include "../../communication/includes/interface.hpp"
-//#includes "cache.hpp"
+//#includes "Cache.hpp"
 
 std::pair<int, move> findmove(Board &b);
 

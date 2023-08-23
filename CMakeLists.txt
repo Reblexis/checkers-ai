@@ -8,7 +8,7 @@ find_package(SFML 2.5 REQUIRED COMPONENTS graphics audio window system)
 include_directories(libs)
 
 add_executable(checkers src/main.cpp src/communication/interface.cpp
-		src/ai/brain.cpp src/ai/cache.cpp src/communication/console_interface.cpp
+        src/ai/search_algorithms.cpp src/ai/cache.cpp src/communication/console_interface.cpp
 		src/app/app.cpp
 		src/tests/functionality_tests.cpp
 		src/tests/performance_tests.cpp

@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "communication/includes/interface.hpp"
-#include "ai/includes/brain.hpp"
+#include "ai/includes/search_algorithms.hpp"
 #include "ai/includes/hyperparameters.hpp"
 #include "ai/includes/cache.hpp"
 
@@ -20,7 +20,7 @@
 //#define PLAY_TEST
 #define PLAYER_VERSUS_BOT
 
-cache<> c;
+Cache<> c;
 
 int main() {
     initializeHashing();
