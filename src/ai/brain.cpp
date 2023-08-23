@@ -1,7 +1,7 @@
-#include "interface.hpp"
+#include "includes/interface.hpp"
 #include <bits/stdc++.h>
-#include "hyperparams.hpp"
-#include "cache.hpp"
+#include "includes/hyperparams.hpp"
+#include "includes/cache.hpp"
 
 
 // This is responsible for doing the search algorithms and evaluation using the given interface

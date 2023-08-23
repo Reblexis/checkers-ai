@@ -3,7 +3,17 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out)
 project(checkers)
+
+find_package(SFML 2.5 REQUIRED COMPONENTS graphics audio window system)
+
 add_executable(checkers src/main.cpp src/ai/interface.cpp
-		src/ai/brain.cpp src/ai/cache.cpp src/communication/console_interface.cpp)
+		src/ai/brain.cpp src/ai/cache.cpp src/communication/console_interface.cpp
+		src/app/app.cpp
+		src/tests/functionality_tests.cpp
+		src/tests/performance_tests.cpp
+		src/communication/debugging.cpp)
+
+target_link_libraries(checkers sfml-graphics sfml-audio sfml-window sfml-system)
+
 set_property(TARGET checkers PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")

@@ -3,11 +3,16 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
-#include "ai/interface.hpp"
-#include "ai/brain.hpp"
-#include "ai/hyperparams.hpp"
-#include "ai/cache.hpp"
-#include "communication/console_interface.hpp"
+
+#include "ai/includes/interface.hpp"
+#include "ai/includes/brain.hpp"
+#include "ai/includes/hyperparams.hpp"
+#include "ai/includes/cache.hpp"
+
+#include "communication/includes/console_interface.hpp"
+
+
+#include "app/includes/app.hpp"
 
 //#define INTERFACE_TEST
 //#define INTERFACE_PERFT
@@ -15,142 +20,9 @@
 //#define PLAY_TEST
 #define PLAYER_VERSUS_BOT
 
-void message(std::string message, bool important = false){
-	if(important)
-		std::cout << "--------------------------\n";
-	std::cout << message << "\n";
-	if(important)
-		std::cout << "--------------------------\n";
-}
-
-
-uint64_t perft(board &b, int depth) {
-	if (depth < 1)
-		return 1;
-	movelist ml = b.moves();
-	if (depth < 2)
-		return ml.size();
-	uint64_t counter = 1;
-	for (move m : ml) {
-		b.play(m);
-		counter += perft(b, depth-1);
-		b.undo();
-	}
-	return counter;
-}
-
-void interface_test() {
-	message("Running interface test", true);
-
-	board b(3430946816, 524288, true, 2048);
-	srand(532904124);
-	std::cout << b.visualize();
-	while (1){
-		movelist ml = b.moves();
-		for (move m : ml) {
-			std::cout << move_vis(m);
-		}
-		if (!ml.size())
-			break;
-		move *selected = ml.begin() + (rand() % ml.size());
-		b.play(*selected);
-		std::cout << "selected: " << move_vis(*selected) << b.visualize();
-	}
-}
-
-void interface_perft() {
-	board b(0xfff00000, 0xfff);
-	message("Running interface perft test", true);
-	for (int d = 1; d < 13; d++) {
-		auto start = std::chrono::high_resolution_clock::now();
-		uint64_t res = perft(b, d);
-		auto end = std::chrono::high_resolution_clock::now();
-		std::cout << "depth " << d << ": " << res << " nodes [took " << std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() << "ms]\n";
-	}
-}
-
 cache<> c;
-void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int settings_b[NUM_HYPERPARAMS]) {
-    // settings_a corresponds to the first player (black)
-
-	board b(0xfff00000, 0xfff);
-	
-	message("Running search algorithm test", true);
-	std::cout << b.visualize();
-	
-	int num_moves = 300;
-
-	while(true){
-		if (!num_moves--){
-			message("Moves limit reached", true);
-			break;
-		}
-		movelist ml = b.moves();
-		if (!ml.size())
-			break;
-
-        for(int i = 0; i < NUM_HYPERPARAMS; i++)
-            currenthyperparams[i] = b.nextblack ? settings_a[i] : settings_b[i];
 
 
-		/*message("Possible moves:", true);
-		for (move m : ml) {
-			std::cout << move_vis(m);
-		}*/
-
-		auto selected = findmove(b);
-		std::cout << "score: " << selected.first << "\nselected: " << move_vis(selected.second);
-		b.play(selected.second);
-		std::cout << b.visualize();
-		std::cout << "cache fill rate: " << (c.fill_rate() * 100) << "%\n";
-	}
-	message("Game over", true);
-	std::cout << b.visualize();
-
-}
-std::array<int, 2> test_game(const board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
-	std::array<int, 2> res = {-1, -1}; 
-	// res[id] = r corresponds to the game with id=id and result r means 0=draw, 1=win for player a, 2=loss for player a
-	for (int gameid = 0; gameid < 2; gameid++) {
-		// If gameid == 0, then A is black, otherwise A is white
-		board b(original_board);
-		movelist ml = b.moves();
-		int limit = 0;
-		while (ml.size()) {
-			if (limit++ > 100) {
-				/* Decide by number of pieces
-				if(__builtin_popcountll(b.b) == __builtin_popcountll(b.w))
-					res[gameid] = 0;	
-				else 
-					res[gameid] = (__builtin_popcountll(b.b) > __builtin_popcountll(b.w)) ? gameid + 1 : 2 - gameid;
-                */
-                res[gameid] = 0;
-
-				break;
-			}
-			if (b.nextblack != gameid) {
-				// Current player - A
-				for(int i = 0; i < NUM_HYPERPARAMS; i++)
-					currenthyperparams[i] = asettings[i];
-			} else {
-				// Current player - B
-				for(int i = 0; i < NUM_HYPERPARAMS; i++)
-					currenthyperparams[i] = bsettings[i];
-			}
-			move m = findmove(b).second;
-			if (!m)
-				break;
-			b.play(m);
-			// show board
-			ml = b.moves();
-		}
-		if(res[gameid] == -1){
-			res[gameid] = (b.nextblack == gameid) ? 1 : 2;
-		}
-	}
-
-	return res;
-}
 
 std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS]) {
 	// return {win_A_black, win_B_black, win_A_white, win_B_white, draw}
@@ -230,6 +102,9 @@ void test_performance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr, int
 
 void player_versus_bot(int player_color = 0){
 	// player color = 0 means player plays black
+
+    launchApp();
+
 	board b(0xfff00000, 0xfff);
 	
 	for(int i = 0; i<200; i++){

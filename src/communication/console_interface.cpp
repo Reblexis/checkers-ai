@@ -1,10 +1,10 @@
-#include "console_interface.hpp"
+#include "includes/console_interface.hpp"
 #include <ctype.h>
 #include <algorithm>
 #include <iostream>
-#include "../ai/interface.hpp"
-#include "../ai/hyperparams.hpp"
-#include "../ai/brain.hpp"
+#include "../ai/includes/interface.hpp"
+#include "../ai/includes/hyperparams.hpp"
+#include "../ai/includes/brain.hpp"
 
 template<bool up, bool down>
 std::vector<square> get_path(square from, bitboard todo, bitboard free) {

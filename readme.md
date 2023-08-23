@@ -13,3 +13,8 @@ Evaluation strategy:
 - set traps to get double / triple shots ?
 - if up by one or more than trade checkers
 - form lines of three or more checkers 
+
+If you want to use the graphical interface:
+'''
+sudo apt-get install libsfml-dev
+'''
