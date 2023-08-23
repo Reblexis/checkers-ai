@@ -6,7 +6,7 @@
 
 #include "communication/includes/interface.hpp"
 #include "ai/includes/brain.hpp"
-#include "ai/includes/hyperparams.hpp"
+#include "ai/includes/hyperparameters.hpp"
 #include "ai/includes/cache.hpp"
 
 #include "communication/includes/console_interface.hpp"

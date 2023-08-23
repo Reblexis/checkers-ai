@@ -5,6 +5,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out)
 project(checkers)
 
 find_package(SFML 2.5 REQUIRED COMPONENTS graphics audio window system)
+include_directories(libs)
 
 add_executable(checkers src/main.cpp src/communication/interface.cpp
 		src/ai/brain.cpp src/ai/cache.cpp src/communication/console_interface.cpp

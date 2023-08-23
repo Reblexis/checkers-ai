@@ -1,6 +1,6 @@
 #include "../communication/includes/interface.hpp"
 #include <bits/stdc++.h>
-#include "includes/hyperparams.hpp"
+#include "includes/hyperparameters.hpp"
 #include "includes/cache.hpp"
 
 
@@ -15,43 +15,7 @@ int basic_evaluation(Board &b){
 
 int advanced_evaluation(Board &b)
 {
-    if (b.moves().size() == 0)
-        return b.nextblack ? INT32_MIN : INT32_MAX;
 
-    int score = 0;
-    int pawnposscore = 0;
-    int kingposscore = 0;
-
-    // Add to pawnposscore score for pawns at the positions specified in the pawn table
-    // Black has the table flipped
-    for(int i = 0; i < NUM_SQUARES; i++)
-    {
-        if(b.b & (1 << i))
-            pawnposscore += pawntable[NUM_SQUARES-i-1];
-        else if(b.w & (1 << i))
-            pawnposscore -= pawntable[i];
-    }
-    
-    // Add score for kings at the positions specified in the king table
-    for(int i = 0; i < NUM_SQUARES; i++)
-    {
-        if(b.bk & (1 << i))
-            kingposscore += kingtable[NUM_SQUARES-i-1];
-        else if(b.wk & (1 << i))
-            kingposscore -= kingtable[i];
-    }       
-
-    // Add score for the difference 
-
-    int pawndiff = b.blackPawnsCount() - b.whitePawnsCount();
-    int kingdiff = b.blackKingsCount() - b.whiteKingsCount();
-    pawndiff *= currenthyperparams[EH_PAWN_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
-    kingdiff *= currenthyperparams[EH_KING_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
-    kingposscore *= currenthyperparams[EH_KING_VALUE];
-    pawnposscore *= currenthyperparams[EH_PAWN_VALUE];
-
-    score = pawndiff + kingdiff + kingposscore + pawnposscore;
-    return score;
 }
 int evaluate(Board &b){
     switch(currenthyperparams[GH_EVALUATION_ALG]){

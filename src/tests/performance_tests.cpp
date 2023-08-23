@@ -3,10 +3,10 @@
 #include "../communication/includes/debugging.hpp"
 
 #include "../communication/includes/interface.hpp"
-#include "../ai/includes/hyperparams.hpp"
+#include "../ai/includes/hyperparameters.hpp"
 
 
-uint64_t get_tree_size(Board &b, int depth){
+uint64_t getTreeSize(Board &b, int depth){
     if (depth < 1)
         return 1;
     moveList ml = b.moves();
@@ -15,7 +15,7 @@ uint64_t get_tree_size(Board &b, int depth){
     uint64_t counter = 1;
     for (move m : ml) {
         b.play(m);
-        counter += get_tree_size(b, depth-1);
+        counter += getTreeSize(b, depth - 1);
         b.undo();
     }
     return counter;
@@ -26,13 +26,13 @@ void interface_performance_test() {
     message("Running interface perft test", true);
     for (int d = 1; d < 13; d++) {
         auto start = std::chrono::high_resolution_clock::now();
-        uint64_t res = get_tree_size(b, d);
+        uint64_t res = getTreeSize(b, d);
         auto end = std::chrono::high_resolution_clock::now();
         message("depth " + std::to_string(d) + ": " + std::to_string(res) + " nodes [took " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()) + "ms]", false);
     }
 }
 
-std::array<int, 2> test_game(const Board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS], bool decide_by_num_pieces = false) {
+std::array<int, 2> testGame(const Board &original_board, int asettings[NUM_HYPERPARAMS], int bsettings[NUM_HYPERPARAMS], bool decide_by_num_pieces = false) {
     std::array<int, 2> res = {-1, -1};
     // res[id] = r corresponds to the game with id=id and result r means 0=draw, 1=win for player a, 2=loss for player a
     for (int game_id = 0; game_id < 2; game_id++) {
@@ -98,13 +98,13 @@ std::array<int, 5> play_test(int num_games, int asettings[NUM_HYPERPARAMS], int 
             b.play(random_move);
         }
 
-        std :: array<int, 2> game_res = test_game(b, asettings, bsettings);
+        std :: array<int, 2> gameRes = testGame(b, asettings, bsettings);
 
-        draw += (game_res[0] == 0) + (game_res[1] == 0);
-        win_A_black += (game_res[0] == 1);
-        win_B_black += (game_res[0] == 2);
-        win_A_white += (game_res[1] == 1);
-        win_B_white += (game_res[1] == 2);
+        draw += (gameRes[0] == 0) + (gameRes[1] == 0);
+        win_A_black += (gameRes[0] == 1);
+        win_B_black += (gameRes[0] == 2);
+        win_A_white += (gameRes[1] == 1);
+        win_B_white += (gameRes[1] == 2);
 
         message(".", false, false);
 
