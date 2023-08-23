@@ -13,7 +13,10 @@ add_executable(checkers src/main.cpp src/communication/interface.cpp
 		src/tests/functionality_tests.cpp
 		src/tests/performance_tests.cpp
 		src/communication/debugging.cpp
-		src/ai/evaluation.cpp)
+		src/ai/evaluation.cpp
+		src/ai/hyperparameters.cpp
+		src/ai/agent.cpp
+		src/ai/agent.cpp)
 
 target_link_libraries(checkers sfml-graphics sfml-audio sfml-window sfml-system)
 

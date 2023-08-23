@@ -11,7 +11,7 @@
 
 class SearchAlgorithm{
     public:
-    virtual std::pair<int, move> findBestMove(Board &b) = 0;
+    virtual std::pair<int, move> findBestMove(Board &board) = 0;
     virtual ~SearchAlgorithm() = default;
 };
 
@@ -63,13 +63,19 @@ public:
         if(leftDepth==0)
         {
             // Evaluate at leaf nodes
-            int score = evaluate(board);
+            int score = evaluation.evaluate(board);
             if(useCache)
                 cache.set(board, 1, score, 0);
             return {score, 0};
         }
 
         moveList possibleMoves = board.moves();
+
+        if(bestMove == 0)
+        {
+            // Make sure that we have a move to return
+            bestMove = possibleMoves.begin()[0];
+        }
 
         if(possibleMoves.size() == 0)
         {

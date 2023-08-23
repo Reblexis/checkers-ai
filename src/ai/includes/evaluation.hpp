@@ -29,5 +29,5 @@ class AdvancedEvaluation : public Evaluation {
 public:
     explicit AdvancedEvaluation(Hyperparameters &hyperparameters);
 
-    int evaluate(Board &b);
+    int evaluate(const Board& b) override;
 };

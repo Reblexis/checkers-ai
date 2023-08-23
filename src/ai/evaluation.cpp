@@ -50,7 +50,7 @@ public:
         pawnTable = hyperparameters.get<std::vector<int>>(PAWN_TABLE_ID);
     }
 
-    int evaluate(Board &b){
+    int evaluate(const Board &b) override{
         if (b.moves().size() == 0)
             return b.nextblack ? INT32_MIN : INT32_MAX;
 

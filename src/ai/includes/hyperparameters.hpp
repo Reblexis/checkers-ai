@@ -9,7 +9,7 @@ private:
     std::string filePath;
 
 public:
-    explicit Hyperparameters(std::string path) : filePath(std::move(path)){}
+    explicit Hyperparameters(std::string path);
 
     // Template function to set a hyperparameter with a given key and value
     template<typename T>
