@@ -13,7 +13,7 @@ uint64_t rand64(uint64_t s) {
     s ^= s >> 12, s ^= s << 25, s ^= s >> 27;
     return s * 2685821657736338717LL;
 }
-void init_hashing() {
+void initializeHashing() {
 	uint64_t rnd = 6819020487127948391ll; // <- seed
 	for (size_t i = 0; i < 32; i++) {
 		for (size_t j = 0; j < 4; j++) {
@@ -22,7 +22,7 @@ void init_hashing() {
 	}
 }
 
-std::string square_vis(square sq) {
+std::string visualizeSquare(square sq) {
 	return std::string(1, 
 #if BOARD_ORIENTATION_CHESS
 		'h' - ((sq & 0x3) << 1 | (~sq >> 2 & 1))
@@ -32,9 +32,9 @@ std::string square_vis(square sq) {
 		) + std::string(1, '1' + (sq >> 2));
 }
 
-std::string move_vis(move m) {
+std::string visualizeMove(move m) {
 	std::ostringstream oss;
-	oss << "[" << square_vis(m & 0x1f) << " -> " << square_vis(m >> 5 & 0x1f) << "] ";
+	oss << "[" << visualizeSquare(m & 0x1f) << " -> " << visualizeSquare(m >> 5 & 0x1f) << "] ";
 	if ((m >> 10) == 0) {
 		oss << "walk\n";
 	} else {
@@ -62,23 +62,23 @@ std::string bbvis(bitboard bb) {
 	return oss.str();
 }
 
-movelist::movelist() : e(moves) { }
-movelist::movelist(const movelist &o) : e(moves) {
+moveList::moveList() : e(moves) { }
+moveList::moveList(const moveList &o) : e(moves) {
 	for (const move *i = o.cbegin(); i != o.cend(); i++) {
 		push(*i);
 	}
 }
-void movelist::push(move m) { *(e++) = m; }
-move *movelist::begin() { return moves; }
-move *movelist::end() { return e; }
-const move *movelist::cbegin() const { return moves; }
-const move *movelist::cend() const { return e; }
-size_t movelist::size() const { return e-moves; }
-bool movelist::contains(move m) const {
+void moveList::push(move m) { *(e++) = m; }
+move *moveList::begin() { return moves; }
+move *moveList::end() { return e; }
+const move *moveList::cbegin() const { return moves; }
+const move *moveList::cend() const { return e; }
+size_t moveList::size() const { return e - moves; }
+bool moveList::contains(move m) const {
 	return std::find(cbegin(), cend(), m) != cend();
 }
 
-board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), nextblack(next), hash(0) {
+Board::Board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), nextblack(next), hash(0) {
 	BBFOR(i, w, s)
 		hash ^= hash_lookup[s][0];
 	BBFOREND
@@ -92,7 +92,7 @@ board::board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w &
 		hash ^= hash_lookup[0][3];
 }
 template<int8_t dsa, int8_t dsb>
-void add_simple(movelist &out, bitboard own) {
+void add_simple(moveList &out, bitboard own) {
 	BBFOR(i, own, s)
 		out.push(static_cast<uint64_t>(s) | static_cast<uint64_t>(s +
 #if BOARD_ORIENTATION_CHESS
@@ -104,7 +104,7 @@ void add_simple(movelist &out, bitboard own) {
 	BBFOREND
 }
 template<bool up, bool down>
-void add_jumps(movelist &out, square start, square from, bitboard to_capture, bitboard nall, bitboard captured=0) {
+void add_jumps(moveList &out, square start, square from, bitboard to_capture, bitboard nall, bitboard captured=0) {
 	move *ce = out.end();
 	bitboard frombb = 1 << from;
 	if constexpr (up) {
@@ -131,8 +131,8 @@ void add_jumps(movelist &out, square start, square from, bitboard to_capture, bi
 		out.push(start | from << 5 | static_cast<move>(captured) << 10);
 	}
 }
-movelist board::moves() const {
-	movelist out;
+moveList Board::moves() const {
+	moveList out;
 	const bitboard all = b | w;
 	const bitboard nall = ~all;
 	if (nextblack) {
@@ -184,7 +184,7 @@ movelist board::moves() const {
 	}
 	return out;
 }
-void board::play(const move &m) {
+void Board::play(const move &m) {
 	if(m == 0) {
 		std::cout << "move "<< "is INVALID\n" << visualize();
 		exit(1);
@@ -198,7 +198,7 @@ void board::play(const move &m) {
 	const bitboard to = 1 << tos;
 	const bitboard captm = m >> 10; // captured piece bitmask
 	const bitboard icaptm = ~captm;
-	// update board state
+	// update Board state
 	if (nextblack) {
 		b = (b & ~from) | to;
 		hash ^= hash_lookup[froms][1] ^ hash_lookup[tos][1];
@@ -240,7 +240,7 @@ void board::play(const move &m) {
 	nextblack = !nextblack;
 	hash ^= hash_lookup[0][3];
 }
-void board::undo() {
+void Board::undo() {
 	b = history.top()[0];
 	bk = history.top()[0] >> 32;
 	w = history.top()[1];
@@ -249,13 +249,13 @@ void board::undo() {
 	history.pop();
 	nextblack = !nextblack;
 }
-int board::wcount() const { return __builtin_popcountll(w); }
-int board::bcount() const { return __builtin_popcountll(b); }
-int board::wpcount() const { return __builtin_popcountll(w & ~wk); }
-int board::bpcount() const { return __builtin_popcountll(b & ~bk); }
-int board::wkcount() const { return __builtin_popcountll(wk); }
-int board::bkcount() const { return __builtin_popcountll(bk); }
-std::string board::visualize() const {
+int Board::whitePiecesCount() const { return __builtin_popcountll(w); }
+int Board::blackPiecesCount() const { return __builtin_popcountll(b); }
+int Board::whitePawnsCount() const { return __builtin_popcountll(w & ~wk); }
+int Board::blackPawnsCount() const { return __builtin_popcountll(b & ~bk); }
+int Board::whiteKingsCount() const { return __builtin_popcountll(wk); }
+int Board::blackKingsCount() const { return __builtin_popcountll(bk); }
+std::string Board::visualize() const {
 	std::ostringstream oss;
 	oss << "    a   b   c   d   e   f   g   h\n";
 	oss << "  +---+---+---+---+---+---+---+---+\n";

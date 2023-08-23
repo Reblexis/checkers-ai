@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <algorithm>
 #include <iostream>
-#include "../ai/includes/interface.hpp"
+#include "includes/interface.hpp"
 #include "../ai/includes/hyperparams.hpp"
 #include "../ai/includes/brain.hpp"
 
@@ -61,7 +61,7 @@ void print_square_ci(square s) {
 			<< static_cast<char>('7' - (s >> 2));
 }
 
-board b(0xfff00000, 0xfff);
+Board b(0xfff00000, 0xfff);
 void run_console_bot() {
 	//std::cerr << "FV bot - running console interface\n";
 	bool bnext;
@@ -93,7 +93,7 @@ void run_console_bot() {
 				}
 			}
 		}
-		b = board(white, black, bnext, king);
+		b = Board(white, black, bnext, king);
 		//std::cerr << b.visualize();
 		auto sm = findmove(b);
 		move m = sm.second;

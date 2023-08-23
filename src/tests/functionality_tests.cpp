@@ -1,25 +1,25 @@
 #include "../communication/includes/debugging.hpp"
 
-#include "../ai/includes/interface.hpp"
+#include "../communication/includes/interface.hpp"
 #include "../ai/includes/hyperparams.hpp"
 #include "../ai/includes/brain.hpp"
 
 void interface_test() {
     message("Running interface test", true);
 
-    board b(3430946816, 524288, true, 2048);
+    Board b(3430946816, 524288, true, 2048);
     srand(532904124);
     std::cout << b.visualize();
     while (1){
-        movelist ml = b.moves();
+        moveList ml = b.moves();
         for (move m : ml) {
-            std::cout << move_vis(m);
+            std::cout << visualizeMove(m);
         }
         if (!ml.size())
             break;
         move *selected = ml.begin() + (rand() % ml.size());
         b.play(*selected);
-        message("selected: " + move_vis(*selected), false);
+        message("selected: " + visualizeMove(*selected), false);
     }
 }
 
@@ -27,7 +27,7 @@ void interface_test() {
 void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int settings_b[NUM_HYPERPARAMS]) {
     // settings_a corresponds to the first player (black)
 
-    board b(0xfff00000, 0xfff);
+    Board b(0xfff00000, 0xfff);
 
     message("Running search algorithm test", true);
     message(b.visualize());
@@ -39,7 +39,7 @@ void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int sett
             message("Moves limit reached", true);
             break;
         }
-        movelist ml = b.moves();
+        moveList ml = b.moves();
         if (!ml.size())
             break;
 
@@ -47,7 +47,7 @@ void search_algorithm_test(const int settings_a[NUM_HYPERPARAMS], const int sett
             currenthyperparams[i] = b.nextblack ? settings_a[i] : settings_b[i];
 
         auto selected = findmove(b);
-        message("score: " + std::to_string(selected.first) + "\nselected: " + move_vis(selected.secoond));
+        message("score: " + std::to_string(selected.first) + "\nselected: " + visualizeMove(selected.secoond));
         b.play(selected.second);
         message(b.visualize());
     }

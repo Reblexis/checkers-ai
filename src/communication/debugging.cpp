@@ -1,9 +1,13 @@
+#include <string>
+#include <iostream>
 
-
-void message(std::string message, bool important = false){
+void message(std::string message, bool important = false, bool newline = true){
     if(important)
         std::cout << "--------------------------\n";
-    std::cout << message << "\n";
+    std::cout << message;
+    if(important || newline)
+        std::cout << '\n';
+    std::cout<<std::flush;
     if(important)
         std::cout << "--------------------------\n";
 }

@@ -2,7 +2,7 @@
 #define CACHE_HPP
 
 #include <array>
-#include "interface.hpp"
+#include "../../communication/includes/interface.hpp"
 
 #define MEASURE_CACHE_FILL
 

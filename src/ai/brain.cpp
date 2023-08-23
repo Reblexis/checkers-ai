@@ -1,4 +1,4 @@
-#include "includes/interface.hpp"
+#include "../communication/includes/interface.hpp"
 #include <bits/stdc++.h>
 #include "includes/hyperparams.hpp"
 #include "includes/cache.hpp"
@@ -9,13 +9,11 @@
 
 extern cache<> c;
 
-int basic_evaluation(board &b){
-    if(b.moves().size()==0)
-        return b.nextblack ? INT32_MIN : INT32_MAX;
-    return (b.bpcount() - b.wpcount()) * currenthyperparams[EH_PAWN_VALUE] + (b.bkcount() - b.wkcount())*currenthyperparams[EH_KING_VALUE]; 
+int basic_evaluation(Board &b){
+
 }
 
-int advanced_evaluation(board &b)
+int advanced_evaluation(Board &b)
 {
     if (b.moves().size() == 0)
         return b.nextblack ? INT32_MIN : INT32_MAX;
@@ -45,8 +43,8 @@ int advanced_evaluation(board &b)
 
     // Add score for the difference 
 
-    int pawndiff = b.bpcount() - b.wpcount();
-    int kingdiff = b.bkcount() - b.wkcount();
+    int pawndiff = b.blackPawnsCount() - b.whitePawnsCount();
+    int kingdiff = b.blackKingsCount() - b.whiteKingsCount();
     pawndiff *= currenthyperparams[EH_PAWN_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
     kingdiff *= currenthyperparams[EH_KING_VALUE]*currenthyperparams[EH_A_DIFF_MULTIPLIER];
     kingposscore *= currenthyperparams[EH_KING_VALUE];
@@ -55,7 +53,7 @@ int advanced_evaluation(board &b)
     score = pawndiff + kingdiff + kingposscore + pawnposscore;
     return score;
 }
-int evaluate(board &b){
+int evaluate(Board &b){
     switch(currenthyperparams[GH_EVALUATION_ALG]){
         case 0:
             return basic_evaluation(b);
@@ -70,7 +68,7 @@ long long ops = 0;
 bool finished = true;
 
 template<bool toplevel=true>
-std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
+std::pair<int, move> minimax(Board &b, int leftdepth, int alpha = INT32_MIN, int beta = INT32_MAX){
     ops++;
 
     bool maximizing = b.nextblack;
@@ -97,7 +95,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
         return {score, 0};
 	}
 
-    movelist possiblemoves = b.moves();
+    moveList possiblemoves = b.moves();
 	if (possiblemoves.size() == 0) {
 		return {maximizing ? INT32_MIN : INT32_MAX, 0};
 	}
@@ -135,7 +133,7 @@ std::pair<int, move> minimax(board &b, int leftdepth, int alpha = INT32_MIN, int
 	return {bestscore, bestmove};
 }
 
-std::pair<int, move> iterative_minimax(board &b, int maxdepth){
+std::pair<int, move> iterative_minimax(Board &b, int maxdepth){
     std::pair<int, move> bestmove;
     bestmove.first = b.nextblack ? INT32_MIN : INT32_MAX;
     ops = 0;
@@ -158,13 +156,13 @@ std::pair<int, move> iterative_minimax(board &b, int maxdepth){
         }
 		auto endtime = std::chrono::high_resolution_clock::now();
 		//std::cerr << " [" << std::chrono::duration_cast<std::chrono::milliseconds>(endtime - starttime).count() <<
-		//	"ms]\n"; // {" << bestmove.first << "} " << move_vis(bestmove.second);
+		//	"ms]\n"; // {" << bestmove.first << "} " << visualizeMove(bestmove.second);
     }
 
     return bestmove;
 }
 
-std::pair<int, move> findmove(board &b) {
+std::pair<int, move> findmove(Board &b) {
     std::pair<int, move> bestmove;
     switch(currenthyperparams[GH_SEARCH_ALG]){
         case 0:
@@ -172,7 +170,7 @@ std::pair<int, move> findmove(board &b) {
             break;
 		case 1:
 			{
-				movelist ml = b.moves();
+				moveList ml = b.moves();
 				if (ml.size() == 0)
 					return {0, 0};
 				return {0, ml.begin()[rand64(b.hash) % ml.size()]};

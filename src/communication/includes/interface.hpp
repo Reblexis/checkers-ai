@@ -10,13 +10,13 @@
 #define BOARD_ORIENTATION_CHESS 1
 
 uint64_t rand64(uint64_t s);
-void init_hashing();
+void initializeHashing();
 
 using square = uint_fast8_t;
-std::string square_vis(square sq);
+std::string visualizeSquare(square sq);
 
 using move = uint64_t;
-std::string move_vis(move m);
+std::string visualizeMove(move m);
 
 using bitboard = uint32_t;
 #if BOARD_ORIENTATION_CHESS
@@ -32,13 +32,13 @@ constexpr inline bitboard br(bitboard x) { return (x & 0xf0f0f0f0) >> 4 | (x & 0
 #endif
 std::string bbvis(bitboard bb);
 
-class movelist {
+class moveList {
 public:
 	move moves[100];
 	move *e;
 
-	movelist();
-	movelist(const movelist &);
+	moveList();
+	moveList(const moveList &);
 	void push(move m);
 	move *begin();
 	move *end();
@@ -48,7 +48,7 @@ public:
 	bool contains(move m) const;
 };
 
-class board {
+class Board {
 public:
 	bool nextblack;
 	bitboard w, b;
@@ -56,17 +56,17 @@ public:
 	uint64_t hash;
 	std::stack<std::array<uint64_t, 3>> history;
 
-	board(bitboard w, bitboard b, bool next=true, bitboard k=0);
-	movelist moves() const;
+	Board(bitboard w, bitboard b, bool next=true, bitboard k=0);
+	moveList moves() const;
 	void play(const move &m);
 	void undo();
 
-	int wcount() const;
-	int bcount() const;
-	int wpcount() const;
-	int bpcount() const;
-	int wkcount() const;
-	int bkcount() const;
+	int whitePiecesCount() const;
+	int blackPiecesCount() const;
+	int whitePawnsCount() const;
+	int blackPawnsCount() const;
+	int whiteKingsCount() const;
+	int blackKingsCount() const;
 
 	std::string visualize() const;
 };
