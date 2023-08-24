@@ -6,6 +6,7 @@
 
 #include "communication/includes/interface.hpp"
 #include "ai/includes/agent.hpp"
+#include "app/includes/app.hpp"
 
 #include "communication/includes/console_interface.hpp"
 
@@ -21,6 +22,8 @@
 void playerVersusBot() {
     Board board(0xfff00000, 0xfff);
     Agent agent(CURRENT_BOT_PATH);
+    launchApp();
+
 
     agent.findBestMove(board);
 }

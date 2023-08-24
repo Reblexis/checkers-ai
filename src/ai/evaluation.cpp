@@ -29,33 +29,36 @@ AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
     pawnTable = hyperparameters.get<std::vector<int>>(PAWN_TABLE_ID);
 }
 
-int AdvancedEvaluation::evaluate(const Board &b)
+int AdvancedEvaluation::evaluate(const Board &board)
 {
-    if (b.moves().size() == 0)
-        return b.nextblack ? INT32_MIN : INT32_MAX;
+    if (board.moves().size() == 0)
+        return board.nextblack ? INT32_MIN : INT32_MAX;
 
     int score = 0;
     int pawnTableScore = 0;
     int kingTableScore = 0;
 
+    bitboard whitePawns = board.whitePieces & ~board.whiteKings;
+    bitboard blackPawns = board.blackPieces & ~board.blackKings;
+
     for(int i = 0; i < NUM_SQUARES; i++)
     {
-        if(b.b & (1 << i))
+        if(whitePawns & (1 << i))
             pawnTableScore += pawnTable[NUM_SQUARES - i - 1];
-        else if(b.w & (1 << i))
+        else if(blackPawns & (1 << i))
             pawnTableScore -= pawnTable[i];
     }
 
     for(int i = 0; i < NUM_SQUARES; i++)
     {
-        if(b.bk & (1 << i))
+        if(board.blackKings & (1 << i))
             kingTableScore += kingTable[NUM_SQUARES - i - 1];
-        else if(b.wk & (1 << i))
+        else if(board.whiteKings & (1 << i))
             kingTableScore -= kingTable[i];
     }
 
-    int pawnDiff = b.blackPawnsCount() - b.whitePawnsCount();
-    int kingDiff = b.blackKingsCount() - b.whiteKingsCount();
+    int pawnDiff = board.blackPawnsCount() - board.whitePawnsCount();
+    int kingDiff = board.blackKingsCount() - board.whiteKingsCount();
 
     pawnDiff *= pawnValue * diffMultiplier;
     kingDiff *= kingValue * diffMultiplier;

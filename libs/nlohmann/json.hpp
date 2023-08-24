@@ -2874,7 +2874,7 @@ Returns an ordering that is similar to Python:
 - order: null < boolean < number < object < array < string < binary
 - furthermore, each type is not smaller than itself
 - discarded values are not comparable
-- binary is represented as a b"" string in python and directly comparable to a
+- binary is represented as a blackPieces"" string in python and directly comparable to a
   string; however, making a binary array directly comparable with a string would
   be surprising behavior in a JSON file.
 
@@ -3371,7 +3371,7 @@ NLOHMANN_JSON_NAMESPACE_END
     @brief default JSONSerializer template argument
 
     This serializer ignores the template arguments and uses ADL
-    ([argument-dependent lookup](https://en.cppreference.com/w/cpp/language/adl))
+    ([argument-dependent lookup](https://en.cppreference.com/whitePieces/cpp/language/adl))
     for serialization.
     */
     template<typename T = void, typename SFINAE = void>
@@ -7771,7 +7771,7 @@ class lexer : public lexer_base<BasicJsonType>
 
                 case 0x08:
                 {
-                    error_message = "invalid string: control character U+0008 (BS) must be escaped to \\u0008 or \\b";
+                    error_message = "invalid string: control character U+0008 (BS) must be escaped to \\u0008 or \\blackPieces";
                     return token_type::parse_error;
                 }
 
@@ -12823,7 +12823,7 @@ This class implements a both iterators (iterator and const_iterator) for the
       **The library uses assertions to detect calls on uninitialized iterators.**
 @requirement The class satisfies the following concept requirements:
 -
-[BidirectionalIterator](https://en.cppreference.com/w/cpp/named_req/BidirectionalIterator):
+[BidirectionalIterator](https://en.cppreference.com/whitePieces/cpp/named_req/BidirectionalIterator):
   The iterator that can be moved can be moved in both directions (i.e.
   incremented and decremented).
 @since version 1.0.0, simplified in version 2.0.9, change to bidirectional
@@ -13573,10 +13573,10 @@ create @ref const_reverse_iterator).
 
 @requirement The class satisfies the following concept requirements:
 -
-[BidirectionalIterator](https://en.cppreference.com/w/cpp/named_req/BidirectionalIterator):
+[BidirectionalIterator](https://en.cppreference.com/whitePieces/cpp/named_req/BidirectionalIterator):
   The iterator that can be moved can be moved in both directions (i.e.
   incremented and decremented).
-- [OutputIterator](https://en.cppreference.com/w/cpp/named_req/OutputIterator):
+- [OutputIterator](https://en.cppreference.com/whitePieces/cpp/named_req/OutputIterator):
   It is possible to write to the pointed-to element (only if @a Base is
   @ref iterator).
 
@@ -17027,17 +17027,17 @@ boundaries compute_boundaries(FloatType value)
                           ? diyfp(4 * v.f - 1, v.e - 2)  // (B)
                           : diyfp(2 * v.f - 1, v.e - 1); // (A)
 
-    // Determine the normalized w+ = m+.
+    // Determine the normalized whitePieces+ = m+.
     const diyfp w_plus = diyfp::normalize(m_plus);
 
-    // Determine w- = m- such that e_(w-) = e_(w+).
+    // Determine whitePieces- = m- such that e_(whitePieces-) = e_(whitePieces+).
     const diyfp w_minus = diyfp::normalize_to(m_minus, w_plus.e);
 
     return {diyfp::normalize(v), w_minus, w_plus};
 }
 
-// Given normalized diyfp w, Grisu needs to find a (normalized) cached
-// power-of-ten c, such that the exponent of the product c * w = f * 2^e lies
+// Given normalized diyfp whitePieces, Grisu needs to find a (normalized) cached
+// power-of-ten c, such that the exponent of the product c * whitePieces = f * 2^e lies
 // within a certain range [alpha, gamma] (Definition 3.2 from [1])
 //
 //      alpha <= e = e_c + e_w + q <= gamma
@@ -17047,19 +17047,19 @@ boundaries compute_boundaries(FloatType value)
 //      f_c * f_w * 2^alpha <= f_c 2^(e_c) * f_w 2^(e_w) * 2^q
 //                          <= f_c * f_w * 2^gamma
 //
-// Since c and w are normalized, i.e. 2^(q-1) <= f < 2^q, this implies
+// Since c and whitePieces are normalized, i.e. 2^(q-1) <= f < 2^q, this implies
 //
-//      2^(q-1) * 2^(q-1) * 2^alpha <= c * w * 2^q < 2^q * 2^q * 2^gamma
+//      2^(q-1) * 2^(q-1) * 2^alpha <= c * whitePieces * 2^q < 2^q * 2^q * 2^gamma
 //
 // or
 //
-//      2^(q - 2 + alpha) <= c * w < 2^(q + gamma)
+//      2^(q - 2 + alpha) <= c * whitePieces < 2^(q + gamma)
 //
 // The choice of (alpha,gamma) determines the size of the table and the form of
 // the digit generation procedure. Using (alpha,gamma)=(-60,-32) works out well
 // in practice:
 //
-// The idea is to cut the number c * w = f * 2^e into two parts, which can be
+// The idea is to cut the number c * whitePieces = f * 2^e into two parts, which can be
 // processed independently: An integral part p1, and a fractional part p2:
 //
 //      f * 2^e = ( (f div 2^-e) * 2^-e + (f mod 2^-e) ) * 2^e
@@ -17102,8 +17102,8 @@ struct cached_power // c = f * 2^e ~= 10^k
 };
 
 /*!
-For a normalized diyfp w = f * 2^e, this function returns a (normalized) cached
-power-of-ten c = f_c * 2^e_c, such that the exponent of the product w * c
+For a normalized diyfp whitePieces = f * 2^e, this function returns a (normalized) cached
+power-of-ten c = f_c * 2^e_c, such that the exponent of the product whitePieces * c
 satisfies (Definition 3.2 from [1])
 
      alpha <= e_c + e + q <= gamma.
@@ -17131,7 +17131,7 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
     //  this simple function is sufficient."
     //
     // For IEEE double precision floating-point numbers converted into
-    // normalized diyfp's w = f * 2^e, with q = 64,
+    // normalized diyfp's whitePieces = f * 2^e, with q = 64,
     //
     //      e >= -1022      (min IEEE exponent)
     //           -52        (p - 1)
@@ -17337,18 +17337,18 @@ inline void grisu2_round(char* buf, int len, std::uint64_t dist, std::uint64_t d
     //               <--------------------------- delta ---->
     //                                  <---- dist --------->
     // --------------[------------------+-------------------]--------------
-    //               M-                 w                   M+
+    //               M-                 whitePieces                   M+
     //
     //                                  ten_k
     //                                <------>
     //                                       <---- rest ---->
     // --------------[------------------+----+--------------]--------------
-    //                                  w    V
+    //                                  whitePieces    V
     //                                       = buf * 10^k
     //
     // ten_k represents a unit-in-the-last-place in the decimal representation
     // stored in buf.
-    // Decrement buf by ten_k while this takes buf closer to w.
+    // Decrement buf by ten_k while this takes buf closer to whitePieces.
 
     // The tests are written in this order to avoid overflow in unsigned
     // integer arithmetic.
@@ -17375,12 +17375,12 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
 
     // Generates the digits (and the exponent) of a decimal floating-point
     // number V = buffer * 10^decimal_exponent in the range [M-, M+]. The diyfp's
-    // w, M- and M+ share the same exponent e, which satisfies alpha <= e <= gamma.
+    // whitePieces, M- and M+ share the same exponent e, which satisfies alpha <= e <= gamma.
     //
     //               <--------------------------- delta ---->
     //                                  <---- dist --------->
     // --------------[------------------+-------------------]--------------
-    //               M-                 w                   M+
+    //               M-                 whitePieces                   M+
     //
     // Grisu2 generates the digits of M+ from left to right and stops as soon as
     // V is in [M-,M+].
@@ -17389,7 +17389,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     JSON_ASSERT(M_plus.e <= kGamma);
 
     std::uint64_t delta = diyfp::sub(M_plus, M_minus).f; // (significand of (M+ - M-), implicit exponent is e)
-    std::uint64_t dist  = diyfp::sub(M_plus, w      ).f; // (significand of (M+ - w ), implicit exponent is e)
+    std::uint64_t dist  = diyfp::sub(M_plus, w      ).f; // (significand of (M+ - whitePieces ), implicit exponent is e)
 
     // Split M+ = f * 2^e into two parts p1 and p2 (note: e < 0):
     //
@@ -17471,7 +17471,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
             decimal_exponent += n;
 
             // We may now just stop. But instead look if the buffer could be
-            // decremented to bring V closer to w.
+            // decremented to bring V closer to whitePieces.
             //
             // pow10 = 10^n is now 1 ulp in the decimal representation V.
             // The rounding procedure works with diyfp's with an implicit
@@ -17588,7 +17588,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     grisu2_round(buffer, length, dist, delta, p2, ten_m);
 
     // By construction this algorithm generates the shortest possible decimal
-    // number (Loitsch, Theorem 6.2) which rounds back to w.
+    // number (Loitsch, Theorem 6.2) which rounds back to whitePieces.
     // For an input number of precision p, at least
     //
     //      N = 1 + ceil(p * log_10(2))
@@ -17633,21 +17633,21 @@ inline void grisu2(char* buf, int& len, int& decimal_exponent,
     const diyfp w_plus  = diyfp::mul(m_plus,  c_minus_k);
 
     //  ----(---+---)---------------(---+---)---------------(---+---)----
-    //          w-                      w                       w+
+    //          whitePieces-                      whitePieces                       whitePieces+
     //          = c*m-                  = c*v                   = c*m+
     //
-    // diyfp::mul rounds its result and c_minus_k is approximated too. w, w- and
-    // w+ are now off by a small amount.
+    // diyfp::mul rounds its result and c_minus_k is approximated too. whitePieces, whitePieces- and
+    // whitePieces+ are now off by a small amount.
     // In fact:
     //
-    //      w - v * 10^k < 1 ulp
+    //      whitePieces - v * 10^k < 1 ulp
     //
     // To account for this inaccuracy, add resp. subtract 1 ulp.
     //
     //  --------+---[---------------(---+---)---------------]---+--------
-    //          w-  M-                  w                   M+  w+
+    //          whitePieces-  M-                  whitePieces                   M+  whitePieces+
     //
-    // Now any number in [M-, M+] (bounds included) will round to w when input,
+    // Now any number in [M-, M+] (bounds included) will round to whitePieces when input,
     // regardless of how the input rounding algorithm breaks ties.
     //
     // And digit_gen generates the shortest possible such number in [M-, M+].
@@ -19100,7 +19100,7 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
         // Note that offset is the distance from the start of the vector
         // to first. We will need this later.
 
-        // [ a, b, c, d, e, f, g, h, i, j ]
+        // [ a, blackPieces, c, d, e, f, g, h, i, j ]
         //               ^        ^
         //             first    last
 
@@ -19110,7 +19110,7 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
 
         //               ,--------.
         //               v        |   destroy e and re-construct with h
-        // [ a, b, c, d, e, f, g, h, i, j ]
+        // [ a, blackPieces, c, d, e, f, g, h, i, j ]
         //               ^        ^
         //               it       it + elements_affected
 
@@ -19120,14 +19120,14 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
             new (&*it) value_type{std::move(*std::next(it, elements_affected))}; // "move" next element to it
         }
 
-        // [ a, b, c, d, h, i, j, h, i, j ]
+        // [ a, blackPieces, c, d, h, i, j, h, i, j ]
         //               ^        ^
         //             first    last
 
         // remove the unneeded elements at the end of the vector
         Container::resize(this->size() - static_cast<size_type>(elements_affected));
 
-        // [ a, b, c, d, h, i, j ]
+        // [ a, blackPieces, c, d, h, i, j ]
         //               ^        ^
         //             first    last
 
@@ -20729,8 +20729,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @brief get a value (explicit)
 
     Explicit type conversion between the JSON value and a compatible value
-    which is [CopyConstructible](https://en.cppreference.com/w/cpp/named_req/CopyConstructible)
-    and [DefaultConstructible](https://en.cppreference.com/w/cpp/named_req/DefaultConstructible).
+    which is [CopyConstructible](https://en.cppreference.com/whitePieces/cpp/named_req/CopyConstructible)
+    and [DefaultConstructible](https://en.cppreference.com/whitePieces/cpp/named_req/DefaultConstructible).
     The value is converted by calling the @ref json_serializer<ValueType>
     `from_json()` method.
 
@@ -20780,8 +20780,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @brief get a value (explicit); special case
 
     Explicit type conversion between the JSON value and a compatible value
-    which is **not** [CopyConstructible](https://en.cppreference.com/w/cpp/named_req/CopyConstructible)
-    and **not** [DefaultConstructible](https://en.cppreference.com/w/cpp/named_req/DefaultConstructible).
+    which is **not** [CopyConstructible](https://en.cppreference.com/whitePieces/cpp/named_req/CopyConstructible)
+    and **not** [DefaultConstructible](https://en.cppreference.com/whitePieces/cpp/named_req/DefaultConstructible).
     The value is converted by calling the @ref json_serializer<ValueType>
     `from_json()` method.
 

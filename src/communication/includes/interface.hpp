@@ -51,8 +51,8 @@ public:
 class Board {
 public:
 	bool nextblack;
-	bitboard w, b;
-	bitboard wk, bk;
+	bitboard whitePieces, blackPieces;
+	bitboard whiteKings, blackKings;
 	uint64_t hash;
 	std::stack<std::array<uint64_t, 3>> history;
 

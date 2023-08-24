@@ -49,10 +49,10 @@ std::array<int, 2> testGame(const Board &original_board, Agent &agent1, Agent &a
                 res[game_id] = 0;
 
                 if(decide_by_num_pieces) {
-                    if (__builtin_popcountll(board.b) == __builtin_popcountll(board.w))
+                    if (__builtin_popcountll(board.blackPieces) == __builtin_popcountll(board.whitePieces))
                         res[game_id] = 0;
                     else
-                        res[game_id] = (__builtin_popcountll(board.b) > __builtin_popcountll(board.w)) ? game_id + 1 : 2 - game_id;
+                        res[game_id] = (__builtin_popcountll(board.blackPieces) > __builtin_popcountll(board.whitePieces)) ? game_id + 1 : 2 - game_id;
                 }
 
                 break;
@@ -121,7 +121,7 @@ void testAgentPerformance(int input_test_hyperparams[NUM_HYPERPARAMS] = nullptr,
 
     for(int i = 0; i < TESTING_SAMPLES_NUM; i++)
     {
-        Board b(0xfff00000, 0xfff);
+        Board blackPieces(0xfff00000, 0xfff);
         std::array<int, 5> result = play_test(num_games, test_hyperparams, testing_samples[i]);
         message("Result of test game " + std::to_string(i) + ":", true);
         message("Total games: " + std::to_string(num_games), false);

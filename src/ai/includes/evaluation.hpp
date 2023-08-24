@@ -39,7 +39,7 @@ private:
 public:
     explicit AdvancedEvaluation(Hyperparameters &hyperparameters);
 
-    int evaluate(const Board& b) override;
+    int evaluate(const Board& board) override;
 };
 
 #endif

@@ -96,11 +96,11 @@ void run_console_bot(Agent &agent) {
 			}
 		}
 		b = Board(white, black, bnext, king);
-		//std::cerr << b.visualize();
+		//std::cerr << blackPieces.visualize();
 		auto sm = agent.findBestMove(b);
 		move m = sm.second;
 		if (m >> 10) {
-			std::vector<square> path = get_path<true, true>(m & 0x1f, m >> 10, ~(b.b | b.w));
+			std::vector<square> path = get_path<true, true>(m & 0x1f, m >> 10, ~(b.blackPieces | b.whitePieces));
 			for (int i = path.size() - 2; i >= 0; i--) {
 				print_square_ci(path[i+1]);
 				switch (static_cast<int8_t>(path[i+1])-static_cast<int8_t>(path[i])) {
@@ -127,7 +127,7 @@ void run_console_bot(Agent &agent) {
 				std::cout << " tl\n";
 			}
 		}
-		//b.play(m);
-		//std::cerr << b.visualize();
+		//blackPieces.play(m);
+		//std::cerr << blackPieces.visualize();
 	}
 }

@@ -1,6 +1,23 @@
 #ifndef APP_HPP
 #define APP_HPP
 
-void launchApp();
+#include <SFML/Graphics.hpp>
+
+#include "../../communication/includes/interface.hpp"
+
+class App {
+private:
+    sf::RenderWindow window;
+    sf::Font font;
+    sf::Text text;
+
+    void drawBoard(Board &board);
+    void drawPieces(Board &board);
+    void drawWindow(Board &board);
+
+public:
+    void launch();
+    move getMove(Board &board);
+};;
 
 #endif

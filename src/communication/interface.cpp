@@ -23,7 +23,7 @@ void initializeHashing() {
 }
 
 std::string visualizeSquare(square sq) {
-	return std::string(1, 
+	return std::string(1,
 #if BOARD_ORIENTATION_CHESS
 		'h' - ((sq & 0x3) << 1 | (~sq >> 2 & 1))
 #else
@@ -31,6 +31,28 @@ std::string visualizeSquare(square sq) {
 #endif
 		) + std::string(1, '1' + (sq >> 2));
 }
+
+struct Coordinates {
+    unsigned int x;
+    unsigned int y;
+};
+
+Coordinates getCoordinates(unsigned int id)
+{
+    unsigned int x = (id & 3) * 2 + ((id >> 2) & 1);
+    unsigned int y = (id >> 2);
+
+    return {x, y}
+}
+
+std::pair<Coordinates, Coordinates> getMoveCoordinates(move moveToDecode)
+{
+    unsigned long idFrom = moveToDecode & 0x1f;
+    unsigned long idTo = moveToDecode >> 5 & 0x1f;
+
+    return {getCoordinates(idFrom), getCoordinates(idTo)};
+}
+
 
 std::string visualizeMove(move m) {
 	std::ostringstream oss;
@@ -78,14 +100,14 @@ bool moveList::contains(move m) const {
 	return std::find(cbegin(), cend(), m) != cend();
 }
 
-Board::Board(bitboard w, bitboard b, bool next, bitboard k) : w(w), b(b), wk(w & k), bk(b & k), nextblack(next), hash(0) {
+Board::Board(bitboard w, bitboard b, bool next, bitboard k) : whitePieces(w), blackPieces(b), whiteKings(w & k), blackKings(b & k), nextblack(next), hash(0) {
 	BBFOR(i, w, s)
 		hash ^= hash_lookup[s][0];
 	BBFOREND
 	BBFOR(i, b, s)
 		hash ^= hash_lookup[s][1];
 	BBFOREND
-	BBFOR(i, wk | bk, s)
+	BBFOR(i, whiteKings | blackKings, s)
 		hash ^= hash_lookup[s][2];
 	BBFOREND
 	if (next)
@@ -133,54 +155,54 @@ void add_jumps(moveList &out, square start, square from, bitboard to_capture, bi
 }
 moveList Board::moves() const {
 	moveList out;
-	const bitboard all = b | w;
+	const bitboard all = blackPieces | whitePieces;
 	const bitboard nall = ~all;
 	if (nextblack) {
 		// king jumps
-		const bitboard upc = (br(w) & br(br(nall))) | (bl(w) & bl(bl(nall)));
-		const bitboard jk = bk & ((tr(w) & tr(tr(nall))) | (tl(w) & tl(tl(nall))) | upc);
+		const bitboard upc = (br(whitePieces) & br(br(nall))) | (bl(whitePieces) & bl(bl(nall)));
+		const bitboard jk = blackKings & ((tr(whitePieces) & tr(tr(nall))) | (tl(whitePieces) & tl(tl(nall))) | upc);
 		BBFOR(i, jk, s)
-			add_jumps<true, true>(out, s, s, w, nall);
+			add_jumps<true, true>(out, s, s, whitePieces, nall);
 		BBFOREND
 		if (out.begin() != out.end())
 			return out;
 
 		// normal jumps
-		const bitboard j = b & ~bk & upc;
+		const bitboard j = blackPieces & ~blackKings & upc;
 		BBFOR(i, j, s)
-			add_jumps<true, false>(out, s, s, w, nall);
+			add_jumps<true, false>(out, s, s, whitePieces, nall);
 		BBFOREND
 		if (out.begin() != out.end())
 			return out;
-		
+
 		// walks
-		add_simple<5, 4>(out, b & br(nall));
-		add_simple<4, 3>(out, b & bl(nall));
-		add_simple<-3, -4>(out, bk & tr(nall));
-		add_simple<-4, -5>(out, bk & tl(nall));
+		add_simple<5, 4>(out, blackPieces & br(nall));
+		add_simple<4, 3>(out, blackPieces & bl(nall));
+		add_simple<-3, -4>(out, blackKings & tr(nall));
+		add_simple<-4, -5>(out, blackKings & tl(nall));
 	} else {
 		// king jumps
-		const bitboard downc = (tr(b) & tr(tr(nall))) | (tl(b) & tl(tl(nall)));
-		const bitboard jk = wk & ((br(b) & br(br(nall))) | (bl(b) & bl(bl(nall))) | downc);
+		const bitboard downc = (tr(blackPieces) & tr(tr(nall))) | (tl(blackPieces) & tl(tl(nall)));
+		const bitboard jk = whiteKings & ((br(blackPieces) & br(br(nall))) | (bl(blackPieces) & bl(bl(nall))) | downc);
 		BBFOR(i, jk, s)
-			add_jumps<true, true>(out, s, s, b, nall);
+			add_jumps<true, true>(out, s, s, blackPieces, nall);
 		BBFOREND
 		if (out.begin() != out.end())
 			return out;
 
 		// normal jumps
-		const bitboard j = w & ~wk & downc;
+		const bitboard j = whitePieces & ~whiteKings & downc;
 		BBFOR(i, j, s)
-			add_jumps<false, true>(out, s, s, b, nall);
+			add_jumps<false, true>(out, s, s, blackPieces, nall);
 		BBFOREND
 		if (out.begin() != out.end())
 			return out;
 
 		// walks
-		add_simple<-3, -4>(out, w & tr(nall));
-		add_simple<-4, -5>(out, w & tl(nall));
-		add_simple<5, 4>(out, wk & br(nall));
-		add_simple<4, 3>(out, wk & bl(nall));
+		add_simple<-3, -4>(out, whitePieces & tr(nall));
+		add_simple<-4, -5>(out, whitePieces & tl(nall));
+		add_simple<5, 4>(out, whiteKings & br(nall));
+		add_simple<4, 3>(out, whiteKings & bl(nall));
 	}
 	return out;
 }
@@ -190,7 +212,7 @@ void Board::play(const move &m) {
 		exit(1);
 		return;
 	}
-	history.push({ b | static_cast<uint64_t>(bk) << 32, w | static_cast<uint64_t>(wk) << 32, hash });
+	history.push({blackPieces | static_cast<uint64_t>(blackKings) << 32, whitePieces | static_cast<uint64_t>(whiteKings) << 32, hash });
 	// unpack move
 	const square froms = m & 0x1f;
 	const bitboard from = 1 << froms;
@@ -200,64 +222,64 @@ void Board::play(const move &m) {
 	const bitboard icaptm = ~captm;
 	// update Board state
 	if (nextblack) {
-		b = (b & ~from) | to;
+        blackPieces = (blackPieces & ~from) | to;
 		hash ^= hash_lookup[froms][1] ^ hash_lookup[tos][1];
-		if (bk & from) { // if it's king, update king info as well
-			bk = bk & ~from | to;
+		if (blackKings & from) { // if it's king, update king info as well
+			blackKings = blackKings & ~from | to;
 			hash ^= hash_lookup[froms][2] ^ hash_lookup[tos][2];
 		} else if (to & 0xf0000000u) { // promotion to king
-			bk |= to;
+			blackKings |= to;
 			hash ^= hash_lookup[tos][2];
 		}
-		BBFOR(i, w & captm, s) // update hash with captures
+		BBFOR(i, whitePieces & captm, s) // update hash with captures
 			hash ^= hash_lookup[s][0];
 		BBFOREND
-		BBFOR(i, wk & captm, s)
+		BBFOR(i, whiteKings & captm, s)
 			hash ^= hash_lookup[s][2];
 		BBFOREND
-		w &= icaptm; // remove captured stones
-		wk &= icaptm;
+        whitePieces &= icaptm; // remove captured stones
+		whiteKings &= icaptm;
 	} else {
-		w = w & ~from | to;
+        whitePieces = whitePieces & ~from | to;
 		hash ^= hash_lookup[froms][0] ^ hash_lookup[tos][0];
-		if (wk & from) { // if it's king, update king info as well
-			wk = wk & ~from | to;
+		if (whiteKings & from) { // if it's king, update king info as well
+			whiteKings = whiteKings & ~from | to;
 			hash ^= hash_lookup[froms][2] ^ hash_lookup[tos][2];
 		} else if (to & 0xfu) { // promotion to king
-			wk |= to;
+			whiteKings |= to;
 			hash ^= hash_lookup[tos][2];
 		}
-		BBFOR(i, b & captm, s) // update hash with captures
+		BBFOR(i, blackPieces & captm, s) // update hash with captures
 			hash ^= hash_lookup[s][1];
 		BBFOREND
-		BBFOR(i, bk & captm, s)
+		BBFOR(i, blackKings & captm, s)
 			hash ^= hash_lookup[s][2];
 		BBFOREND
-		b &= icaptm; // remove captured stones
-		bk &= icaptm;
+        blackPieces &= icaptm; // remove captured stones
+		blackKings &= icaptm;
 	}
 	// update next player
 	nextblack = !nextblack;
 	hash ^= hash_lookup[0][3];
 }
 void Board::undo() {
-	b = history.top()[0];
-	bk = history.top()[0] >> 32;
-	w = history.top()[1];
-	wk = history.top()[1] >> 32;
+    blackPieces = history.top()[0];
+    blackKings = history.top()[0] >> 32;
+    whitePieces = history.top()[1];
+    whiteKings = history.top()[1] >> 32;
 	hash = history.top()[2];
 	history.pop();
 	nextblack = !nextblack;
 }
-int Board::whitePiecesCount() const { return __builtin_popcountll(w); }
-int Board::blackPiecesCount() const { return __builtin_popcountll(b); }
-int Board::whitePawnsCount() const { return __builtin_popcountll(w & ~wk); }
-int Board::blackPawnsCount() const { return __builtin_popcountll(b & ~bk); }
-int Board::whiteKingsCount() const { return __builtin_popcountll(wk); }
-int Board::blackKingsCount() const { return __builtin_popcountll(bk); }
+int Board::whitePiecesCount() const { return __builtin_popcountll(whitePieces); }
+int Board::blackPiecesCount() const { return __builtin_popcountll(blackPieces); }
+int Board::whitePawnsCount() const { return __builtin_popcountll(whitePieces & ~whiteKings); }
+int Board::blackPawnsCount() const { return __builtin_popcountll(blackPieces & ~blackKings); }
+int Board::whiteKingsCount() const { return __builtin_popcountll(whiteKings); }
+int Board::blackKingsCount() const { return __builtin_popcountll(blackKings); }
 std::string Board::visualize() const {
 	std::ostringstream oss;
-	oss << "    a   b   c   d   e   f   g   h\n";
+	oss << "    a   blackPieces   c   d   e   f   g   h\n";
 	oss << "  +---+---+---+---+---+---+---+---+\n";
 	for (int i = 0; i < 8; i++) {
 		oss << (8-i);
@@ -270,19 +292,19 @@ std::string Board::visualize() const {
 			if ((i+j) & 1)
 #endif
 				oss << ' ';
-			else if (wk & mask)
+			else if (whiteKings & mask)
 				oss << "\u265A";
-			else if (w & mask)
+			else if (whitePieces & mask)
 				oss << "\u25A0";
-			else if (bk & mask)
+			else if (blackKings & mask)
 				oss << "\u2654";
-			else if (b & mask)
+			else if (blackPieces & mask)
 				oss << "\u25A1";
 			else
 				oss << " ";
 		}
 		oss << " | " << (8-i) << "\n  +---+---+---+---+---+---+---+---+\n";
 	}
-	oss << "    a   b   c   d   e   f   g   h\nnext: " << (nextblack ? "black" : "white") << ", hash: " << hash << "\n";
+	oss << "    a   blackPieces   c   d   e   f   g   h\nnext: " << (nextblack ? "black" : "white") << ", hash: " << hash << "\n";
 	return oss.str();
 }
