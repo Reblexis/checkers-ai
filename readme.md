@@ -1,20 +1,21 @@
-https://www.officialgamerules.org/checkers
+# Checkers AI
+This repository contains a bot for the game called Checkers. It will also contain a graphical interface using which 
+you can not only test out different agents but also play against them yourself.
+We assume the following rules: https://www.officialgamerules.org/checkers . 
 
+## External libraries
+- SFML 2.5.1 (https://www.sfml-dev.org/download/sfml/2.5.1/)
 
-Evaluation strategy:
+## Current state
+- [x] Implemented the rules of the game into move generation
+- [x] Basic agent that uses minimax strategy with alpha-beta pruning and caching into RAM
+- [x] Simple state evaluation algorithm
+- [x] Visualization of moves in the console
 
-- keep your pawns near middle
-- move pawns from the single corner first and from the double corner only when neccessary
-- very good to have  pawn on the square (4, 3) numbering from top left topdown, leftright
-- attack the double corner of the opponent
-- keep 3 backline checks in their starting pos as long as possible to prevent king creation
-- also keep the checkers (8,3) and (8,7) on their square
-- get king as fast as possible
-- set traps to get double / triple shots ?
-- if up by one or more than trade checkers
-- form lines of three or more checkers 
-
-If you want to use the graphical interface:
-'''
-sudo apt-get install libsfml-dev
-'''
+## The plan
+- [ ] Improve the structure and documentation of the project
+- [ ] Implement a graphical interface for a possible visualization of the simulated games and for playing against an agent
+- [ ] Hyperparameters controlling different aspects of an agent (fx. depth of search, evaluation function, strategy, etc.)
+- [ ] Agent saving (including an executable and a json file containing the hyperparameters)
+- [ ] Caching into files (efficient storing of optimal moves for different game states)
+- [ ] Implement basic agent versioning (saving the best agents, comparing their performance with different hyperparameters etc.)
