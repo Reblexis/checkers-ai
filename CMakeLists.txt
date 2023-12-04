@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/out)
 project(checkers)
@@ -20,7 +20,8 @@ add_executable(checkers
 		src/tests/performance_tests.cpp
 		src/ai/evaluation.cpp
 		src/ai/hyperparameters.cpp
-		)
+		src/communication/game.cpp
+)
 
 target_link_libraries(checkers sfml-graphics sfml-audio sfml-window sfml-system)
 
