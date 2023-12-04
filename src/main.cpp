@@ -22,9 +22,10 @@
 void playerVersusBot() {
     Board board(0xfff00000, 0xfff);
     Agent agent(CURRENT_BOT_PATH);
+    App app;
+
     launchApp();
-
-
+    app.getMove(board);
     agent.findBestMove(board);
 }
 

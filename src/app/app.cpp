@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "includes/app.hpp"
+#include <iostream>
 
 const int TILE_SIZE = 80;
 const int BOARD_SIZE = 8 * TILE_SIZE;

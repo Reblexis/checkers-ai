@@ -11,7 +11,7 @@ add_executable(checkers
 		src/communication/debugging.cpp
 		src/ai/agent.cpp
 		src/main.cpp
-		src/communication/interface.cpp
+		src/communication/game.cpp
         src/ai/search_algorithms.cpp
 		src/ai/cache.cpp
 		src/communication/console_interface.cpp
