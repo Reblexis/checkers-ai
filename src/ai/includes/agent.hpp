@@ -18,7 +18,7 @@ private:
 public:
     ~Agent();
     explicit Agent(const std::filesystem::path &dataPath);
-    std::pair<int, move> findBestMove(Board &board);
+    std::pair<int, piece_move> findBestMove(Board &board);
 };
 
 #endif // AGENT_HPP

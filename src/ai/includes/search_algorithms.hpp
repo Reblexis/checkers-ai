@@ -9,7 +9,7 @@
 
 class SearchAlgorithm{
 public:
-    virtual std::pair<int, move> findBestMove(Board &board) = 0;
+    virtual std::pair<int, piece_move> findBestMove(Board &board) = 0;
     virtual ~SearchAlgorithm() = default;
 };
 
@@ -26,8 +26,8 @@ private:
 
 public:
     Minimax(Hyperparameters &hyperparameters, Evaluation &evaluation);
-    std::pair<int, move> minimax(Board &board, int leftDepth, int alpha = INT32_MIN, int beta = INT32_MAX);
-    std::pair<int, move> findBestMove(Board &b) override;
+    std::pair<int, piece_move> minimax(Board &board, int leftDepth, int alpha = INT32_MIN, int beta = INT32_MAX);
+    std::pair<int, piece_move> findBestMove(Board &b) override;
     void resetOperations();
     void setMaxDepth(int newDepth);
     void setOperationLimit(int newLimit);
@@ -41,13 +41,13 @@ private:
 
 public:
     IterativeMinimax(Hyperparameters &hyperparameters, Evaluation &evaluation);
-    std::pair<int, move> findBestMove(Board &board) override;
+    std::pair<int, piece_move> findBestMove(Board &board) override;
 };
 
 class RandomSearch: public SearchAlgorithm{
 public:
     RandomSearch();
-    std::pair<int, move> findBestMove(Board &board) override;
+    std::pair<int, piece_move> findBestMove(Board &board) override;
 };
 
 #endif // SEARCH_ALGORITHM_HPP

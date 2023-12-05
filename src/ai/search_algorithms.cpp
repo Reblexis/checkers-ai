@@ -11,13 +11,13 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
     operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
 }
 
-std::pair<int, move> Minimax::minimax(Board &board, int leftDepth, int alpha, int beta)
+std::pair<int, piece_move> Minimax::minimax(Board &board, int leftDepth, int alpha, int beta)
 {
     curOperations++;
 
     bool maximizing = board.nextblack;
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
-    move bestMove = 0;
+    piece_move bestMove = 0;
 
     if(useCache)
     {
@@ -41,7 +41,7 @@ std::pair<int, move> Minimax::minimax(Board &board, int leftDepth, int alpha, in
         return {score, 0};
     }
 
-    moveList possibleMoves = board.moves();
+    piece_moveList possibleMoves = board.moves();
 
     if(bestMove == 0)
     {
@@ -53,18 +53,18 @@ std::pair<int, move> Minimax::minimax(Board &board, int leftDepth, int alpha, in
         return {maximizing ? INT32_MIN : INT32_MAX, 0};
     }
 
-    for(move nextMove: possibleMoves)
+    for(piece_move nextMove: possibleMoves)
     {
         if(curOperations >= operationLimit)
             break;
 
         board.play(nextMove);
 
-        std::pair<int, move> moveInfo = minimax(board, leftDepth-1, alpha, beta);
+        std::pair<int, piece_move> moveInfo = minimax(board, leftDepth-1, alpha, beta);
 
-        if(maximizing ? moveInfo.first > bestScore : moveInfo.first < bestScore)
+        if(maximizing ? piece_moveInfo.first > bestScore : moveInfo.first < bestScore)
         {
-            bestScore = moveInfo.first;
+            bestScore = piece_moveInfo.first;
             bestMove = nextMove;
         }
 
@@ -88,7 +88,7 @@ std::pair<int, move> Minimax::minimax(Board &board, int leftDepth, int alpha, in
     return {bestScore, bestMove};
 }
 
-std::pair<int, move> Minimax::findBestMove(Board &b)
+std::pair<int, piece_move> Minimax::findBestMove(Board &b)
 {
     resetOperations();
     return minimax(b, maxDepth);
@@ -116,15 +116,15 @@ IterativeMinimax::IterativeMinimax(Hyperparameters &hyperparameters, Evaluation 
     operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
 }
 
-std::pair<int, move> IterativeMinimax::findBestMove(Board &board)
+std::pair<int, piece_move> IterativeMinimax::findBestMove(Board &board)
 {
-    std::pair<int, move> bestMove;
+    std::pair<int, piece_move> bestMove;
     bestMove.first = board.nextblack ? INT32_MIN : INT32_MAX;
     minimax.resetOperations();
 
     for(int i = 1; i <= maxDepth; i++)
     {
-        std::pair<int, move> candidate = minimax.findBestMove(board);
+        std::pair<int, piece_move> candidate = minimax.findBestMove(board);
         if(candidate.second != 0)
             bestMove = candidate;
 
@@ -133,16 +133,16 @@ std::pair<int, move> IterativeMinimax::findBestMove(Board &board)
     }
 
     if(bestMove.second==0)
-        message("Invalid move!", true, true, true);
+        message("Invalid piece_move!", true, true, true);
 
     return bestMove;
 }
 
 RandomSearch::RandomSearch() {}
 
-std::pair<int, move> RandomSearch::findBestMove(Board &board)
+std::pair<int, piece_move> RandomSearch::findBestMove(Board &board)
 {
-    moveList possibleMoves = board.moves();
+    piece_moveList possibleMoves = board.moves();
     if(possibleMoves.size() == 0)
         return {board.nextblack ? INT32_MIN : INT32_MAX, 0};
 
