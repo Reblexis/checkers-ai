@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "communication/includes/interface.hpp"
+#include "communication/includes/game.hpp"
 #include "ai/includes/agent.hpp"
 #include "app/includes/app.hpp"
 
@@ -17,23 +17,15 @@
 //#define INTERFACE_PERFT
 //#define SEARCH_ALGORITHM_TEST
 //#define PLAY_TEST
-#define PLAYER_VERSUS_BOT
-
-void playerVersusBot() {
-    Board board(0xfff00000, 0xfff);
-    Agent agent(CURRENT_BOT_PATH);
-    App app;
-
-    launchApp();
-    app.getMove(board);
-    agent.findBestMove(board);
-}
+#define APP
 
 int main()
 {
-    initializeHashing();
-
 #ifdef PLAYER_VERSUS_BOT
     playerVersusBot();
+#endif
+#ifdef APP
+    App app;
+    app.launch();
 #endif
 }

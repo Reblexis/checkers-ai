@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <execution>
 
-eboardToReverse Piece{whitePawn, whiteKing, blackPawn, blackKing};
+#define CHECK_VALID_MOVES true
+
+enum Piece{whitePawn, whiteKing, blackPawn, blackKing};
 
 constexpr unsigned int BOARD_SIZE = 32;
 using board_state = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
@@ -15,13 +17,13 @@ using board_state = uint64_t; // First 32 bits represent all pieces, last 32 bit
      * .
      * .
      * .
-     * For kings, all boardToReversebers are offset by 32
+     * For kings, all numbers are offset by 32
  */
 using bitboard = uint32_t;
 using piece_move = uint64_t;
 using position = uint8_t;
 /*
- * First 5 bits represent the starting square. Afterward follows sequence of 3-bit boardToReversebers representing the direction of
+ * First 5 bits represent the starting square. Afterward follows sequence of 3-bit numbers representing the direction of
  * each move. 0 - end of move sequence, 1 - top left, 2 - top right, 3 - bottom left, 4 - bottom right. This is from the perspective of the playing agent.
  */
 class Board{
@@ -29,8 +31,8 @@ class Board{
      * By default, white is on the bottom of the board.
      */
 private:
-    board_state whiteBoard;
-    board_state blackBoard;
+    board_state whiteBoard = 0xfff00000; // The starting pawn setup
+    board_state blackBoard = 0xfff;
 
     bitboard reverseBitboard(bitboard bitboardToReverse){
         bitboardToReverse = (bitboardToReverse & 0x55555555) << 1 | (bitboardToReverse & 0xAAAAAAAA) >> 1;
@@ -75,6 +77,10 @@ public:
         blackBoard = 0x0000000000000fff;
     }
 
+    Board(const Board& other)
+            : whiteBoard(other.whiteBoard), blackBoard(other.blackBoard) {
+    }
+
     void setBoard(board_state white, board_state black){
         whiteBoard = white;
         blackBoard = black;
@@ -94,10 +100,16 @@ public:
     }
 };
 
+struct GameState{
+    Board board{};
+    bool nextBlack = true;
+};
+
 class Game{
 private:
     Board board;
     bool nextBlack = true;
+    std::vector<GameState> gameHistory;
 
     std::vector<piece_move> availableMoves;
 
@@ -198,9 +210,27 @@ public:
         reset();
     }
 
-    void reset(){
-        board.reset();
+    void addGameState()
+    {
+        gameHistory.push_back({board, nextBlack});
+    }
+
+    void undoMove()
+    {
+        if(gameHistory.size() == 1)
+            throw std::runtime_error("Cannot undo move. No moves have been made.");
+
+        gameHistory.pop_back();
+        board = gameHistory.back().board;
+        nextBlack = gameHistory.back().nextBlack;
+    }
+
+    void reset(GameState state)
+    {
+        board = state.board;
         nextBlack = true;
+        gameHistory.clear();
+        addGameState();
     }
 
     std::span<piece_move> getAvailableMoves(){
@@ -215,7 +245,8 @@ public:
         std::array<board_state, 2> boards = nextBlack ? board.getBoardsRev() : board.getBoards();
         board_state controlBitboard = boards[0];
         board_state enemyBitboard = boards[1];
-        controlBitboard ^= (1<<currentPos);
+        bool isKing = controlBitboard&(1<<(currentPos+32));
+        controlBitboard &= (~(1<<currentPos))&(~(1<<(currentPos+32))));
 
         while(pieceMove){
             unsigned int direction = pieceMove&0x7;
@@ -229,15 +260,31 @@ public:
             else
                 currentPos+=9;
 
+#if CHECK_VALID_MOVES
+            if(currentPos>63 || currentPos<0 || controlBitboard&(1<<currentPos) || (direction>=3 && !isKing))
+                throw std::runtime_error("Invalid move.");
+#endif
+
+            // Do a jump if standing on an enemy piece
             if(enemyBitboard&(1<<currentPos)) {
-                enemyBitboard ^= (1 << currentPos);
+                enemyBitboard &= (~(1<<currentPos))&(~(1<<(currentPos+32)));
                 currentPos += (currentPos - startPos);
             }
 
-            pieceMove>>=3;
+#if CHECK_VALID_MOVES
+            if(currentPos>63 || currentPos<0 || (controlBitboard|enemyBitboard)&(1<<currentPos))
+                throw std::runtime_error("Invalid move. Incorrect jump.");
+#endif
+
+            if(currentPos < 8)
+                isKing = true;
+
+            pieceMove >>= 3;
         }
 
         controlBitboard |= (1<<currentPos);
+        if(isKing)
+            controlBitboard |= (1<<(currentPos+32));
 
         if(nextBlack)
             board.setBoardRev(controlBitboard, enemyBitboard);
@@ -245,9 +292,6 @@ public:
             board.setBoard(controlBitboard, enemyBitboard);
 
         nextBlack = !nextBlack;
+        addGameState();
     }
 };
-
-Board::reset(){
-    whiteBoard =
-}

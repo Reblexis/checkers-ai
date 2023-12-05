@@ -1,5 +1,5 @@
 #include "includes/evaluation.hpp"
-#include "../communication/includes/interface.hpp"
+#include "../communication/includes/game.hpp"
 #include "../includes/constants.hpp"
 #include "includes/hyperparameters.hpp"
 

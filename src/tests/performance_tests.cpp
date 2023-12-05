@@ -2,7 +2,7 @@
 
 #include "../communication/includes/debugging.hpp"
 
-#include "../communication/includes/interface.hpp"
+#include "../communication/includes/game.hpp"
 #include "../ai/includes/hyperparameters.hpp"
 #include "../ai/includes/agent.hpp"
 #include "../ai/includes/search_algorithms.hpp"

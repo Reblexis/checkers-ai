@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "includes/interface.hpp"
+#include "includes/game.hpp"
 #include "../ai/includes/hyperparameters.hpp"
 #include "../ai/includes/search_algorithms.hpp"
 #include "../ai/includes/agent.hpp"

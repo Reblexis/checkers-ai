@@ -1,6 +1,6 @@
 #include "includes/search_algorithms.hpp"
 #include "../communication/includes/debugging.hpp"
-#include "../communication/includes/interface.hpp"
+#include "../communication/includes/game.hpp"
 
 Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
         : evaluation(eval), cache()

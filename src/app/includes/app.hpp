@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "../../communication/includes/interface.hpp"
+#include "../../communication/includes/game.hpp"
 
 class App {
 private:

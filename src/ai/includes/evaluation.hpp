@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "../../communication/includes/interface.hpp"
+#include "../../communication/includes/game.hpp"
 
 #include "../../includes/constants.hpp"
 
