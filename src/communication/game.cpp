@@ -9,7 +9,7 @@
 enum Piece{whitePawn, whiteKing, blackPawn, blackKing};
 
 constexpr unsigned int BOARD_SIZE = 32;
-using board_state = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
+using bitboard_all = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
 /*
      * The bits represent the board in the following way:
      * 0 1 2 3
@@ -31,88 +31,119 @@ class Board{
      * By default, white is on the bottom of the board.
      */
 private:
-    board_state whiteBoard = 0xfff00000; // The starting pawn setup
-    board_state blackBoard = 0xfff;
-
-    bitboard reverseBitboard(bitboard bitboardToReverse){
-        bitboardToReverse = (bitboardToReverse & 0x55555555) << 1 | (bitboardToReverse & 0xAAAAAAAA) >> 1;
-        bitboardToReverse = (bitboardToReverse & 0x33333333) << 2 | (bitboardToReverse & 0xCCCCCCCC) >> 2;
-        bitboardToReverse = (bitboardToReverse & 0x0F0F0F0F) << 4 | (bitboardToReverse & 0xF0F0F0F0) >> 4;
-        bitboardToReverse = (bitboardToReverse & 0x00FF00FF) << 8 | (bitboardToReverse & 0xFF00FF00) >> 8;
-        bitboardToReverse = (bitboardToReverse & 0x0000FFFF) << 16 | (bitboardToReverse & 0xFFFF0000) >> 16;
-        return bitboardToReverse;
+    const bitboard reverseBitboard(const bitboard bitboardToReverse){
+        bitboard reversedBitboard = reversedBitboard;
+        reversedBitboard = (reversedBitboard & 0x55555555) << 1 | (reversedBitboard & 0xAAAAAAAA) >> 1;
+        reversedBitboard = (reversedBitboard & 0x33333333) << 2 | (reversedBitboard & 0xCCCCCCCC) >> 2;
+        reversedBitboard = (reversedBitboard & 0x0F0F0F0F) << 4 | (reversedBitboard & 0xF0F0F0F0) >> 4;
+        reversedBitboard = (reversedBitboard & 0x00FF00FF) << 8 | (reversedBitboard & 0xFF00FF00) >> 8;
+        reversedBitboard = (reversedBitboard & 0x0000FFFF) << 16 | (reversedBitboard & 0xFFFF0000) >> 16;
+        return reversedBitboard;
     }
 
-    board_state reverseBoard(board_state boardToReverse){
+    const bitboard_all reverseBoard(bitboard_all boardToReverse){
         bitboard pieces = reverseBitboard(boardToReverse&0xffffffff);
         bitboard kings = reverseBitboard(boardToReverse>>32);
-        return (((board_state)kings)<<32) | pieces;
+        return (((bitboard_all)kings)<<32) | pieces;
     }
 
 public:
-    Board(){
-        reset();
+    // TODO rename white to control and black to enemy
+    const bitboard_all controlBitboard = 0xfff00000; // The starting pawn setup
+    const bitboard_all enemyBitboard = 0xfff;
+    const bool blackPerspective = true;
+
+    Board(const bitboard_all controlBitboard, const bitboard_all enemyBitboard, const bool blackPerspective)
+            : controlBitboard(controlBitboard), enemyBitboard(enemyBitboard), blackPerspective(blackPerspective) {
     }
 
     std::optional<Piece> getAt(int x, int y){
         // Y corresponds to the row, X corresponds to the column
         uint8_t pos = x + y*4;
-        if(whiteBoard&(1<<(BOARD_SIZE+pos))){
+        if(controlBitboard&(1<<(BOARD_SIZE+pos))){
             return Piece::whiteKing;
         }
-        if(blackBoard&(1<<(BOARD_SIZE+pos))){
+        if(enemyBitboard&(1<<(BOARD_SIZE+pos))){
             return Piece::blackKing;
         }
-        if(whiteBoard&(1<<pos)){
+        if(controlBitboard&(1<<pos)){
             return Piece::whitePawn;
         }
-        if(blackBoard&(1<<pos)){
+        if(enemyBitboard&(1<<pos)){
             return Piece::blackPawn;
         }
         return std::nullopt;
     }
 
     void reset(){
-        whiteBoard = 0x00000000fff00000; // The starting pawn setup
-        blackBoard = 0x0000000000000fff;
+        controlBitboard = 0x00000000fff00000; // The starting pawn setup
+        enemyBitboard = 0x0000000000000fff;
     }
 
-    Board(const Board& other)
-            : whiteBoard(other.whiteBoard), blackBoard(other.blackBoard) {
+    Board getBoardRev(){
+        return Board(reverseBoard(enemyBitboard), reverseBoard(controlBitboard), !blackPerspective);
     }
 
-    void setBoard(board_state white, board_state black){
-        whiteBoard = white;
-        blackBoard = black;
+    const int whitePiecesCount() const{
+        return __builtin_popcount(controlBitboard&0xffffffff);
+    }
+    const int blackPiecesCount() const{
+        return __builtin_popcount(enemyBitboard&0xffffffff);
+    }
+    const int whiteKingsCount() const{
+        return __builtin_popcount(controlBitboard>>32);
+    }
+    const int blackKingsCount() const{
+        return __builtin_popcount(enemyBitboard>>32);
+    }
+    const int whitePawnsCount() const{
+        return whitePiecesCount() - whiteKingsCount();
+    }
+    const int blackPawnsCount() const{
+        return blackPiecesCount() - blackKingsCount();
     }
 
-    void setBoardRev(board_state black, board_state white){
-        whiteBoard = reverseBoard(white);
-        blackBoard = reverseBoard(black);
+    const bitboard getWhitePieces() const{
+        return controlBitboard&0xffffffff;
     }
-
-    std::array<board_state, 2> getBoards(){
-        return {whiteBoard, blackBoard};
+    const bitboard getBlackPieces() const{
+        return enemyBitboard&0xffffffff;
     }
-
-    std::array<board_state, 2> getBoardsRev(){
-        return {reverseBoard(blackBoard), reverseBoard(whiteBoard)};
+    const bitboard getWhiteKings() const{
+        return controlBitboard>>32;
+    }
+    const bitboard getBlackKings() const{
+        return enemyBitboard>>32;
     }
 };
 
 struct GameState{
-    Board board{};
-    bool nextBlack = true;
+public:
+    GameState(Board board, bool nextBlack)
+            : board(board), nextBlack(nextBlack){
+        calculateAvailableMoves();
+    }
+    const Board board;
+    const bool nextBlack = true;
     uint64_t hash = 0; // TODO: Move this to cache.cpp
+
+    std::span<piece_move> getAvailableMoves() const{
+        return availableMoves;
+    }
+
+    const Board& getBoard() const{
+        return board;
+    }
+private:
     std::vector<piece_move> availableMoves;
 
     void calculateAvailableMoves()
     {
         availableMoves.clear();
 
-        std::array<board_state, 2> boards = nextBlack ? board.getBoardsRev() : board.getBoards();
-        board_state controlBitboard = boards[0]; // The board_state of the pieces that can move next
-        board_state enemyBitboard = boards[1]; // The board_state of the pieces that can be captured
+        std::array<bitboard_all, 2> boards = nextBlack ? board.getBoardsRev() : board.getBoards();
+        bitboard_all controlBitboard = boards[0]; // The bitboard_all of the pieces that can move next
+        bitboard_all enemyBitboard = boards[1]; // The bitboard_all of the pieces that can be captured
 
         bitboard controlPieces = controlBitboard&0xffffffff;
         bitboard controlKings = controlBitboard>>32;
@@ -198,11 +229,6 @@ struct GameState{
             }
         }
     }
-
-    std::span<piece_move> getAvailableMoves(){
-        calculateAvailableMoves();
-        return availableMoves;
-    }
 };
 
 class Game{
@@ -236,14 +262,22 @@ public:
         addGameState();
     }
 
+    const GameState& getGameState() const
+    {
+        return gameState;
+    }
+
+    std::span<piece_move> getAvailableMoves(){
+        return gameState.getAvailableMoves();
+    }
 
     void makeMove(piece_move pieceMove){
         unsigned int currentPos = pieceMove&0x1f;
 
         pieceMove >>= 5;
-        std::array<board_state, 2> boards = gameState.nextBlack ? gameState.board.getBoardsRev() : gameState.board.getBoards();
-        board_state controlBitboard = boards[0];
-        board_state enemyBitboard = boards[1];
+        Board perspectiveBoard = gameState.nextBlack ? gameState.board.getBoardRev() : gameState.board;
+        bitboard_all controlBitboard = perspectiveBoard.controlBitboard;
+        bitboard_all enemyBitboard = perspectiveBoard.enemyBitboard;
         bool isKing = controlBitboard&(1<<(currentPos+32));
         controlBitboard &= (~(1<<currentPos))&(~(1<<(currentPos+32)));
 
@@ -285,12 +319,10 @@ public:
         if(isKing)
             controlBitboard |= (1<<(currentPos+32));
 
-        if(gameState.nextBlack)
-            gameState.board.setBoardRev(controlBitboard, enemyBitboard);
-        else
-            gameState.board.setBoard(controlBitboard, enemyBitboard);
+        Board
+        const GameState newGameState(newBoard, !gameState.nextBlack);
+        gameState = newGameState;
 
-        gameState.nextBlack = !gameState.nextBlack;
         addGameState();
     }
 };

@@ -17,7 +17,7 @@ struct cacheEntry {
 template<size_t table_size=262144> // table size must be a power of 2!
 class Cache {
 public:
-    inline void set(GameState &gameState, uint16_t depth, int score, piece_move best=0) {
+    inline void set(const GameState &gameState, uint16_t depth, int score, piece_move best=0) {
 		size_t idx = 3 * (gameState.hash & (table_size-1));
 		cacheEntry &sel = table[idx];
 		if (table[idx + 1].depth < sel.depth)
@@ -35,7 +35,7 @@ public:
 		sel.score = score;
 		sel.depth = depth;
 	}
-    inline const cacheEntry &get(GameState &gameState) const {
+    inline const cacheEntry &get(const GameState &gameState) const {
 		size_t idx = 3 * (gameState.hash & (table_size-1));
 		if (table[idx].hash == gameState.hash)
 			return table[idx];

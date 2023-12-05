@@ -41,13 +41,15 @@ public:
 };
 
 struct GameState {
-    Board board{};
-    bool nextBlack = true;
-    std::vector<piece_move> availableMoves;
+public:
+    GameState(Board board, bool nextBlack);
+    const Board board{};
     uint64_t hash = 0; // TODO: Move this to cache.cpp
-
-    void calculateAvailableMoves();
+    const bool nextBlack = true;
     std::span<piece_move> getAvailableMoves();
+private:
+    std::vector<piece_move> availableMoves;
+    void calculateAvailableMoves();
 };
 
 class Game {
@@ -58,6 +60,7 @@ private:
 public:
     Game();
     void addGameState();
+    const GameState& getGameState();
     void undoMove();
     void reset(GameState state);
     void makeMove(piece_move pieceMove);

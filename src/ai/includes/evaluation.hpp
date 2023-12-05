@@ -14,7 +14,7 @@
 class Evaluation {
     //Abstract class for evaluation classes
 public:
-    virtual int evaluate(const Board& board) = 0;
+    virtual int evaluate(const GameState& gameState) = 0;
     virtual ~Evaluation() = default;
 };
 
@@ -25,7 +25,7 @@ private:
 
 public:
     explicit BasicEvaluation(Hyperparameters &hyperparameters);
-    int evaluate(const Board& board) override;
+    int evaluate(const GameState& gameState) override;
 };
 
 class AdvancedEvaluation : public Evaluation {
@@ -39,7 +39,7 @@ private:
 public:
     explicit AdvancedEvaluation(Hyperparameters &hyperparameters);
 
-    int evaluate(const Board& board) override;
+    int evaluate(const GameState& gameState) override;
 };
 
 #endif

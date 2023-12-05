@@ -16,14 +16,15 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
 std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha, int beta)
 {
     curOperations++;
+    const GameState& gameState = game.getGameState();
 
-    bool maximizing = game.gameState.nextblack;
+    bool maximizing = gameState.nextBlack;
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
     piece_move bestMove = 0;
 
     if(useCache)
     {
-        const cacheEntry &cacheInfo = cache.get(game.gameState);
+        const cacheEntry &cacheInfo = cache.get(gameState);
 
         if(leftDepth < cacheInfo.depth)
             return {cacheInfo.score, cacheInfo.bestMove};
@@ -37,13 +38,13 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
     if(leftDepth==0)
     {
-        int score = evaluation.evaluate(game.gameState);
+        int score = evaluation.evaluate(gameState);
         if(useCache)
-            cache.set(game.gameState, 1, score, 0);
+            cache.set(gameState, 1, score, 0);
         return {score, 0};
     }
 
-    std::span<piece_move> possibleMoves = game.gameState.getAvailableMoves();
+    std::span<piece_move> possibleMoves = game.getAvailableMoves();
 
     if(bestMove == 0)
     {
@@ -120,8 +121,10 @@ IterativeMinimax::IterativeMinimax(Hyperparameters &hyperparameters, Evaluation 
 
 std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
 {
+    const GameState& gameState = game.getGameState();
+
     std::pair<int, piece_move> bestMove;
-    bestMove.first = game.gameState.nextblack ? INT32_MIN : INT32_MAX;
+    bestMove.first = gameState.nextblack ? INT32_MIN : INT32_MAX;
     minimax.resetOperations();
 
     for(int i = 1; i <= maxDepth; i++)
@@ -130,7 +133,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
         if(candidate.second != 0)
             bestMove = candidate;
 
-        if((bestMove.first==INT32_MAX && game.gameState.nextblack) || (bestMove.first == INT32_MIN && !game.gameState.nextblack) || candidate.second == 0)
+        if((bestMove.first==INT32_MAX && gameState.nextblack) || (bestMove.first == INT32_MIN && !gameState.nextblack) || candidate.second == 0)
             break;
     }
 
@@ -144,9 +147,10 @@ RandomSearch::RandomSearch() {}
 
 std::pair<int, piece_move> RandomSearch::findBestMove(Game &game)
 {
-    std::span<piece_move> possibleMoves = game.gameState.getAvailableMoves();
+    const GameState& gameState = game.getGameState();
+    std::span<piece_move> possibleMoves = game.getAvailableMoves();
     if(possibleMoves.size() == 0)
-        return {game.gameState.nextblack ? INT32_MIN : INT32_MAX, 0};
+        return {gameState.nextblack ? INT32_MIN : INT32_MAX, 0};
 
     // Generate random move
     std::random_device rd;

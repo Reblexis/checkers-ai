@@ -3,22 +3,18 @@
 #include "../includes/constants.hpp"
 #include "includes/hyperparameters.hpp"
 
-// Implementation for BasicEvaluation class
-
 BasicEvaluation::BasicEvaluation(Hyperparameters &hyperparameters)
 {
     pawnValue = hyperparameters.get<int>(PAWN_VALUE_ID);
     kingValue = hyperparameters.get<int>(KING_VALUE_ID);
 }
 
-int BasicEvaluation::evaluate(const Board& board)
+int BasicEvaluation::evaluate(const GameState& gameState)
 {
-    if(board.moves().size()==0)
-        return board.nextblack ? INT32_MIN : INT32_MAX;
+    if(gameState.getAvailableMoves().size())
+        return gameState.nextblack ? INT32_MIN : INT32_MAX;
     return (board.blackPawnsCount() - board.whitePawnsCount()) * pawnValue + (board.blackKingsCount() - board.whiteKingsCount()) * kingValue;
 }
-
-// Implementation for AdvancedEvaluation class
 
 AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
 {
@@ -29,17 +25,18 @@ AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
     pawnTable = hyperparameters.get<std::vector<int>>(PAWN_TABLE_ID);
 }
 
-int AdvancedEvaluation::evaluate(const Board &board)
+int AdvancedEvaluation::evaluate(const GameState &gameState)
 {
-    if (board.moves().size() == 0)
-        return board.nextblack ? INT32_MIN : INT32_MAX;
+    if (gameState.getAvailableMoves().size() == 0)
+        return gameState.nextblack ? INT32_MIN : INT32_MAX;
 
     int score = 0;
     int pawnTableScore = 0;
     int kingTableScore = 0;
+    Board board = gameState.getBoard();
 
-    bitboard whitePawns = board.whitePieces & ~board.whiteKings;
-    bitboard blackPawns = board.blackPieces & ~board.blackKings;
+    bitboard whitePawns = board.getWhitePieces() & ~board.getWhiteKings();
+    bitboard blackPawns = board.getBlackPieces() & ~board.getBlackKings();
 
     for(int i = 0; i < NUM_SQUARES; i++)
     {
@@ -51,9 +48,9 @@ int AdvancedEvaluation::evaluate(const Board &board)
 
     for(int i = 0; i < NUM_SQUARES; i++)
     {
-        if(board.blackKings & (1 << i))
+        if(board.whiteKings & (1 << i))
             kingTableScore += kingTable[NUM_SQUARES - i - 1];
-        else if(board.whiteKings & (1 << i))
+        else if(board.blackKings & (1 << i))
             kingTableScore -= kingTable[i];
     }
 

@@ -20,8 +20,8 @@ Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / 
         searchAlgorithm = new RandomSearch();
 }
 
-std::pair<int, piece_move> Agent::findBestMove(Board &board) {
-    return searchAlgorithm->findBestMove(board);
+std::pair<int, piece_move> Agent::findBestMove(Game &game) {
+    return searchAlgorithm->findBestMove(game);
 }
 
 Agent::~Agent() {
