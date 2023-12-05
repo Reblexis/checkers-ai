@@ -5,7 +5,7 @@
 #include <iostream>
 
 const int TILE_SIZE = 80;
-const int BOARD_SIZE = 8 * TILE_SIZE;
+const int BOARD_DIMENSION = 8 * TILE_SIZE;
 
 class PieceSprite : public sf::CircleShape {
 public:
@@ -116,7 +116,7 @@ void App::gameLoop()
 }
 
 void App::launch() {
-    window.create(sf::VideoMode(BOARD_SIZE, BOARD_SIZE), "Checkers");
+    window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
     gameLoop();
 }

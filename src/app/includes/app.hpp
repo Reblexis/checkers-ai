@@ -8,7 +8,7 @@
 #include "../../communication/includes/game.hpp" // Adjust the path as needed
 
 const int TILE_SIZE = 80;
-const int BOARD_SIZE = 8 * TILE_SIZE;
+const int BOARD_DIMENSION = 8 * TILE_SIZE;
 
 class PieceSprite : public sf::CircleShape {
 public:

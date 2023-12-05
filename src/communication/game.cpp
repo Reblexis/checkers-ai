@@ -47,7 +47,7 @@ private:
     board_state reverseBoard(board_state boardToReverse){
         bitboard pieces = reverseBitboard(boardToReverse&0xffffffff);
         bitboard kings = reverseBitboard(boardToReverse>>32);
-        return (kings<<32) | pieces;
+        return (((board_state)kings)<<32) | pieces;
     }
 
 public:
@@ -70,7 +70,7 @@ public:
         if(blackBoard&(1<<pos)){
             return Piece::blackPawn;
         }
-        return nullopt;
+        return std::nullopt;
     }
 
     void reset(){
@@ -128,25 +128,25 @@ private:
 
         std::function<void(piece_move, unsigned int, position, bitboard, bool)> calculateMoves = [&](piece_move currentMove, unsigned int jumpCount, position lastPos, bitboard curEnemyPieces, bool isKing){
             bool anyJumps = false;
-            isKing |= (position<8);
+            isKing |= (lastPos<8);
             bitboard anyPieces = controlPieces | curEnemyPieces;
             // Jump top-left
-            if(lastPos > 15 && i % 8 > 1 && (curEnemyPieces&(1<<(lastPos-9)) && !(anyPieces&(1<<(lastPos-18))))){
+            if(lastPos > 15 && lastPos % 8 > 1 && (curEnemyPieces&(1<<(lastPos-9)) && !(anyPieces&(1<<(lastPos-18))))){
                 calculateMoves(currentMove | (1<<(jumpCount*3 + 5)), jumpCount+1, lastPos-18, curEnemyPieces^(1<<(lastPos-9)), isKing);
                 anyJumps = true;
             }
             // Jump top-right
-            if(lastPos > 15 && i % 8 < 6 && (curEnemyPieces&(1<<(lastPos-7)) && !(anyPieces&(1<<(lastPos-14))))){
+            if(lastPos > 15 && lastPos % 8 < 6 && (curEnemyPieces&(1<<(lastPos-7)) && !(anyPieces&(1<<(lastPos-14))))){
                 calculateMoves(currentMove | (2<<(jumpCount*3 + 5)), jumpCount+1, lastPos-14, curEnemyPieces^(1<<(lastPos-7)), isKing);
                 anyJumps = true;
             }
             // Jump bottom-left
-            if(isKing && lastPos < 48 && i % 8 > 1 && (curEnemyPieces&(1<<(lastPos+7)) && !(anyPieces&(1<<(lastPos+14))))){
+            if(isKing && lastPos < 48 && lastPos % 8 > 1 && (curEnemyPieces&(1<<(lastPos+7)) && !(anyPieces&(1<<(lastPos+14))))){
                 calculateMoves(currentMove | (3<<(jumpCount*3 + 5)), jumpCount+1, lastPos+14, curEnemyPieces^(1<<(lastPos+7)), isKing);
                 anyJumps = true;
             }
             // Jump bottom-right
-            if(isKing && lastPos < 48 && i % 8 < 6 && (curEnemyPieces&(1<<(lastPos+9)) && !(anyPieces&(1<<(lastPos+18))))){
+            if(isKing && lastPos < 48 && lastPos % 8 < 6 && (curEnemyPieces&(1<<(lastPos+9)) && !(anyPieces&(1<<(lastPos+18))))){
                 calculateMoves(currentMove | (4<<(jumpCount*3 + 5)), jumpCount+1, lastPos+18, curEnemyPieces^(1<<(lastPos+9)), isKing);
                 anyJumps = true;
             }
@@ -208,7 +208,7 @@ private:
     }
 public:
     Game(){
-        reset();
+        reset(GameState{});
     }
 
     void addGameState()
@@ -247,7 +247,7 @@ public:
         board_state controlBitboard = boards[0];
         board_state enemyBitboard = boards[1];
         bool isKing = controlBitboard&(1<<(currentPos+32));
-        controlBitboard &= (~(1<<currentPos))&(~(1<<(currentPos+32))));
+        controlBitboard &= (~(1<<currentPos))&(~(1<<(currentPos+32)));
 
         while(pieceMove){
             unsigned int direction = pieceMove&0x7;
