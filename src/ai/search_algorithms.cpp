@@ -1,3 +1,5 @@
+#include <random>
+
 #include "includes/search_algorithms.hpp"
 #include "../communication/includes/debugging.hpp"
 #include "../communication/includes/game.hpp"
@@ -11,17 +13,17 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
     operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
 }
 
-std::pair<int, piece_move> Minimax::minimax(GameState &gameState, int leftDepth, int alpha, int beta)
+std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha, int beta)
 {
     curOperations++;
 
-    bool maximizing = gameState.nextblack;
+    bool maximizing = game.gameState.nextblack;
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
     piece_move bestMove = 0;
 
     if(useCache)
     {
-        const cacheEntry &cacheInfo = cache.get(gameState);
+        const cacheEntry &cacheInfo = cache.get(game.gameState);
 
         if(leftDepth < cacheInfo.depth)
             return {cacheInfo.score, cacheInfo.bestMove};
@@ -35,17 +37,17 @@ std::pair<int, piece_move> Minimax::minimax(GameState &gameState, int leftDepth,
 
     if(leftDepth==0)
     {
-        int score = evaluation.evaluate(gameState);
+        int score = evaluation.evaluate(game.gameState);
         if(useCache)
-            cache.set(gameState, 1, score, 0);
+            cache.set(game.gameState, 1, score, 0);
         return {score, 0};
     }
 
-    piece_moveList possibleMoves = gameState.getAvailableMoves();
+    std::span<piece_move> possibleMoves = game.gameState.getAvailableMoves();
 
     if(bestMove == 0)
     {
-        bestMove = possibleMoves.begin()[0];
+        bestMove = possibleMoves[0];
     }
 
     if(possibleMoves.size() == 0)
@@ -58,7 +60,7 @@ std::pair<int, piece_move> Minimax::minimax(GameState &gameState, int leftDepth,
         if(curOperations >= operationLimit)
             break;
 
-        board.play(nextMove);
+        game.makeMove(nextMove);
 
         std::pair<int, piece_move> moveInfo = minimax(board, leftDepth-1, alpha, beta);
 
@@ -68,7 +70,7 @@ std::pair<int, piece_move> Minimax::minimax(GameState &gameState, int leftDepth,
             bestMove = nextMove;
         }
 
-        board.undo();
+        game.undoMove();
 
         if(useAlphaBeta)
         {
@@ -116,19 +118,19 @@ IterativeMinimax::IterativeMinimax(Hyperparameters &hyperparameters, Evaluation 
     operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
 }
 
-std::pair<int, piece_move> IterativeMinimax::findBestMove(Board &board)
+std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
 {
     std::pair<int, piece_move> bestMove;
-    bestMove.first = board.nextblack ? INT32_MIN : INT32_MAX;
+    bestMove.first = game.gameState.nextblack ? INT32_MIN : INT32_MAX;
     minimax.resetOperations();
 
     for(int i = 1; i <= maxDepth; i++)
     {
-        std::pair<int, piece_move> candidate = minimax.findBestMove(board);
+        std::pair<int, piece_move> candidate = minimax.findBestMove(game);
         if(candidate.second != 0)
             bestMove = candidate;
 
-        if((bestMove.first==INT32_MAX && board.nextblack) || (bestMove.first == INT32_MIN && !board.nextblack) || candidate.second == 0)
+        if((bestMove.first==INT32_MAX && game.gameState.nextblack) || (bestMove.first == INT32_MIN && !game.gameState.nextblack) || candidate.second == 0)
             break;
     }
 
@@ -140,11 +142,15 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Board &board)
 
 RandomSearch::RandomSearch() {}
 
-std::pair<int, piece_move> RandomSearch::findBestMove(Board &board)
+std::pair<int, piece_move> RandomSearch::findBestMove(Game &game)
 {
-    piece_moveList possibleMoves = board.moves();
+    std::span<piece_move> possibleMoves = game.gameState.getAvailableMoves();
     if(possibleMoves.size() == 0)
-        return {board.nextblack ? INT32_MIN : INT32_MAX, 0};
+        return {game.gameState.nextblack ? INT32_MIN : INT32_MAX, 0};
 
-    return {0, possibleMoves.begin()[rand64(board.hash) % possibleMoves.size()]};
+    // Generate random move
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distribution(0, possibleMoves.size()-1);
+    return {0, possibleMoves[distribution(gen)]};
 }

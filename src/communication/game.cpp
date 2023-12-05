@@ -33,7 +33,6 @@ class Board{
 private:
     board_state whiteBoard = 0xfff00000; // The starting pawn setup
     board_state blackBoard = 0xfff;
-    uint64_t hash = 0; // TODO: Move this to cache.cpp
 
     bitboard reverseBitboard(bitboard bitboardToReverse){
         bitboardToReverse = (bitboardToReverse & 0x55555555) << 1 | (bitboardToReverse & 0xAAAAAAAA) >> 1;
@@ -104,6 +103,7 @@ public:
 struct GameState{
     Board board{};
     bool nextBlack = true;
+    uint64_t hash = 0; // TODO: Move this to cache.cpp
     std::vector<piece_move> availableMoves;
 
     void calculateAvailableMoves()
@@ -226,8 +226,7 @@ public:
             throw std::runtime_error("Cannot undo move. No moves have been made.");
 
         gameHistory.pop_back();
-        board = gameHistory.back().board;
-        nextBlack = gameHistory.back().nextBlack;
+        gameState = gameHistory.back();
     }
 
     void reset(GameState state)
@@ -286,7 +285,7 @@ public:
         if(isKing)
             controlBitboard |= (1<<(currentPos+32));
 
-        if(nextBlack)
+        if(gameState.nextBlack)
             gameState.board.setBoardRev(controlBitboard, enemyBitboard);
         else
             gameState.board.setBoard(controlBitboard, enemyBitboard);

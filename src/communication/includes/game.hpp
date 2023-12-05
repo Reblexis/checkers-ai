@@ -25,7 +25,6 @@ class Board {
 private:
     board_state whiteBoard = 0xfff00000; // The starting pawn setup
     board_state blackBoard = 0xfff;
-    uint64_t hash = 0; // TODO: Move this to cache.cpp
 
     bitboard reverseBitboard(bitboard bitboardToReverse);
     board_state reverseBoard(board_state boardToReverse);
@@ -45,6 +44,7 @@ struct GameState {
     Board board{};
     bool nextBlack = true;
     std::vector<piece_move> availableMoves;
+    uint64_t hash = 0; // TODO: Move this to cache.cpp
 
     void calculateAvailableMoves();
     std::span<piece_move> getAvailableMoves();
