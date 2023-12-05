@@ -1,5 +1,7 @@
-#ifndef CHECKERS_GAME_HPP
-#define CHECKERS_GAME_HPP
+// Game.hpp
+
+#ifndef GAME_HPP
+#define GAME_HPP
 
 #include <optional>
 #include <vector>
@@ -23,7 +25,7 @@ class Board {
 private:
     board_state whiteBoard = 0xfff00000; // The starting pawn setup
     board_state blackBoard = 0xfff;
-    uint64_t hash = 0;
+    uint64_t hash = 0; // TODO: Move this to cache.cpp
 
     bitboard reverseBitboard(bitboard bitboardToReverse);
     board_state reverseBoard(board_state boardToReverse);
@@ -42,24 +44,23 @@ public:
 struct GameState {
     Board board{};
     bool nextBlack = true;
+    std::vector<piece_move> availableMoves;
+
+    void calculateAvailableMoves();
+    std::span<piece_move> getAvailableMoves();
 };
 
 class Game {
 private:
-    Board board;
-    bool nextBlack = true;
+    GameState gameState;
     std::vector<GameState> gameHistory;
-    std::vector<piece_move> availableMoves;
-
-    void calculateAvailableMoves();
 
 public:
     Game();
     void addGameState();
     void undoMove();
     void reset(GameState state);
-    std::span<piece_move> getAvailableMoves();
     void makeMove(piece_move pieceMove);
 };
 
-#endif // CHECKERS_GAME_HPP
+#endif // GAME_HPP
