@@ -104,14 +104,6 @@ public:
 struct GameState{
     Board board{};
     bool nextBlack = true;
-};
-
-class Game{
-private:
-    Board board;
-    bool nextBlack = true;
-    std::vector<GameState> gameHistory;
-
     std::vector<piece_move> availableMoves;
 
     void calculateAvailableMoves()
@@ -206,6 +198,18 @@ private:
             }
         }
     }
+
+    std::span<piece_move> getAvailableMoves(){
+        calculateAvailableMoves();
+        return availableMoves;
+    }
+};
+
+class Game{
+private:
+    GameState gameState;
+    std::vector<GameState> gameHistory;
+
 public:
     Game(){
         reset(GameState{});
@@ -213,7 +217,7 @@ public:
 
     void addGameState()
     {
-        gameHistory.push_back({board, nextBlack});
+        gameHistory.push_back(gameState);
     }
 
     void undoMove()
@@ -228,22 +232,17 @@ public:
 
     void reset(GameState state)
     {
-        board = state.board;
-        nextBlack = true;
+        gameState = state;
         gameHistory.clear();
         addGameState();
     }
 
-    std::span<piece_move> getAvailableMoves(){
-        calculateAvailableMoves();
-        return availableMoves;
-    }
 
     void makeMove(piece_move pieceMove){
         unsigned int currentPos = pieceMove&0x1f;
 
         pieceMove >>= 5;
-        std::array<board_state, 2> boards = nextBlack ? board.getBoardsRev() : board.getBoards();
+        std::array<board_state, 2> boards = gameState.nextBlack ? gameState.board.getBoardsRev() : gameState.board.getBoards();
         board_state controlBitboard = boards[0];
         board_state enemyBitboard = boards[1];
         bool isKing = controlBitboard&(1<<(currentPos+32));
@@ -288,11 +287,11 @@ public:
             controlBitboard |= (1<<(currentPos+32));
 
         if(nextBlack)
-            board.setBoardRev(controlBitboard, enemyBitboard);
+            gameState.board.setBoardRev(controlBitboard, enemyBitboard);
         else
-            board.setBoard(controlBitboard, enemyBitboard);
+            gameState.board.setBoard(controlBitboard, enemyBitboard);
 
-        nextBlack = !nextBlack;
+        gameState.nextBlack = !gameState.nextBlack;
         addGameState();
     }
 };

@@ -11,17 +11,17 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
     operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
 }
 
-std::pair<int, piece_move> Minimax::minimax(Board &board, int leftDepth, int alpha, int beta)
+std::pair<int, piece_move> Minimax::minimax(GameState &gameState, int leftDepth, int alpha, int beta)
 {
     curOperations++;
 
-    bool maximizing = board.nextblack;
+    bool maximizing = gameState.nextblack;
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
     piece_move bestMove = 0;
 
     if(useCache)
     {
-        const cacheEntry &cacheInfo = cache.get(board);
+        const cacheEntry &cacheInfo = cache.get(gameState);
 
         if(leftDepth < cacheInfo.depth)
             return {cacheInfo.score, cacheInfo.bestMove};
@@ -35,13 +35,13 @@ std::pair<int, piece_move> Minimax::minimax(Board &board, int leftDepth, int alp
 
     if(leftDepth==0)
     {
-        int score = evaluation.evaluate(board);
+        int score = evaluation.evaluate(gameState);
         if(useCache)
-            cache.set(board, 1, score, 0);
+            cache.set(gameState, 1, score, 0);
         return {score, 0};
     }
 
-    piece_moveList possibleMoves = board.moves();
+    piece_moveList possibleMoves = gameState.getAvailableMoves();
 
     if(bestMove == 0)
     {
