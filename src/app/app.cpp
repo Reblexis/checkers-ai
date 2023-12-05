@@ -57,7 +57,7 @@ void App::drawWindow(Board &board) {
     window.display();
 }
 
-move App::getMove(Board &board) {
+piece_move App::getMove(Board &board) {
     drawWindow(board);
 
     bool pieceSelected = false;

@@ -1,23 +1,35 @@
+// App.hpp
+
 #ifndef APP_HPP
 #define APP_HPP
 
 #include <SFML/Graphics.hpp>
+#include <optional>
+#include "../../communication/includes/game.hpp" // Adjust the path as needed
 
-#include "../../communication/includes/game.hpp"
+const int TILE_SIZE = 80;
+const int BOARD_SIZE = 8 * TILE_SIZE;
+
+class PieceSprite : public sf::CircleShape {
+public:
+    explicit PieceSprite(Piece piece);
+    void setPositionCentered(int x, int y);
+    bool isWhitePiece;
+    bool isKing;
+};
 
 class App {
 private:
     sf::RenderWindow window;
-    sf::Font font;
-    sf::Text text;
 
+public:
     void drawBoard(Board &board);
     void drawPieces(Board &board);
     void drawWindow(Board &board);
-
-public:
+    piece_move getMove(Board &board);
+    void gameLoop();
     void launch();
-    move getMove(Board &board);
-};;
+};
 
-#endif
+#endif // APP_HPP
+

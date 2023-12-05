@@ -1,5 +1,5 @@
-#ifndef CHECKERS_GAME_H
-#define CHECKERS_GAME_H
+#ifndef CHECKERS_GAME_HPP
+#define CHECKERS_GAME_HPP
 
 #include <optional>
 #include <vector>
@@ -23,6 +23,7 @@ class Board {
 private:
     board_state whiteBoard = 0xfff00000; // The starting pawn setup
     board_state blackBoard = 0xfff;
+    uint64_t hash = 0;
 
     bitboard reverseBitboard(bitboard bitboardToReverse);
     board_state reverseBoard(board_state boardToReverse);
@@ -61,4 +62,4 @@ public:
     void makeMove(piece_move pieceMove);
 };
 
-#endif // CHECKERS_GAME_H
+#endif // CHECKERS_GAME_HPP

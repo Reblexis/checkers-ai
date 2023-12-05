@@ -33,6 +33,7 @@ class Board{
 private:
     board_state whiteBoard = 0xfff00000; // The starting pawn setup
     board_state blackBoard = 0xfff;
+    uint64_t hash = 0; // TODO: Move this to cache.cpp
 
     bitboard reverseBitboard(bitboard bitboardToReverse){
         bitboardToReverse = (bitboardToReverse & 0x55555555) << 1 | (bitboardToReverse & 0xAAAAAAAA) >> 1;
