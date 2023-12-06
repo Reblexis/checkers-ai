@@ -1,3 +1,4 @@
+/*
 #include "../communication/includes/debugging.hpp"
 
 #include "../communication/includes/game.hpp"
@@ -55,3 +56,4 @@ void searchAlgorithmTest(Agent &agent1, Agent &agent2){
     message(b.visualize());
 }
 
+*/

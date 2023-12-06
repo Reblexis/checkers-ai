@@ -6,6 +6,7 @@
 #include <span>
 #include <cstdint>
 #include <functional>
+#include <iostream>
 
 #define CHECK_VALID_MOVES true
 
@@ -33,13 +34,12 @@ public:
     const bitboard getBlackPieces() const;
     const bitboard getWhiteKings() const;
     const bitboard getBlackKings() const;
+    const bitboard_all whiteBitboard;
+    const bitboard_all blackBitboard;
 
 private:
     const bitboard reverseBitboard(const bitboard bitboardToReverse) const;
     const bitboard_all reverseBoard(const bitboard_all boardToReverse) const;
-
-    const bitboard_all whiteBitboard;
-    const bitboard_all blackBitboard;
 };
 
 struct GameState {
@@ -50,7 +50,6 @@ public:
 
     GameState(Board board, bool nextBlack);
     std::span<const piece_move> getAvailableMoves() const;
-    const Board& getBoard() const;
 
 private:
     void calculateAvailableMoves();

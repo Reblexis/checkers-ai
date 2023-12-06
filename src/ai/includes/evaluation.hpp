@@ -38,7 +38,6 @@ private:
 
 public:
     explicit AdvancedEvaluation(Hyperparameters &hyperparameters);
-
     int evaluate(const GameState& gameState) override;
 };
 

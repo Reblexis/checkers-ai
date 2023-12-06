@@ -1,3 +1,4 @@
+/*
 #include "includes/console_interface.hpp"
 #include <ctype.h>
 #include <algorithm>
@@ -131,3 +132,4 @@ void run_console_bot(Agent &agent) {
 		//std::cerr << blackPieces.visualize();
 	}
 }
+*/

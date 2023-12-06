@@ -11,8 +11,9 @@ BasicEvaluation::BasicEvaluation(Hyperparameters &hyperparameters)
 
 int BasicEvaluation::evaluate(const GameState& gameState)
 {
+    const Board& board = gameState.board;
     if(gameState.getAvailableMoves().size())
-        return gameState.nextblack ? INT32_MIN : INT32_MAX;
+        return gameState.nextBlack ? INT32_MIN : INT32_MAX;
     return (board.blackPawnsCount() - board.whitePawnsCount()) * pawnValue + (board.blackKingsCount() - board.whiteKingsCount()) * kingValue;
 }
 
@@ -28,12 +29,12 @@ AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
 int AdvancedEvaluation::evaluate(const GameState &gameState)
 {
     if (gameState.getAvailableMoves().size() == 0)
-        return gameState.nextblack ? INT32_MIN : INT32_MAX;
+        return gameState.nextBlack ? INT32_MIN : INT32_MAX;
 
     int score = 0;
     int pawnTableScore = 0;
     int kingTableScore = 0;
-    Board board = gameState.getBoard();
+    Board board = gameState.board;
 
     bitboard whitePawns = board.getWhitePieces() & ~board.getWhiteKings();
     bitboard blackPawns = board.getBlackPieces() & ~board.getBlackKings();
@@ -46,11 +47,13 @@ int AdvancedEvaluation::evaluate(const GameState &gameState)
             pawnTableScore -= pawnTable[i];
     }
 
+    bitboard whiteKings = board.getWhiteKings();
+    bitboard blackKings = board.getBlackKings();
     for(int i = 0; i < NUM_SQUARES; i++)
     {
-        if(board.whiteKings & (1 << i))
+        if(whiteKings & (1 << i))
             kingTableScore += kingTable[NUM_SQUARES - i - 1];
-        else if(board.blackKings & (1 << i))
+        else if(blackKings & (1 << i))
             kingTableScore -= kingTable[i];
     }
 
