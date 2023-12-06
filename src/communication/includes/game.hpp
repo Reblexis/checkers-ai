@@ -12,6 +12,20 @@
 
 enum Piece { whitePawn, whiteKing, blackPawn, blackKing };
 
+enum Direction { topLeft=1, topRight=2, bottomLeft=3, bottomRight=4 };
+
+struct Pos {
+    // Position in terms of the whole board including empty tiles
+    unsigned int x;
+    unsigned int y;
+    Pos(unsigned int x, unsigned int y);
+    Pos (unsigned int index);
+    unsigned int indexFromPos() const;
+    Direction getDirection(Pos pos) const;
+
+    bool operator==(const Pos& other) const;
+};
+
 constexpr unsigned int BOARD_SIZE = 32;
 using bitboard_all = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
 using bitboard = uint32_t;
@@ -21,13 +35,20 @@ using bitboard = uint32_t;
  * ...
  */
 using piece_move = uint64_t;
+struct Move {
+    // Nice version of piece_move
+    piece_move id;
+    std::vector<Pos> path;
+    piece_move getSubMove(unsigned int index);
+};
+
 using position = uint8_t;
 
 class Board {
 public:
     Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard);
 
-    const std::optional<Piece> getAt(int x, int y, bool compressed=true) const;
+    const std::optional<Piece> getAt(Pos pos) const;
     const Board getBoardRev() const;
     const int whitePiecesCount() const;
     const int blackPiecesCount() const;
@@ -55,6 +76,7 @@ public:
 
     GameState(Board board, bool nextBlack);
     std::span<const piece_move> getAvailableMoves() const;
+    std::vector<Move> getAvailableMoves2() const;
 
 private:
     void calculateAvailableMoves();

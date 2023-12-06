@@ -1,15 +1,55 @@
 #include "includes/game.hpp"
 
+Pos::Pos(unsigned int x, unsigned int y) : x(x), y(y) {}
+
+Pos::Pos(unsigned int index){
+    x = (index % 4) * 2;
+    y = index / 4;
+    x += y % 2;
+}
+
+unsigned int Pos::indexFromPos() const{
+    return x/2 + y*4;
+}
+
+Direction Pos::getDirection(Pos pos) const{
+    int diff = pos.indexFromPos() - indexFromPos();
+    if (diff == -9)
+        return Direction::topLeft;
+    else if (diff == -7)
+        return Direction::topRight;
+    else if (diff == 7)
+        return Direction::bottomLeft;
+    else if (diff == 9)
+        return Direction::bottomRight;
+    else
+        throw std::runtime_error("Invalid direction.");
+}
+
+bool Pos::operator==(const Pos& other) const{
+    return x == other.x && y == other.y;
+}
+
+piece_move Move::getSubMove(unsigned int index) {
+    // Return index-th sub-move
+    if(index >= path.size()-1)
+        throw std::runtime_error("Sub-move has to have 2 positions available. Index out of bounds.");
+    unsigned int startPos = path[index].indexFromPos();
+    Direction direction = path[index].getDirection(path[index+1]);
+    return (static_cast<unsigned int>(direction) << 5) + startPos;
+}
+
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
-const std::optional<Piece> Board::getAt(int x, int y, bool compressed) const {
+const std::optional<Piece> Board::getAt(Pos piecePos) const {
     // Compressed means that 0<x<4 and 0<y<8 meaning that we only consider the fields where any piece can even stand
-    if(!compressed){
-        if((x+y)%2 == 0)
-            return std::nullopt;
-        x = x/2;
-    }
+    int x = piecePos.x;
+    int y = piecePos.y;
+    if((x+y)%2 == 0)
+        return std::nullopt;
+    x = x/2;
+
     if(x<0 || x>3 || y<0 || y>7)
         return std::nullopt;
 
@@ -99,6 +139,47 @@ std::span<const piece_move> GameState::getAvailableMoves() const {
     return std::span<const piece_move>(availableMoves);
 }
 
+std::vector<Move> GameState::getAvailableMoves2() const {
+    std::vector<Move> moves;
+    for (auto pieceMove: availableMoves)
+    {
+        unsigned int currentPos = pieceMove & 0x1f;
+
+        Move move{pieceMove, {Pos(currentPos)}};
+
+        pieceMove >>= 5;
+        Board perspectiveBoard = nextBlack ? board.getBoardRev(): board;
+        bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
+        bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
+        bool isKing = controlBitboard & (1 << (currentPos + 32));
+
+        while (pieceMove) {
+            unsigned int direction = pieceMove & 0x7;
+            unsigned int startPos = currentPos;
+            if (direction == 1)
+                currentPos -= 9;
+            else if (direction == 2)
+                currentPos -= 7;
+            else if (direction == 3)
+                currentPos += 7;
+            else
+                currentPos += 9;
+
+            // Do a jump if standing on an enemy piece
+            if (enemyBitboard & (1 << currentPos)) {
+                currentPos += (currentPos - startPos);
+            }
+            move.path.push_back(Pos(currentPos));
+
+            if (currentPos < 8)
+                isKing = true;
+
+            pieceMove >>= 3;
+        }
+    }
+    return moves;
+}
+
 void GameState::calculateAvailableMoves() {
     availableMoves.clear();
     Board boards = nextBlack ? board.getBoardRev() : board;
@@ -127,22 +208,22 @@ void GameState::calculateAvailableMoves() {
                     bitboard anyPieces = controlPieces | curEnemyPieces;
                     // Jump top-left
                     if(lastPos > 15 && lastPos % 8 > 1 && (curEnemyPieces&(1<<(lastPos-9)) && !(anyPieces&(1<<(lastPos-18))))){
-                        calculateMoves(currentMove | (1<<(jumpCount*3 + 5)), jumpCount+1, lastPos-18, curEnemyPieces^(1<<(lastPos-9)), isKing);
+                        calculateMoves(currentMove | (Direction::topLeft<<(jumpCount*3 + 5)), jumpCount+1, lastPos-18, curEnemyPieces^(1<<(lastPos-9)), isKing);
                         anyJumps = true;
                     }
                     // Jump top-right
                     if(lastPos > 15 && lastPos % 8 < 6 && (curEnemyPieces&(1<<(lastPos-7)) && !(anyPieces&(1<<(lastPos-14))))){
-                        calculateMoves(currentMove | (2<<(jumpCount*3 + 5)), jumpCount+1, lastPos-14, curEnemyPieces^(1<<(lastPos-7)), isKing);
+                        calculateMoves(currentMove | (Direction::topRight<<(jumpCount*3 + 5)), jumpCount+1, lastPos-14, curEnemyPieces^(1<<(lastPos-7)), isKing);
                         anyJumps = true;
                     }
                     // Jump bottom-left
                     if(isKing && lastPos < 48 && lastPos % 8 > 1 && (curEnemyPieces&(1<<(lastPos+7)) && !(anyPieces&(1<<(lastPos+14))))){
-                        calculateMoves(currentMove | (3<<(jumpCount*3 + 5)), jumpCount+1, lastPos+14, curEnemyPieces^(1<<(lastPos+7)), isKing);
+                        calculateMoves(currentMove | (Direction::bottomLeft<<(jumpCount*3 + 5)), jumpCount+1, lastPos+14, curEnemyPieces^(1<<(lastPos+7)), isKing);
                         anyJumps = true;
                     }
                     // Jump bottom-right
                     if(isKing && lastPos < 48 && lastPos % 8 < 6 && (curEnemyPieces&(1<<(lastPos+9)) && !(anyPieces&(1<<(lastPos+18))))){
-                        calculateMoves(currentMove | (4<<(jumpCount*3 + 5)), jumpCount+1, lastPos+18, curEnemyPieces^(1<<(lastPos+9)), isKing);
+                        calculateMoves(currentMove | (Direction::bottomRight<<(jumpCount*3 + 5)), jumpCount+1, lastPos+18, curEnemyPieces^(1<<(lastPos+9)), isKing);
                         anyJumps = true;
                     }
 
@@ -178,12 +259,12 @@ void GameState::calculateAvailableMoves() {
                     // Move top-left
                     if(i>7 && i%8>0 && !(anyPieces&(1<<(i-9))))
                     {
-                        availableMoves.push_back(i | (1<<5));
+                        availableMoves.push_back(i | (Direction::topLeft<<5));
                     }
                     // Move top-right
                     if(i>7 && i%8<7 && !(anyPieces&(1<<(i-7))))
                     {
-                        availableMoves.push_back(i | (2<<5));
+                        availableMoves.push_back(i | (Direction::topRight<<5));
                     }
 
                     if(controlKings&(1<<i))
@@ -191,12 +272,12 @@ void GameState::calculateAvailableMoves() {
                         // Move bottom-left
                         if(i<56 && i%8>0 && !(anyPieces&(1<<(i+7))))
                         {
-                            availableMoves.push_back(i | (3<<5));
+                            availableMoves.push_back(i | (Direction::bottomLeft<<5));
                         }
                         // Move bottom-right
                         if(i<56 && i%8<7 && !(anyPieces&(1<<(i+9))))
                         {
-                            availableMoves.push_back(i | (4<<5));
+                            availableMoves.push_back(i | (Direction::bottomRight<<5));
                         }
                     }
                 }
@@ -240,11 +321,11 @@ void Game::makeMove(piece_move pieceMove) {
     while (pieceMove) {
         unsigned int direction = pieceMove & 0x7;
         unsigned int startPos = currentPos;
-        if (direction == 1)
+        if (direction == Direction::topLeft)
             currentPos -= 9;
-        else if (direction == 2)
+        else if (direction == Direction::topRight)
             currentPos -= 7;
-        else if (direction == 3)
+        else if (direction == Direction::bottomLeft)
             currentPos += 7;
         else
             currentPos += 9;

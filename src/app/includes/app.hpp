@@ -12,14 +12,16 @@
 const unsigned int TILE_SIZE = 80;
 const unsigned int BOARD_DIMENSION = 8 * TILE_SIZE;
 
-struct Pos {
-    int x;
-    int y;
-};
+const sf::Color WHITE_TILE_COLOR = sf::Color(245, 245, 220);
+const sf::Color BLACK_TILE_COLOR = sf::Color(160, 82, 45);
+const sf::Color SELECTED_TILE_COLOR = sf::Color(184, 0, 18, 70);
+const sf::Color BLACK_PIECE_COLOR = sf::Color(0, 0,0);
+const sf::Color WHITE_PIECE_COLOR = sf::Color(200,200,200);
 
 class UI{
 public:
     std::optional<Pos> selectedSquare;
+    std::vector<Pos> possibleMoves;
 };
 
 class PieceSprite : public sf::CircleShape {
