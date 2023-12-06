@@ -1,5 +1,3 @@
-// Game.hpp
-
 #ifndef GAME_HPP
 #define GAME_HPP
 
@@ -8,62 +6,68 @@
 #include <span>
 #include <cstdint>
 #include <functional>
-#include <array>
-#include <stdexcept>
 
 #define CHECK_VALID_MOVES true
 
 enum Piece { whitePawn, whiteKing, blackPawn, blackKing };
 
 constexpr unsigned int BOARD_SIZE = 32;
-using board_state = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
+using bitboard_all = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
 using bitboard = uint32_t;
 using piece_move = uint64_t;
 using position = uint8_t;
 
 class Board {
-private:
-    board_state whiteBoard = 0xfff00000; // The starting pawn setup
-    board_state blackBoard = 0xfff;
-
-    bitboard reverseBitboard(bitboard bitboardToReverse);
-    board_state reverseBoard(board_state boardToReverse);
-
 public:
-    Board();
-    std::optional<Piece> getAt(int x, int y);
-    void reset();
-    Board(const Board& other);
-    void setBoard(board_state white, board_state black);
-    void setBoardRev(board_state black, board_state white);
-    std::array<board_state, 2> getBoards();
-    std::array<board_state, 2> getBoardsRev();
+    Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard);
+
+    const std::optional<Piece> getAt(int x, int y) const;
+    const Board getBoardRev() const;
+    const int whitePiecesCount() const;
+    const int blackPiecesCount() const;
+    const int whiteKingsCount() const;
+    const int blackKingsCount() const;
+    const int whitePawnsCount() const;
+    const int blackPawnsCount() const;
+    const bitboard getWhitePieces() const;
+    const bitboard getBlackPieces() const;
+    const bitboard getWhiteKings() const;
+    const bitboard getBlackKings() const;
+
+private:
+    const bitboard reverseBitboard(const bitboard bitboardToReverse) const;
+    const bitboard_all reverseBoard(const bitboard_all boardToReverse) const;
+
+    const bitboard_all whiteBitboard;
+    const bitboard_all blackBitboard;
 };
 
 struct GameState {
 public:
+    const Board board;
+    const bool nextBlack;
+    uint64_t hash;
+
     GameState(Board board, bool nextBlack);
-    const Board board{};
-    uint64_t hash = 0; // TODO: Move this to cache.cpp
-    const bool nextBlack = true;
-    std::span<piece_move> getAvailableMoves();
+    std::span<const piece_move> getAvailableMoves() const;
+    const Board& getBoard() const;
+
 private:
-    std::vector<piece_move> availableMoves;
     void calculateAvailableMoves();
+    std::vector<piece_move> availableMoves;
 };
 
 class Game {
-private:
-    GameState gameState;
-    std::vector<GameState> gameHistory;
-
 public:
-    Game();
-    void addGameState();
-    const GameState& getGameState();
+    Game(const GameState state);
+    void addGameState(const GameState state);
     void undoMove();
     void reset(GameState state);
+    const GameState& getGameState() const;
     void makeMove(piece_move pieceMove);
+
+private:
+    std::vector<GameState> gameHistory;
 };
 
 #endif // GAME_HPP

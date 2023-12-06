@@ -63,11 +63,11 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
         game.makeMove(nextMove);
 
-        std::pair<int, piece_move> moveInfo = minimax(board, leftDepth-1, alpha, beta);
+        std::pair<int, piece_move> moveInfo = minimax(game, leftDepth-1, alpha, beta);
 
-        if(maximizing ? piece_moveInfo.first > bestScore : moveInfo.first < bestScore)
+        if(maximizing ? moveInfo.first > bestScore : moveInfo.first < bestScore)
         {
-            bestScore = piece_moveInfo.first;
+            bestScore = moveInfo.first;
             bestMove = nextMove;
         }
 
@@ -91,10 +91,10 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     return {bestScore, bestMove};
 }
 
-std::pair<int, piece_move> Minimax::findBestMove(Board &b)
+std::pair<int, piece_move> Minimax::findBestMove(Game &game)
 {
     resetOperations();
-    return minimax(b, maxDepth);
+    return minimax(game, maxDepth);
 }
 
 void Minimax::resetOperations()
@@ -124,7 +124,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
     const GameState& gameState = game.getGameState();
 
     std::pair<int, piece_move> bestMove;
-    bestMove.first = gameState.nextblack ? INT32_MIN : INT32_MAX;
+    bestMove.first = gameState.nextBlack ? INT32_MIN : INT32_MAX;
     minimax.resetOperations();
 
     for(int i = 1; i <= maxDepth; i++)
@@ -133,7 +133,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
         if(candidate.second != 0)
             bestMove = candidate;
 
-        if((bestMove.first==INT32_MAX && gameState.nextblack) || (bestMove.first == INT32_MIN && !gameState.nextblack) || candidate.second == 0)
+        if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0)
             break;
     }
 
@@ -148,9 +148,9 @@ RandomSearch::RandomSearch() {}
 std::pair<int, piece_move> RandomSearch::findBestMove(Game &game)
 {
     const GameState& gameState = game.getGameState();
-    std::span<piece_move> possibleMoves = game.getAvailableMoves();
+    std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
     if(possibleMoves.size() == 0)
-        return {gameState.nextblack ? INT32_MIN : INT32_MAX, 0};
+        return {gameState.nextBlack ? INT32_MIN : INT32_MAX, 0};
 
     // Generate random move
     std::random_device rd;
