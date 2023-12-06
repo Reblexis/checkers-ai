@@ -78,6 +78,11 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
         else {
             if(newMove) {
                 possibleMoves = game.getGameState().getAvailableMoves2();
+                std::cout<<"Possible moves: "<<possibleMoves.size()<<std::endl;
+                for(auto move : possibleMoves)
+                {
+                    std::cout<<move.path[0].x<<", "<<move.path[0].y<<" -> "<<move.path[1].x<<", "<<move.path[1].y<<std::endl;
+                }
                 newMove = false;
             }
             /*
@@ -164,7 +169,6 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
 void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
-
     Game game(GameState(Board(0xfff00000, 0xfff), true));
     UI ui;
     gameLoop(game, std::nullopt, std::nullopt, ui);

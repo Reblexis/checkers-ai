@@ -24,6 +24,8 @@ struct Pos {
     Direction getDirection(Pos pos) const;
 
     bool operator==(const Pos& other) const;
+    Pos operator+(const Pos& other) const;
+    Pos operator-(const Pos& other) const;
 };
 
 constexpr unsigned int BOARD_SIZE = 32;
