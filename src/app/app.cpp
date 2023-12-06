@@ -37,14 +37,24 @@ void App::drawPieces(const Board &board) {
     }
 }
 
-void App::drawWindow(const Game &game) {
+void App::drawUI(const UI &ui) {
+    if (ui.selectedSquare) {
+        sf::RectangleShape selectedSquare(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+        selectedSquare.setPosition(ui.selectedSquare->x * TILE_SIZE, ui.selectedSquare->y * TILE_SIZE);
+        selectedSquare.setFillColor(sf::Color(255, 112, 10, 70));
+        window.draw(selectedSquare);
+    }
+}
+
+void App::drawWindow(const Game &game, const UI &ui){
     window.clear();
     drawBoard(game.getGameState().board);
     drawPieces(game.getGameState().board);
+    drawUI(ui);
     window.display();
 }
 
-void App::gameLoop(Game &game) {
+void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent> agent2, UI &ui) {
     while (window.isOpen()) {
         sf::Event event;
 
@@ -53,7 +63,38 @@ void App::gameLoop(Game &game) {
                 window.close();
         }
 
-        drawWindow(game);
+        if (agent1 && game.getGameState().nextBlack) {
+            std::pair<int, piece_move> bestMove = agent1->findBestMove(game);
+            game.makeMove(bestMove.second);
+        } else if (agent2 && !game.getGameState().nextBlack) {
+            std::pair<int, piece_move> bestMove = agent2->findBestMove(game);
+            game.makeMove(bestMove.second);
+        }
+        else {
+            /*
+             *Human-controlled
+             * Allows the human to select a piece and then select a destination for it. If there is forced jump it forces the human to select the next move.
+             */
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+                int x = mousePosition.x / TILE_SIZE;
+                int y = mousePosition.y / TILE_SIZE;
+                std::optional <Piece> piece = game.getGameState().board.getAt(x, y, false);
+
+                if (piece)
+                {
+                    ui.selectedSquare = Pos{x, y};
+                    message("Selected square: " + std::to_string(x) + ", " + std::to_string(y));
+                }
+                else
+                {
+                    message("No piece selected");
+                    ui.selectedSquare = std::nullopt;
+                }
+            }
+        }
+
+        drawWindow(game, ui);
     }
 }
 
@@ -61,5 +102,6 @@ void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
     Game game(GameState(Board(0xfff00000, 0xfff), true));
-    gameLoop(game);
+    UI ui;
+    gameLoop(game, std::nullopt, std::nullopt, ui);
 }

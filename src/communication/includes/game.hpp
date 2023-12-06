@@ -15,6 +15,11 @@ enum Piece { whitePawn, whiteKing, blackPawn, blackKing };
 constexpr unsigned int BOARD_SIZE = 32;
 using bitboard_all = uint64_t; // First 32 bits represent all pieces, last 32 bits represent kings
 using bitboard = uint32_t;
+/*
+ * 0 1 2 3
+ * 4 5 6 7
+ * ...
+ */
 using piece_move = uint64_t;
 using position = uint8_t;
 
@@ -22,7 +27,7 @@ class Board {
 public:
     Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard);
 
-    const std::optional<Piece> getAt(int x, int y) const;
+    const std::optional<Piece> getAt(int x, int y, bool compressed=true) const;
     const Board getBoardRev() const;
     const int whitePiecesCount() const;
     const int blackPiecesCount() const;

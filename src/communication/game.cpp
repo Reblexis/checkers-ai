@@ -3,7 +3,16 @@
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
-const std::optional<Piece> Board::getAt(int x, int y) const {
+const std::optional<Piece> Board::getAt(int x, int y, bool compressed) const {
+    // Compressed means that 0<x<4 and 0<y<8 meaning that we only consider the fields where any piece can even stand
+    if(!compressed){
+        if((x+y)%2 == 0)
+            return std::nullopt;
+        x = x/2;
+    }
+    if(x<0 || x>3 || y<0 || y>7)
+        return std::nullopt;
+
     uint8_t pos = x + y * 4;
     if (whiteBitboard & (1 << (BOARD_SIZE + pos))) {
         return Piece::whiteKing;
