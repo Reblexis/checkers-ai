@@ -31,7 +31,7 @@ class Board{
      * By default, white is on the bottom of the board.
      */
 private:
-    const bitboard reverseBitboard(const bitboard bitboardToReverse){
+    const bitboard reverseBitboard(const bitboard bitboardToReverse) const{
         bitboard reversedBitboard = reversedBitboard;
         reversedBitboard = (reversedBitboard & 0x55555555) << 1 | (reversedBitboard & 0xAAAAAAAA) >> 1;
         reversedBitboard = (reversedBitboard & 0x33333333) << 2 | (reversedBitboard & 0xCCCCCCCC) >> 2;
@@ -41,60 +41,53 @@ private:
         return reversedBitboard;
     }
 
-    const bitboard_all reverseBoard(bitboard_all boardToReverse){
+    const bitboard_all reverseBoard(const bitboard_all boardToReverse) const{
         bitboard pieces = reverseBitboard(boardToReverse&0xffffffff);
         bitboard kings = reverseBitboard(boardToReverse>>32);
         return (((bitboard_all)kings)<<32) | pieces;
     }
 
 public:
-    // TODO rename white to control and black to enemy
-    const bitboard_all controlBitboard = 0xfff00000; // The starting pawn setup
-    const bitboard_all enemyBitboard = 0xfff;
-    const bool blackPerspective = true;
+    const bitboard_all whiteBitboard = 0xfff00000; // The starting pawn setup
+    const bitboard_all blackBitboard = 0xfff;
 
-    Board(const bitboard_all controlBitboard, const bitboard_all enemyBitboard, const bool blackPerspective)
-            : controlBitboard(controlBitboard), enemyBitboard(enemyBitboard), blackPerspective(blackPerspective) {
+    Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
+            : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {
     }
 
-    std::optional<Piece> getAt(int x, int y){
+    const std::optional<Piece> getAt (int x, int y) const{
         // Y corresponds to the row, X corresponds to the column
         uint8_t pos = x + y*4;
-        if(controlBitboard&(1<<(BOARD_SIZE+pos))){
+        if(whiteBitboard&(1<<(BOARD_SIZE+pos))){
             return Piece::whiteKing;
         }
-        if(enemyBitboard&(1<<(BOARD_SIZE+pos))){
+        if(blackBitboard&(1<<(BOARD_SIZE+pos))){
             return Piece::blackKing;
         }
-        if(controlBitboard&(1<<pos)){
+        if(whiteBitboard&(1<<pos)){
             return Piece::whitePawn;
         }
-        if(enemyBitboard&(1<<pos)){
+        if(blackBitboard&(1<<pos)){
             return Piece::blackPawn;
         }
         return std::nullopt;
     }
 
-    void reset(){
-        controlBitboard = 0x00000000fff00000; // The starting pawn setup
-        enemyBitboard = 0x0000000000000fff;
-    }
-
-    Board getBoardRev(){
-        return Board(reverseBoard(enemyBitboard), reverseBoard(controlBitboard), !blackPerspective);
+    const Board getBoardRev() const{
+        return Board(reverseBoard(blackBitboard), reverseBoard(whiteBitboard));
     }
 
     const int whitePiecesCount() const{
-        return __builtin_popcount(controlBitboard&0xffffffff);
+        return __builtin_popcount(whiteBitboard&0xffffffff);
     }
     const int blackPiecesCount() const{
-        return __builtin_popcount(enemyBitboard&0xffffffff);
+        return __builtin_popcount(blackBitboard&0xffffffff);
     }
     const int whiteKingsCount() const{
-        return __builtin_popcount(controlBitboard>>32);
+        return __builtin_popcount(whiteBitboard>>32);
     }
     const int blackKingsCount() const{
-        return __builtin_popcount(enemyBitboard>>32);
+        return __builtin_popcount(blackBitboard>>32);
     }
     const int whitePawnsCount() const{
         return whitePiecesCount() - whiteKingsCount();
@@ -104,16 +97,16 @@ public:
     }
 
     const bitboard getWhitePieces() const{
-        return controlBitboard&0xffffffff;
+        return whiteBitboard&0xffffffff;
     }
     const bitboard getBlackPieces() const{
-        return enemyBitboard&0xffffffff;
+        return blackBitboard&0xffffffff;
     }
     const bitboard getWhiteKings() const{
-        return controlBitboard>>32;
+        return whiteBitboard>>32;
     }
     const bitboard getBlackKings() const{
-        return enemyBitboard>>32;
+        return blackBitboard>>32;
     }
 };
 
@@ -123,17 +116,19 @@ public:
             : board(board), nextBlack(nextBlack){
         calculateAvailableMoves();
     }
+
     const Board board;
     const bool nextBlack = true;
     uint64_t hash = 0; // TODO: Move this to cache.cpp
 
-    std::span<piece_move> getAvailableMoves() const{
-        return availableMoves;
+    std::span<const piece_move> getAvailableMoves() const{
+        return std::span<const piece_move>(availableMoves);
     }
 
     const Board& getBoard() const{
         return board;
     }
+
 private:
     std::vector<piece_move> availableMoves;
 
@@ -141,9 +136,9 @@ private:
     {
         availableMoves.clear();
 
-        std::array<bitboard_all, 2> boards = nextBlack ? board.getBoardsRev() : board.getBoards();
-        bitboard_all controlBitboard = boards[0]; // The bitboard_all of the pieces that can move next
-        bitboard_all enemyBitboard = boards[1]; // The bitboard_all of the pieces that can be captured
+        Board boards = nextBlack ? board.getBoardRev() : board;
+        bitboard_all controlBitboard = boards.whiteBitboard; // The bitboard_all of the pieces that can move next
+        bitboard_all enemyBitboard = boards.blackBitboard; // The bitboard_all of the pieces that can be captured
 
         bitboard controlPieces = controlBitboard&0xffffffff;
         bitboard controlKings = controlBitboard>>32;
@@ -233,17 +228,16 @@ private:
 
 class Game{
 private:
-    GameState gameState;
     std::vector<GameState> gameHistory;
 
 public:
-    Game(){
-        reset(GameState{});
+    Game(const GameState state){
+        addGameState(state);
     }
 
-    void addGameState()
+    void addGameState(const GameState state)
     {
-        gameHistory.push_back(gameState);
+        gameHistory.emplace_back(gameHistory.back());
     }
 
     void undoMove()
@@ -252,32 +246,26 @@ public:
             throw std::runtime_error("Cannot undo move. No moves have been made.");
 
         gameHistory.pop_back();
-        gameState = gameHistory.back();
     }
 
     void reset(GameState state)
     {
-        gameState = state;
         gameHistory.clear();
-        addGameState();
+        addGameState(state);
     }
 
     const GameState& getGameState() const
     {
-        return gameState;
-    }
-
-    std::span<piece_move> getAvailableMoves(){
-        return gameState.getAvailableMoves();
+        return gameHistory.back();
     }
 
     void makeMove(piece_move pieceMove){
         unsigned int currentPos = pieceMove&0x1f;
 
         pieceMove >>= 5;
-        Board perspectiveBoard = gameState.nextBlack ? gameState.board.getBoardRev() : gameState.board;
-        bitboard_all controlBitboard = perspectiveBoard.controlBitboard;
-        bitboard_all enemyBitboard = perspectiveBoard.enemyBitboard;
+        Board perspectiveBoard = gameHistory.back().nextBlack ? gameHistory.back().board.getBoardRev() : gameHistory.back().board;
+        bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
+        bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
         bool isKing = controlBitboard&(1<<(currentPos+32));
         controlBitboard &= (~(1<<currentPos))&(~(1<<(currentPos+32)));
 
@@ -319,10 +307,9 @@ public:
         if(isKing)
             controlBitboard |= (1<<(currentPos+32));
 
-        Board
-        const GameState newGameState(newBoard, !gameState.nextBlack);
-        gameState = newGameState;
+        Board newBoard(controlBitboard, enemyBitboard);
 
-        addGameState();
+        const GameState newGameState(gameHistory.back().nextBlack ? newBoard: newBoard.getBoardRev(), !gameHistory.back().nextBlack);
+        addGameState(newGameState);
     }
 };

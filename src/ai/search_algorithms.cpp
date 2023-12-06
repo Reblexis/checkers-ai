@@ -44,7 +44,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
         return {score, 0};
     }
 
-    std::span<piece_move> possibleMoves = game.getAvailableMoves();
+    std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
 
     if(bestMove == 0)
     {
