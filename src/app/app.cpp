@@ -115,9 +115,9 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                                 ui.possibleMoves.push_back(move.path[currentSubMove+1]);
                         }
                     }
-                    game.makeMove(newPossibilities[0].getSubMove(currentSubMove-1));
+                    game.makeMove(newPossibilities[0].getSubMove(currentSubMove-1), possibleMoves.empty());
                     possibleMoves = newPossibilities;
-                    if(possibleMoves.size())
+                    if(!possibleMoves.empty())
                         currentSubMove++;
                     else{
                         currentSubMove = 1;

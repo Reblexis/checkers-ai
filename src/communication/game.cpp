@@ -70,7 +70,11 @@ piece_move Move::getSubMove(unsigned int index) {
     if(index >= path.size()-1)
         throw std::runtime_error("Sub-move has to have 2 positions available. Index out of bounds.");
     unsigned int startPos = path[index].indexFromPos();
+    if(rotated)
+        startPos = 31-startPos;
     Direction direction = path[index].getDirection(path[index+1]);
+    if(rotated)
+        direction = path[index+1].getDirection(path[index]);
     return (static_cast<unsigned int>(direction) << 5) + startPos;
 }
 
@@ -181,7 +185,7 @@ std::vector<Move> GameState::getAvailableMoves2() const {
     {
         unsigned int currentPos = pieceMove & 0x1f;
 
-        Move move{pieceMove, {Pos(currentPos)}};
+        Move move{pieceMove, {Pos(currentPos)}, nextBlack};
 
         pieceMove >>= 5;
         Board perspectiveBoard = nextBlack ? board.getBoardRev(): board;
@@ -345,8 +349,10 @@ const GameState& Game::getGameState() const {
     return gameHistory.back();
 }
 
-void Game::makeMove(piece_move pieceMove) {
+void Game::makeMove(piece_move pieceMove, bool final) {
+    // Final indicates whether the sub-move is the last one of the whole move (with multiple jumps there is only one final sub-move)
     unsigned int currentPos = pieceMove & 0x1f;
+    std::cout<<"Starting position of piece_move: "<<currentPos<<std::endl;
 
     pieceMove >>= 5;
     Board perspectiveBoard = gameHistory.back().nextBlack ? gameHistory.back().board.getBoardRev()
@@ -357,7 +363,7 @@ void Game::makeMove(piece_move pieceMove) {
     controlBitboard &= (~(1 << currentPos)) & (~(1 << (currentPos + 32)));
 
     while (pieceMove) {
-        unsigned int direction = pieceMove & 0x7;
+        unsigned int direction = static_cast<Direction>(pieceMove & 0x7);
         unsigned int startPos = currentPos;
         for(int i = 0; i<2; i++){
             if (direction == Direction::topLeft)
@@ -370,22 +376,24 @@ void Game::makeMove(piece_move pieceMove) {
                 currentPos = br(currentPos);
 
 #if CHECK_VALID_MOVES
-            if(currentPos>31 || currentPos<0 || controlBitboard&(1<<currentPos) || (direction>=3 && !isKing))
-                throw std::runtime_error("Invalid move.");
+            if(currentPos > 31 || currentPos < 0)
+                throw std::runtime_error("Invalid move. Move out of bounds. " + std::to_string(currentPos) + ".");
+            if((controlBitboard)&(1<<currentPos))
+                throw std::runtime_error("Invalid move. Friendly piece present at " + std::to_string(currentPos) + ".");
+            if(static_cast<int>(direction)>=3 && !isKing)
+                throw std::runtime_error("Invalid move. Non-king piece moving backwards.");
+            else if (static_cast<int>(direction)>4||static_cast<int>(direction)==0)
+                throw std::runtime_error("Invalid direction.");
 #endif
             if((enemyBitboard & (1<<currentPos))==0)
                 break;
         }
 
-        // Do a jump if standing on an enemy piece
-        if (enemyBitboard & (1 << currentPos)) {
-            enemyBitboard &= (~(1 << currentPos)) & (~(1 << (currentPos + 32)));
-            currentPos += (currentPos - startPos);
-        }
-
 #if CHECK_VALID_MOVES
-        if(currentPos>31 || currentPos<0 || (controlBitboard|enemyBitboard)&(1<<currentPos))
-            throw std::runtime_error("Invalid move. Incorrect jump.");
+        if(currentPos > 31 || currentPos < 0)
+            throw std::runtime_error("Invalid move. Move out of bounds after jump. " + std::to_string(currentPos));
+        if((controlBitboard|enemyBitboard)&(1<<currentPos))
+            throw std::runtime_error("Invalid move. Incorrect jump. Piece present at " + std::to_string(currentPos) + ".");
 #endif
 
         if (king_row(currentPos))
@@ -401,6 +409,6 @@ void Game::makeMove(piece_move pieceMove) {
     Board newBoard(controlBitboard, enemyBitboard);
 
     const GameState newGameState(gameHistory.back().nextBlack ? newBoard : newBoard.getBoardRev(),
-                                 !gameHistory.back().nextBlack);
+                                 gameHistory.back().nextBlack^final);
     addGameState(newGameState);
 }

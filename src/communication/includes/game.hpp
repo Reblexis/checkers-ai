@@ -41,6 +41,7 @@ struct Move {
     // Nice version of piece_move
     piece_move id;
     std::vector<Pos> path;
+    bool rotated = false;
     piece_move getSubMove(unsigned int index);
 };
 
@@ -92,7 +93,7 @@ public:
     void undoMove();
     void reset(const GameState& state);
     const GameState& getGameState() const;
-    void makeMove(piece_move pieceMove);
+    void makeMove(piece_move pieceMove, bool final=true);
 
 private:
     std::vector<GameState> gameHistory;
