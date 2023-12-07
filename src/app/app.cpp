@@ -144,7 +144,7 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                         message("Possible moves: ");
                         for(auto move : ui.possibleMoves)
                         {
-                            message(std::to_string(move.x) + ", " + std::to_string(move.y), false, true, true);
+                            std::cout<<move.x<<", "<<move.y<<std::endl;
                         }
                     }
                     else

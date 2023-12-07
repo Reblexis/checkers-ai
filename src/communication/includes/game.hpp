@@ -19,7 +19,7 @@ struct Pos {
     unsigned int x;
     unsigned int y;
     Pos(unsigned int x, unsigned int y);
-    Pos (unsigned int index);
+    explicit Pos (unsigned int index);
     unsigned int indexFromPos() const;
     Direction getDirection(Pos pos) const;
 
@@ -48,26 +48,26 @@ using position = uint8_t;
 
 class Board {
 public:
-    Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard);
+    Board(bitboard_all whiteBitboard, bitboard_all blackBitboard);
 
-    const std::optional<Piece> getAt(Pos pos) const;
-    const Board getBoardRev() const;
-    const int whitePiecesCount() const;
-    const int blackPiecesCount() const;
-    const int whiteKingsCount() const;
-    const int blackKingsCount() const;
-    const int whitePawnsCount() const;
-    const int blackPawnsCount() const;
-    const bitboard getWhitePieces() const;
-    const bitboard getBlackPieces() const;
-    const bitboard getWhiteKings() const;
-    const bitboard getBlackKings() const;
+    std::optional<Piece> getAt(Pos pos) const;
+    Board getBoardRev() const;
+    unsigned int whitePiecesCount() const;
+    unsigned int blackPiecesCount() const;
+    unsigned int whiteKingsCount() const;
+    unsigned int blackKingsCount() const;
+    unsigned int whitePawnsCount() const;
+    unsigned int blackPawnsCount() const;
+    bitboard getWhitePieces() const;
+    bitboard getBlackPieces() const;
+    bitboard getWhiteKings() const;
+    bitboard getBlackKings() const;
     const bitboard_all whiteBitboard;
     const bitboard_all blackBitboard;
 
 private:
-    const bitboard reverseBitboard(const bitboard bitboardToReverse) const;
-    const bitboard_all reverseBoard(const bitboard_all boardToReverse) const;
+    static bitboard reverseBitboard(bitboard bitboardToReverse) ;
+    static bitboard_all reverseBoard(bitboard_all boardToReverse) ;
 };
 
 struct GameState {
@@ -87,10 +87,10 @@ private:
 
 class Game {
 public:
-    Game(const GameState state);
-    void addGameState(const GameState state);
+    explicit Game(const GameState& state);
+    void addGameState(const GameState& state);
     void undoMove();
-    void reset(GameState state);
+    void reset(const GameState& state);
     const GameState& getGameState() const;
     void makeMove(piece_move pieceMove);
 

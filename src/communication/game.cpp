@@ -40,11 +40,11 @@ unsigned int Pos::indexFromPos() const{
 }
 
 Pos Pos::operator+(const Pos& other) const{
-    return Pos(x+other.x, y+other.y);
+    return {x+other.x, y+other.y};
 }
 
 Pos Pos::operator-(const Pos& other) const{
-    return Pos(x-other.x, y-other.y);
+    return {x-other.x, y-other.y};
 }
 
 Direction Pos::getDirection(Pos pos) const{
@@ -77,11 +77,11 @@ piece_move Move::getSubMove(unsigned int index) {
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
-const std::optional<Piece> Board::getAt(Pos piecePos) const
+std::optional<Piece> Board::getAt(Pos piecePos) const
 {
     // Compressed means that 0<x<4 and 0<y<8 meaning that we only consider the fields where any piece can even stand
-    int x = piecePos.x;
-    int y = piecePos.y;
+    unsigned int x = piecePos.x;
+    unsigned int y = piecePos.y;
     if((x+y)%2 == 0)
         return std::nullopt;
     x = x/2;
@@ -105,51 +105,51 @@ const std::optional<Piece> Board::getAt(Pos piecePos) const
     return std::nullopt;
 }
 
-const Board Board::getBoardRev() const {
-    return Board(reverseBoard(blackBitboard), reverseBoard(whiteBitboard));
+Board Board::getBoardRev() const {
+    return {reverseBoard(blackBitboard), reverseBoard(whiteBitboard)};
 }
 
-const int Board::whitePiecesCount() const {
+unsigned int Board::whitePiecesCount() const {
     return __builtin_popcount(whiteBitboard & 0xffffffff);
 }
 
-const int Board::blackPiecesCount() const {
+unsigned int Board::blackPiecesCount() const {
     return __builtin_popcount(blackBitboard & 0xffffffff);
 }
 
-const int Board::whiteKingsCount() const {
+unsigned int Board::whiteKingsCount() const {
     return __builtin_popcount(whiteBitboard >> 32);
 }
 
-const int Board::blackKingsCount() const {
+unsigned int Board::blackKingsCount() const {
     return __builtin_popcount(blackBitboard >> 32);
 }
 
-const int Board::whitePawnsCount() const {
+unsigned int Board::whitePawnsCount() const {
     return whitePiecesCount() - whiteKingsCount();
 }
 
-const int Board::blackPawnsCount() const {
+unsigned int Board::blackPawnsCount() const {
     return blackPiecesCount() - blackKingsCount();
 }
 
-const bitboard Board::getWhitePieces() const {
+bitboard Board::getWhitePieces() const {
     return whiteBitboard & 0xffffffff;
 }
 
-const bitboard Board::getBlackPieces() const {
+bitboard Board::getBlackPieces() const {
     return blackBitboard & 0xffffffff;
 }
 
-const bitboard Board::getWhiteKings() const {
+bitboard Board::getWhiteKings() const {
     return whiteBitboard >> 32;
 }
 
-const bitboard Board::getBlackKings() const {
+bitboard Board::getBlackKings() const {
     return blackBitboard >> 32;
 }
 
-const bitboard Board::reverseBitboard(const bitboard bitboardToReverse) const {
+bitboard Board::reverseBitboard(const bitboard bitboardToReverse) {
     bitboard reversedBitboard = bitboardToReverse;
     reversedBitboard = (reversedBitboard & 0x55555555) << 1 | (reversedBitboard & 0xAAAAAAAA) >> 1;
     reversedBitboard = (reversedBitboard & 0x33333333) << 2 | (reversedBitboard & 0xCCCCCCCC) >> 2;
@@ -159,7 +159,7 @@ const bitboard Board::reverseBitboard(const bitboard bitboardToReverse) const {
     return reversedBitboard;
 }
 
-const bitboard_all Board::reverseBoard(const bitboard_all boardToReverse) const {
+bitboard_all Board::reverseBoard(const bitboard_all boardToReverse) {
     bitboard pieces = reverseBitboard(boardToReverse & 0xffffffff);
     bitboard kings = reverseBitboard(boardToReverse >> 32);
     return (((bitboard_all)kings) << 32) | pieces;
@@ -172,7 +172,7 @@ GameState::GameState(Board board, bool nextBlack)
 }
 
 std::span<const piece_move> GameState::getAvailableMoves() const {
-    return std::span<const piece_move>(availableMoves);
+    return {availableMoves};
 }
 
 std::vector<Move> GameState::getAvailableMoves2() const {
@@ -205,7 +205,7 @@ std::vector<Move> GameState::getAvailableMoves2() const {
                     break;
             }
 
-            move.path.push_back(Pos(currentPos));
+            move.path.emplace_back(currentPos);
 
             if (king_row(currentPos))
                 isKing = true;
@@ -274,7 +274,7 @@ void GameState::calculateAvailableMoves() {
         }
     }
     std::cout<<"Available moves: "<<availableMoves.size()<<std::endl;
-    if(availableMoves.size() > 0)
+    if(!availableMoves.empty())
         return;
 
     bitboard controlPawns = controlPieces^controlKings;
@@ -285,7 +285,7 @@ void GameState::calculateAvailableMoves() {
         }
     }
     std::cout<<"Available moves: "<<availableMoves.size()<<std::endl;
-    if(availableMoves.size() > 0)
+    if(!availableMoves.empty())
         return;
 
     bitboard anyPieces = controlPieces | enemyPieces;
@@ -321,11 +321,11 @@ void GameState::calculateAvailableMoves() {
     std::cout<<"Available moves: "<<availableMoves.size()<<std::endl;
 }
 
-Game::Game(const GameState state) {
+Game::Game(const GameState& state) {
     addGameState(state);
 }
 
-void Game::addGameState(const GameState state) {
+void Game::addGameState(const GameState& state) {
     gameHistory.push_back(state);
 }
 
@@ -336,7 +336,7 @@ void Game::undoMove() {
     gameHistory.pop_back();
 }
 
-void Game::reset(GameState state) {
+void Game::reset(const GameState& state) {
     gameHistory.clear();
     addGameState(state);
 }
@@ -373,7 +373,7 @@ void Game::makeMove(piece_move pieceMove) {
             if(currentPos>31 || currentPos<0 || controlBitboard&(1<<currentPos) || (direction>=3 && !isKing))
                 throw std::runtime_error("Invalid move.");
 #endif
-            if(enemyBitboard & (1<<currentPos)==0)
+            if((enemyBitboard & (1<<currentPos))==0)
                 break;
         }
 
