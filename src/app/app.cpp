@@ -89,12 +89,8 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
              *Human-controlled
              * Allows the human to select a piece and then select a destination for it. If there is forced jump it forces the human to select the next move.
              */
-            if(!window.hasFocus())
-                continue;
 
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                if(mousePressed)
-                    continue;
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!mousePressed&&window.hasFocus()){
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
                 Pos highlightedPiecePos(mousePosition.x / TILE_SIZE, mousePosition.y / TILE_SIZE);
 
@@ -128,37 +124,37 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                         newMove = true;
                     }
                     currentSubMove++;
-                    continue;
                 }
+                else{
+                    std::optional <Piece> piece = game.getGameState().board.getAt(highlightedPiecePos);
 
-                std::optional <Piece> piece = game.getGameState().board.getAt(highlightedPiecePos);
-
-                if (piece)
-                {
-                    ui.selectedSquare = highlightedPiecePos;
-                    ui.possibleMoves.clear();
-                    for(auto move : possibleMoves)
+                    if (piece)
                     {
-                        if(move.path[0] == highlightedPiecePos)
+                        ui.selectedSquare = highlightedPiecePos;
+                        ui.possibleMoves.clear();
+                        for(auto move : possibleMoves)
                         {
-                            ui.possibleMoves.push_back(move.path[1]);
+                            if(move.path[0] == highlightedPiecePos)
+                            {
+                                ui.possibleMoves.push_back(move.path[1]);
+                            }
+                        }
+
+                        message("Selected square: " + std::to_string(highlightedPiecePos.x) + ", " + std::to_string(highlightedPiecePos.y));
+                        message("Possible moves: ");
+                        for(auto move : ui.possibleMoves)
+                        {
+                            message(std::to_string(move.x) + ", " + std::to_string(move.y), false, true, true);
                         }
                     }
-
-                    message("Selected square: " + std::to_string(highlightedPiecePos.x) + ", " + std::to_string(highlightedPiecePos.y));
-                    message("Possible moves: ");
-                    for(auto move : ui.possibleMoves)
+                    else
                     {
-                        message(std::to_string(move.x) + ", " + std::to_string(move.y), false, true, true);
+                        message("No piece selected");
+                        ui.possibleMoves.clear();
+                        ui.selectedSquare = std::nullopt;
                     }
                 }
-                else
-                {
-                    message("No piece selected");
-                    ui.possibleMoves.clear();
-                    ui.selectedSquare = std::nullopt;
-                }
-            }
+           }
             mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
         }
 
