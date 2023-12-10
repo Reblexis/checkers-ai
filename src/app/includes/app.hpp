@@ -14,7 +14,8 @@ const unsigned int BOARD_DIMENSION = 8 * TILE_SIZE;
 
 const sf::Color WHITE_TILE_COLOR = sf::Color(245, 245, 220);
 const sf::Color BLACK_TILE_COLOR = sf::Color(160, 82, 45);
-const sf::Color SELECTED_TILE_COLOR = sf::Color(184, 0, 18, 70);
+const sf::Color SELECTED_TILE_COLOR = sf::Color(240, 240, 10, 90);
+const sf::Color POSSIBLE_MOVE_COLOR = sf::Color(10, 240, 10, 90);
 const sf::Color BLACK_PIECE_COLOR = sf::Color(0, 0,0);
 const sf::Color WHITE_PIECE_COLOR = sf::Color(200,200,200);
 
@@ -46,7 +47,7 @@ public:
 private:
     sf::RenderWindow window;
 
-    void highlightField(Pos pos);
+    void highlightField(Pos pos, sf::Color color);
 };
 
 #endif // APP_HPP

@@ -10,7 +10,7 @@
 
 #define CHECK_VALID_MOVES true
 
-enum Piece { whitePawn, whiteKing, blackPawn, blackKing };
+enum Piece { whitePawn=0, whiteKing=1, blackPawn=2, blackKing=3 };
 
 enum Direction { topLeft=1, topRight=2, bottomLeft=3, bottomRight=4 };
 

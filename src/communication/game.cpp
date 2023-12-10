@@ -90,20 +90,21 @@ std::optional<Piece> Board::getAt(Pos piecePos) const
         return std::nullopt;
     x = x/2;
 
-    if(x<0 || x>3 || y<0 || y>7)
+    if(x>3 || y>7)
         return std::nullopt;
 
-    uint8_t pos = x + y * 4;
-    if (whiteBitboard & (1 << (BOARD_SIZE + pos))) {
+    uint8_t pos = x + y*4;
+
+    if (whiteBitboard & (1ll << (BOARD_SIZE + pos))) {
         return Piece::whiteKing;
     }
-    if (blackBitboard & (1 << (BOARD_SIZE + pos))) {
+    if (blackBitboard & (1ll << (BOARD_SIZE + pos))) {
         return Piece::blackKing;
     }
-    if (whiteBitboard & (1 << pos)) {
+    if (whiteBitboard & (1ll << pos)) {
         return Piece::whitePawn;
     }
-    if (blackBitboard & (1 << pos)) {
+    if (blackBitboard & (1ll << pos)) {
         return Piece::blackPawn;
     }
     return std::nullopt;
@@ -353,15 +354,14 @@ const GameState& Game::getGameState() const {
 void Game::makeMove(piece_move pieceMove, bool final) {
     // Final indicates whether the sub-move is the last one of the whole move (with multiple jumps there is only one final sub-move)
     unsigned int currentPos = pieceMove & 0x1f;
-    std::cout<<"Starting position of piece_move: "<<currentPos<<std::endl;
 
     pieceMove >>= 5;
     Board perspectiveBoard = gameHistory.back().nextBlack ? gameHistory.back().board.getBoardRev()
                                                           : gameHistory.back().board;
     bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
     bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
-    bool isKing = controlBitboard & (1 << (currentPos + 32));
-    controlBitboard &= (~(1 << currentPos)) & (~(1 << (currentPos + 32)));
+    bool isKing = controlBitboard & (1ll << (currentPos + 32));
+    controlBitboard &= (~(1 << currentPos)) & (~(1ll << (currentPos + 32)));
 
     while (pieceMove) {
         unsigned int direction = static_cast<Direction>(pieceMove & 0x7);
@@ -379,7 +379,7 @@ void Game::makeMove(piece_move pieceMove, bool final) {
                 throw std::runtime_error("Invalid direction.");
 
 #if CHECK_VALID_MOVES
-            if(currentPos > 31 || currentPos < 0)
+            if(currentPos > 31)
                 throw std::runtime_error("Invalid move. Move out of bounds. " + std::to_string(currentPos) + ".");
             if((controlBitboard)&(1<<currentPos))
                 throw std::runtime_error("Invalid move. Friendly piece present at " + std::to_string(currentPos) + ".");
@@ -388,12 +388,14 @@ void Game::makeMove(piece_move pieceMove, bool final) {
             else if (static_cast<int>(direction)>4||static_cast<int>(direction)==0)
                 throw std::runtime_error("Invalid direction.");
 #endif
-            if((enemyBitboard & (1<<currentPos))==0)
+            if(enemyBitboard & (1ll<<currentPos))
+                enemyBitboard &= (~((1ll<<currentPos) | (1ll<<(currentPos+32))));
+            else
                 break;
         }
 
 #if CHECK_VALID_MOVES
-        if(currentPos > 31 || currentPos < 0)
+        if(currentPos > 31)
             throw std::runtime_error("Invalid move. Move out of bounds after jump. " + std::to_string(currentPos));
         if((controlBitboard|enemyBitboard)&(1<<currentPos))
             throw std::runtime_error("Invalid move. Incorrect jump. Piece present at " + std::to_string(currentPos) + ".");
@@ -405,9 +407,9 @@ void Game::makeMove(piece_move pieceMove, bool final) {
         pieceMove >>= 3;
     }
 
-    controlBitboard |= (1 << currentPos);
+    controlBitboard |= (1ll << currentPos);
     if (isKing)
-        controlBitboard |= (1 << (currentPos + 32));
+        controlBitboard |= (1ll << (currentPos + 32));
 
     Board newBoard(controlBitboard, enemyBitboard);
 

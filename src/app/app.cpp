@@ -1,14 +1,19 @@
 #include "includes/app.hpp"
 
 PieceSprite::PieceSprite(Piece piece)
-        : sf::CircleShape((float)TILE_SIZE / 2 - 5),  // Adjusting for a small border
+        : sf::CircleShape((float)TILE_SIZE / 2.3f),  // Adjusting for a small border
           isWhitePiece(piece == Piece::whitePawn || piece == Piece::whiteKing),
           isKing(piece == Piece::whiteKing || piece == Piece::blackKing) {
     setFillColor(isWhitePiece ? WHITE_PIECE_COLOR : BLACK_PIECE_COLOR);
+    if(isKing)
+    {
+        setOutlineThickness(-5);
+        setOutlineColor(sf::Color::Yellow);
+    }
 }
 
 void PieceSprite::setPositionCentered(int x, int y) {
-    sf::CircleShape::setPosition((float)x + (TILE_SIZE - getGlobalBounds().width) / 2, (float)y + (TILE_SIZE - getGlobalBounds().height) / 2);
+    sf::CircleShape::setPosition((float)x + ((float)TILE_SIZE - getGlobalBounds().width) / 2, (float)y + ((float)TILE_SIZE - getGlobalBounds().height) / 2);
 }
 
 void App::drawBoard(const Board &board) {
@@ -37,21 +42,21 @@ void App::drawPieces(const Board &board) {
     }
 }
 
-void App::highlightField(Pos pos)
+void App::highlightField(Pos pos, sf::Color color)
 {
     sf::RectangleShape selectedSquare(sf::Vector2f(TILE_SIZE, TILE_SIZE));
     selectedSquare.setPosition(pos.x * TILE_SIZE, pos.y * TILE_SIZE);
-    selectedSquare.setFillColor(SELECTED_TILE_COLOR);
+    selectedSquare.setFillColor(color);
     window.draw(selectedSquare);
 }
 
 void App::drawUI(const UI &ui) {
     if (ui.selectedSquare) {
-        highlightField(*(ui.selectedSquare));
+        highlightField(*(ui.selectedSquare), SELECTED_TILE_COLOR);
 
         for(Pos pos: ui.possibleMoves)
         {
-            highlightField(pos);
+            highlightField(pos, POSSIBLE_MOVE_COLOR);
         }
     }
 }
@@ -59,8 +64,8 @@ void App::drawUI(const UI &ui) {
 void App::drawWindow(const Game &game, const UI &ui){
     window.clear();
     drawBoard(game.getGameState().board);
-    drawPieces(game.getGameState().board);
     drawUI(ui);
+    drawPieces(game.getGameState().board);
     window.display();
 }
 
@@ -88,11 +93,6 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
         else {
             if(newMove) {
                 possibleMoves = game.getGameState().getAvailableMoves2();
-                std::cout<<"New possible moves: "<<possibleMoves.size()<<std::endl;
-                for(auto move : possibleMoves)
-                {
-                    std::cout<<move.path[0].x<<", "<<move.path[0].y<<" -> "<<move.path[1].x<<", "<<move.path[1].y<<std::endl;
-                }
                 currentSubMove = 1;
                 newMove = false;
             }
@@ -120,11 +120,9 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                     ui.possibleMoves.clear();
                     for(auto move : possibleMoves)
                     {
-                        std::cout<<"A move"<<'\n';
-                        if(move.path[currentSubMove] == highlightedPiecePos && move.path[currentSubMove-1] == ui.selectedSquare)
+                        if(move.path[currentSubMove] == highlightedPiecePos && (move.path[currentSubMove-1] == ui.selectedSquare || currentSubMove > 1))
                         {
                             madeMove = move;
-                            std::cout<<"A possible move"<<'\n';
                             if(move.path.size() > currentSubMove + 1)
                             {
                                 newPossibilities.emplace_back(move);
@@ -139,15 +137,14 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                     possibleMoves = newPossibilities;
                     if(!possibleMoves.empty())
                     {
-                        std::cout<<"Move present"<<'\n';
                         currentSubMove++;
                     }
                     else{
                         newMove = true;
+                        ui.selectedSquare = std::nullopt;
                     }
-                    currentSubMove++;
                 }
-                else{
+                else if(currentSubMove == 1){
                     std::optional <Piece> piece = game.getGameState().board.getAt(highlightedPiecePos);
 
                     if (piece)
@@ -161,17 +158,9 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                                 ui.possibleMoves.push_back(move.path[1]);
                             }
                         }
-
-                        message("Selected square: " + std::to_string(highlightedPiecePos.x) + ", " + std::to_string(highlightedPiecePos.y));
-                        message("Possible moves: ");
-                        for(auto move : ui.possibleMoves)
-                        {
-                            std::cout<<move.x<<", "<<move.y<<std::endl;
-                        }
                     }
                     else
                     {
-                        message("No piece selected");
                         ui.possibleMoves.clear();
                         ui.selectedSquare = std::nullopt;
                     }
