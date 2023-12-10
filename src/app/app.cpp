@@ -37,12 +37,22 @@ void App::drawPieces(const Board &board) {
     }
 }
 
+void App::highlightField(Pos pos)
+{
+    sf::RectangleShape selectedSquare(sf::Vector2f(TILE_SIZE, TILE_SIZE));
+    selectedSquare.setPosition(pos.x * TILE_SIZE, pos.y * TILE_SIZE);
+    selectedSquare.setFillColor(SELECTED_TILE_COLOR);
+    window.draw(selectedSquare);
+}
+
 void App::drawUI(const UI &ui) {
     if (ui.selectedSquare) {
-        sf::RectangleShape selectedSquare(sf::Vector2f(TILE_SIZE, TILE_SIZE));
-        selectedSquare.setPosition(ui.selectedSquare->x * TILE_SIZE, ui.selectedSquare->y * TILE_SIZE);
-        selectedSquare.setFillColor(SELECTED_TILE_COLOR);
-        window.draw(selectedSquare);
+        highlightField(*(ui.selectedSquare));
+
+        for(Pos pos: ui.possibleMoves)
+        {
+            highlightField(pos);
+        }
     }
 }
 
@@ -78,11 +88,12 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
         else {
             if(newMove) {
                 possibleMoves = game.getGameState().getAvailableMoves2();
-                std::cout<<"Possible moves: "<<possibleMoves.size()<<std::endl;
+                std::cout<<"New possible moves: "<<possibleMoves.size()<<std::endl;
                 for(auto move : possibleMoves)
                 {
                     std::cout<<move.path[0].x<<", "<<move.path[0].y<<" -> "<<move.path[1].x<<", "<<move.path[1].y<<std::endl;
                 }
+                currentSubMove = 1;
                 newMove = false;
             }
             /*
@@ -105,22 +116,33 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                 if(isMove)
                 {
                     std::vector<Move> newPossibilities;
+                    std::optional<Move> madeMove;
                     ui.possibleMoves.clear();
                     for(auto move : possibleMoves)
                     {
+                        std::cout<<"A move"<<'\n';
                         if(move.path[currentSubMove] == highlightedPiecePos && move.path[currentSubMove-1] == ui.selectedSquare)
                         {
-                            newPossibilities.emplace_back(move);
-                            if(currentSubMove+1 < move.path.size())
+                            madeMove = move;
+                            std::cout<<"A possible move"<<'\n';
+                            if(move.path.size() > currentSubMove + 1)
+                            {
+                                newPossibilities.emplace_back(move);
                                 ui.possibleMoves.push_back(move.path[currentSubMove+1]);
+                            }
                         }
                     }
-                    game.makeMove(newPossibilities[0].getSubMove(currentSubMove-1), possibleMoves.empty());
+                    if(!madeMove)
+                        throw std::runtime_error("No fitting move found!");
+
+                    game.makeMove(madeMove->getSubMove(currentSubMove-1),  newPossibilities.empty());
                     possibleMoves = newPossibilities;
                     if(!possibleMoves.empty())
+                    {
+                        std::cout<<"Move present"<<'\n';
                         currentSubMove++;
+                    }
                     else{
-                        currentSubMove = 1;
                         newMove = true;
                     }
                     currentSubMove++;

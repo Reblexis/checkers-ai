@@ -181,6 +181,7 @@ std::span<const piece_move> GameState::getAvailableMoves() const {
 
 std::vector<Move> GameState::getAvailableMoves2() const {
     std::vector<Move> moves;
+    std::cout<<"nextblack"<<nextBlack<<'\n';
     for (auto pieceMove: availableMoves)
     {
         unsigned int currentPos = pieceMove & 0x1f;
@@ -408,7 +409,7 @@ void Game::makeMove(piece_move pieceMove, bool final) {
 
     Board newBoard(controlBitboard, enemyBitboard);
 
-    const GameState newGameState(gameHistory.back().nextBlack ? newBoard : newBoard.getBoardRev(),
+    const GameState newGameState(gameHistory.back().nextBlack ? newBoard.getBoardRev() : newBoard,
                                  gameHistory.back().nextBlack^final);
     addGameState(newGameState);
 }

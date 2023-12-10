@@ -45,6 +45,8 @@ public:
 
 private:
     sf::RenderWindow window;
+
+    void highlightField(Pos pos);
 };
 
 #endif // APP_HPP
