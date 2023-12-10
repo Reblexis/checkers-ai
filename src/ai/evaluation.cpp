@@ -12,7 +12,7 @@ BasicEvaluation::BasicEvaluation(Hyperparameters &hyperparameters)
 int BasicEvaluation::evaluate(const GameState& gameState)
 {
     const Board& board = gameState.board;
-    if(gameState.getAvailableMoves().size())
+    if(gameState.getAvailableMoves().empty())
         return gameState.nextBlack ? INT32_MIN : INT32_MAX;
     return (board.blackPawnsCount() - board.whitePawnsCount()) * pawnValue + (board.blackKingsCount() - board.whiteKingsCount()) * kingValue;
 }

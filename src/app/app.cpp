@@ -178,5 +178,6 @@ void App::launch() {
     window.setFramerateLimit(60);
     Game game(GameState(Board(0xfff00000, 0xfff), true));
     UI ui;
-    gameLoop(game, std::nullopt, std::nullopt, ui);
+    Agent agent1(std::filesystem::path("../data/hyperparameters1.json"));
+    gameLoop(game, agent1, std::nullopt, ui);
 }

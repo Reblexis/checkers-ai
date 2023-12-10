@@ -114,27 +114,27 @@ Board Board::getBoardRev() const {
     return {reverseBoard(blackBitboard), reverseBoard(whiteBitboard)};
 }
 
-unsigned int Board::whitePiecesCount() const {
+int Board::whitePiecesCount() const {
     return __builtin_popcount(whiteBitboard & 0xffffffff);
 }
 
-unsigned int Board::blackPiecesCount() const {
+int Board::blackPiecesCount() const {
     return __builtin_popcount(blackBitboard & 0xffffffff);
 }
 
-unsigned int Board::whiteKingsCount() const {
+int Board::whiteKingsCount() const {
     return __builtin_popcount(whiteBitboard >> 32);
 }
 
-unsigned int Board::blackKingsCount() const {
+int Board::blackKingsCount() const {
     return __builtin_popcount(blackBitboard >> 32);
 }
 
-unsigned int Board::whitePawnsCount() const {
+int Board::whitePawnsCount() const {
     return whitePiecesCount() - whiteKingsCount();
 }
 
-unsigned int Board::blackPawnsCount() const {
+int Board::blackPawnsCount() const {
     return blackPiecesCount() - blackKingsCount();
 }
 
@@ -182,7 +182,6 @@ std::span<const piece_move> GameState::getAvailableMoves() const {
 
 std::vector<Move> GameState::getAvailableMoves2() const {
     std::vector<Move> moves;
-    std::cout<<"nextblack"<<nextBlack<<'\n';
     for (auto pieceMove: availableMoves)
     {
         unsigned int currentPos = pieceMove & 0x1f;
@@ -233,7 +232,6 @@ std::vector<Move> GameState::getAvailableMoves2() const {
 
 void GameState::calculateAvailableMoves() {
     availableMoves.clear();
-    std::cout<<"Calculating available moves!"<<std::endl;
 
     Board boards = nextBlack ? board.getBoardRev() : board;
     bitboard_all controlBitboard = boards.whiteBitboard; // The bitboard_all of the pieces that can move next
@@ -279,7 +277,6 @@ void GameState::calculateAvailableMoves() {
             calculateMoves(i, 0, i, enemyPieces, true);
         }
     }
-    std::cout<<"Available moves: "<<availableMoves.size()<<std::endl;
     if(!availableMoves.empty())
         return;
 
@@ -290,7 +287,6 @@ void GameState::calculateAvailableMoves() {
             calculateMoves(i, 0, i, enemyPieces, false);
         }
     }
-    std::cout<<"Available moves: "<<availableMoves.size()<<std::endl;
     if(!availableMoves.empty())
         return;
 
@@ -311,7 +307,6 @@ void GameState::calculateAvailableMoves() {
 
         if(controlKings&(1<<i))
         {
-            std::cout<<"King!"<<std::endl;
             // Move bottom-left
             if(i<28 && i%8!=4 && (anyPieces&(1<<bl(i))) == 0)
             {
@@ -324,7 +319,6 @@ void GameState::calculateAvailableMoves() {
             }
         }
     }
-    std::cout<<"Available moves: "<<availableMoves.size()<<std::endl;
 }
 
 Game::Game(const GameState& state) {

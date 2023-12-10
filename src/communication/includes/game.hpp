@@ -53,12 +53,12 @@ public:
 
     std::optional<Piece> getAt(Pos pos) const;
     Board getBoardRev() const;
-    unsigned int whitePiecesCount() const;
-    unsigned int blackPiecesCount() const;
-    unsigned int whiteKingsCount() const;
-    unsigned int blackKingsCount() const;
-    unsigned int whitePawnsCount() const;
-    unsigned int blackPawnsCount() const;
+    int whitePiecesCount() const;
+    int blackPiecesCount() const;
+    int whiteKingsCount() const;
+    int blackKingsCount() const;
+    int whitePawnsCount() const;
+    int blackPawnsCount() const;
     bitboard getWhitePieces() const;
     bitboard getBlackPieces() const;
     bitboard getWhiteKings() const;

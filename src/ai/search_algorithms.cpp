@@ -18,7 +18,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     curOperations++;
     const GameState& gameState = game.getGameState();
 
-    bool maximizing = gameState.nextBlack;
+    bool maximizing = !gameState.nextBlack;
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
     piece_move bestMove = 0;
 
@@ -41,7 +41,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
         int score = evaluation.evaluate(gameState);
         if(useCache)
             cache.set(gameState, 1, score, 0);
-        return {score, 0};
+        return {score, bestMove};
     }
 
     std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
@@ -51,7 +51,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
         bestMove = possibleMoves[0];
     }
 
-    if(possibleMoves.size() == 0)
+    if(possibleMoves.empty())
     {
         return {maximizing ? INT32_MIN : INT32_MAX, 0};
     }
@@ -86,7 +86,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     }
 
     if(curOperations >= operationLimit)
-        return {0, 0};
+        return {maximizing ? INT32_MIN : INT32_MAX, 0};
 
     return {bestScore, bestMove};
 }

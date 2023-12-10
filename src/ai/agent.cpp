@@ -21,7 +21,10 @@ Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / 
 }
 
 std::pair<int, piece_move> Agent::findBestMove(Game &game) {
-    return searchAlgorithm->findBestMove(game);
+    std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game);
+    std::cout<<"Estimated score: "<<bestMove.first<<"\n";
+    std::cout<<"Making move: "<<bestMove.second<<std::endl;
+    return bestMove;
 }
 
 Agent::~Agent() {
