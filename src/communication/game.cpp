@@ -65,6 +65,20 @@ bool Pos::operator==(const Pos& other) const{
     return x == other.x && y == other.y;
 }
 
+std::ostream& operator<<(std::ostream& os, const Piece& piece) {
+    if(piece == Piece::whitePawn)
+        os<<"wp";
+    else if(piece == Piece::whiteKing)
+        os<<"wk";
+    else if(piece == Piece::blackPawn)
+        os<<"bp";
+    else if(piece == Piece::blackKing)
+        os<<"bk";
+    else
+        os<<"???";
+    return os;
+}
+
 piece_move Move::getSubMove(unsigned int index) {
     // Return index-th sub-move
     if(index >= path.size()-1)
@@ -170,6 +184,32 @@ bitboard_all Board::reverseBoard(const bitboard_all boardToReverse) {
     return (((bitboard_all)kings) << 32) | pieces;
 }
 
+std::ostream& operator<<(std::ostream& os, const Pos& pos) {
+    os<<"("<<pos.x<<", "<<pos.y<<")";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Board& board)
+{
+    for(int i = 0; i<8; i++){
+        for(int j = 0; j<8; j++){
+            if(board.getAt(Pos(j, i)))
+                os<<board.getAt(Pos(j, i)).value()<<" ";
+            else
+                os<<".. ";
+        }
+        os<<std::endl;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Move& move){
+    os<<"Move: ";
+    for(auto pos: move.path){
+        os<<pos<<" ";
+    }
+    return os;
+}
 
 GameState::GameState(Board board, bool nextBlack)
         : board(board), nextBlack(nextBlack), hash(0) {
@@ -180,50 +220,54 @@ std::span<const piece_move> GameState::getAvailableMoves() const {
     return {availableMoves};
 }
 
+Move GameState::getMove(piece_move pieceMove) const {
+    unsigned int currentPos = pieceMove & 0x1f;
+
+    Move move{pieceMove, {Pos(currentPos)}, nextBlack};
+
+    pieceMove >>= 5;
+    Board perspectiveBoard = nextBlack ? board.getBoardRev(): board;
+    bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
+    bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
+
+    while (pieceMove) { // TODO: MERGE THIS WITH MAKE_MOVE
+        unsigned int direction = pieceMove & 0x7;
+        unsigned int startPos = currentPos;
+        for(int i = 0; i<2; i++){
+            if (direction == Direction::topLeft)
+                currentPos = tl(currentPos);
+            else if (direction == Direction::topRight)
+                currentPos = tr(currentPos);
+            else if (direction == Direction::bottomLeft)
+                currentPos = bl(currentPos);
+            else
+                currentPos = br(currentPos);
+            if(enemyBitboard & (1ll<<currentPos))
+                enemyBitboard &= (~((1ll<<currentPos) | (1ll<<(currentPos+32))));
+            else
+                break;
+        }
+
+        move.path.emplace_back(currentPos);
+
+        pieceMove >>= 3;
+    }
+
+    if(nextBlack){
+        // Adjust for board orientation
+        for(auto& pos : move.path){
+            pos = Pos(31-pos.indexFromPos());
+        }
+    }
+
+    return move;
+}
+
 std::vector<Move> GameState::getAvailableMoves2() const {
     std::vector<Move> moves;
     for (auto pieceMove: availableMoves)
     {
-        unsigned int currentPos = pieceMove & 0x1f;
-
-        Move move{pieceMove, {Pos(currentPos)}, nextBlack};
-
-        pieceMove >>= 5;
-        Board perspectiveBoard = nextBlack ? board.getBoardRev(): board;
-        bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
-        bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
-        bool isKing = controlBitboard & (1 << (currentPos + 32));
-
-        while (pieceMove) {
-            unsigned int direction = pieceMove & 0x7;
-            unsigned int startPos = currentPos;
-            for(int i = 0; i<2; i++){
-                if (direction == Direction::topLeft)
-                    currentPos = tl(currentPos);
-                else if (direction == Direction::topRight)
-                    currentPos = tr(currentPos);
-                else if (direction == Direction::bottomLeft)
-                    currentPos = bl(currentPos);
-                else
-                    currentPos = br(currentPos);
-                if((enemyBitboard & (1<<currentPos))==0)
-                    break;
-            }
-
-            move.path.emplace_back(currentPos);
-
-            if (king_row(currentPos))
-                isKing = true;
-
-            pieceMove >>= 3;
-        }
-
-        if(nextBlack){
-            // Adjust for board orientation
-            for(auto& pos : move.path){
-                pos = Pos(31-pos.indexFromPos());
-            }
-        }
+        Move move = getMove(pieceMove);
 
         moves.push_back(move);
     }
@@ -347,6 +391,11 @@ const GameState& Game::getGameState() const {
 
 void Game::makeMove(piece_move pieceMove, bool final) {
     // Final indicates whether the sub-move is the last one of the whole move (with multiple jumps there is only one final sub-move)
+    piece_move  orig_move = pieceMove;
+#if CHECK_VALID_MOVES
+    if(pieceMove == 0)
+        throw std::runtime_error("Invalid move. No move present.");
+#endif
     unsigned int currentPos = pieceMove & 0x1f;
 
     pieceMove >>= 5;
@@ -355,7 +404,10 @@ void Game::makeMove(piece_move pieceMove, bool final) {
     bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
     bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
     bool isKing = controlBitboard & (1ll << (currentPos + 32));
-    controlBitboard &= (~(1 << currentPos)) & (~(1ll << (currentPos + 32)));
+    controlBitboard &= (~(1ll << currentPos)) & (~(1ll << (currentPos + 32)));
+
+    std::cout<<gameHistory.back().getMove(orig_move)<<std::endl;
+    std::cout<<gameHistory.back().board<<std::endl;
 
     while (pieceMove) {
         unsigned int direction = static_cast<Direction>(pieceMove & 0x7);
@@ -378,7 +430,9 @@ void Game::makeMove(piece_move pieceMove, bool final) {
             if((controlBitboard)&(1<<currentPos))
                 throw std::runtime_error("Invalid move. Friendly piece present at " + std::to_string(currentPos) + ".");
             if(static_cast<int>(direction)>=3 && !isKing)
-                throw std::runtime_error("Invalid move. Non-king piece moving backwards.");
+            {
+                throw std::runtime_error("Invalid move. Non-king piece moving backwards with piece move=" + std::to_string(orig_move) + ".");
+            }
             else if (static_cast<int>(direction)>4||static_cast<int>(direction)==0)
                 throw std::runtime_error("Invalid direction.");
 #endif

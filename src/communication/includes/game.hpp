@@ -66,6 +66,8 @@ public:
     const bitboard_all whiteBitboard;
     const bitboard_all blackBitboard;
 
+    friend std::ostream& operator<<(std::ostream& os, const Board& obj);
+
 private:
     static bitboard reverseBitboard(bitboard bitboardToReverse) ;
     static bitboard_all reverseBoard(bitboard_all boardToReverse) ;
@@ -79,6 +81,7 @@ public:
 
     GameState(Board board, bool nextBlack);
     std::span<const piece_move> getAvailableMoves() const;
+    Move getMove(piece_move pieceMove) const;
     std::vector<Move> getAvailableMoves2() const;
 
 private:
