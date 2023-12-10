@@ -16,8 +16,8 @@ enum Direction { topLeft=1, topRight=2, bottomLeft=3, bottomRight=4 };
 
 struct Pos {
     // Position in terms of the whole board including empty tiles
-    unsigned int x;
-    unsigned int y;
+    int x;
+    int y;
     Pos(unsigned int x, unsigned int y);
     explicit Pos (unsigned int index);
     unsigned int indexFromPos() const;

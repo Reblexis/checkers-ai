@@ -1,14 +1,14 @@
 #include "includes/app.hpp"
 
 PieceSprite::PieceSprite(Piece piece)
-        : sf::CircleShape(TILE_SIZE / 2 - 5),  // Adjusting for a small border
+        : sf::CircleShape((float)TILE_SIZE / 2 - 5),  // Adjusting for a small border
           isWhitePiece(piece == Piece::whitePawn || piece == Piece::whiteKing),
           isKing(piece == Piece::whiteKing || piece == Piece::blackKing) {
     setFillColor(isWhitePiece ? WHITE_PIECE_COLOR : BLACK_PIECE_COLOR);
 }
 
 void PieceSprite::setPositionCentered(int x, int y) {
-    sf::CircleShape::setPosition(x + (TILE_SIZE - getGlobalBounds().width) / 2, y + (TILE_SIZE - getGlobalBounds().height) / 2);
+    sf::CircleShape::setPosition((float)x + (TILE_SIZE - getGlobalBounds().width) / 2, (float)y + (TILE_SIZE - getGlobalBounds().height) / 2);
 }
 
 void App::drawBoard(const Board &board) {

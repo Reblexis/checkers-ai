@@ -16,10 +16,10 @@ constexpr inline unsigned int tr(unsigned int index){
     return index - 3 - ((index >> 2) & 1);
 }
 constexpr inline unsigned int bl(unsigned int index){
-    return index + 4 - (index >> 2 & 1);
+    return index + 4 - ((index >> 2) & 1);
 }
 constexpr inline unsigned int br(unsigned int index){
-    return index + 5 - ((index >> 2 & 1));
+    return index + 5 - ((index >> 2) & 1);
 }
 constexpr inline unsigned int king_row(unsigned int index){
     return index < 4;
@@ -373,8 +373,10 @@ void Game::makeMove(piece_move pieceMove, bool final) {
                 currentPos = tr(currentPos);
             else if (direction == Direction::bottomLeft)
                 currentPos = bl(currentPos);
-            else
+            else if (direction == Direction::bottomRight)
                 currentPos = br(currentPos);
+            else
+                throw std::runtime_error("Invalid direction.");
 
 #if CHECK_VALID_MOVES
             if(currentPos > 31 || currentPos < 0)
