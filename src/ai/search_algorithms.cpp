@@ -65,7 +65,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
         std::pair<int, piece_move> moveInfo = minimax(game, leftDepth-1, alpha, beta);
 
-        if(maximizing ? moveInfo.first > bestScore : moveInfo.first < bestScore)
+        if(maximizing ? moveInfo.first >= bestScore : moveInfo.first <= bestScore)
         {
             bestScore = moveInfo.first;
             bestMove = nextMove;
@@ -129,16 +129,17 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
 
     for(int i = 1; i <= maxDepth; i++)
     {
-        std::pair<int, piece_move> candidate = minimax.findBestMove(game);
+        std::pair<int, piece_move> candidate = minimax.minimax(game, i);
         if(candidate.second != 0)
             bestMove = candidate;
 
         if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0)
+        {
             break;
+        }
     }
-
-    if(bestMove.second==0)
-        message("Invalid piece_move!", true, true, true);
+    if(bestMove.first==INT32_MAX)
+        std::cout<<"Black wins"<<std::endl;
 
     return bestMove;
 }
