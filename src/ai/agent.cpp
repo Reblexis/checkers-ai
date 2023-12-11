@@ -26,8 +26,3 @@ std::pair<int, piece_move> Agent::findBestMove(Game &game) {
     std::cout<<"Making move: "<<bestMove.second<<std::endl;
     return bestMove;
 }
-
-Agent::~Agent() {
-    delete evaluation;
-    delete searchAlgorithm;
-}

@@ -81,6 +81,13 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if(event.type == sf::Event::KeyPressed){
+                if(event.key.code == sf::Keyboard::R)
+                {
+                    game = Game(GameState(Board(0xfff00000, 0xfff), true));
+                    newMove = true;
+                }
+            }
         }
 
         if (agent1 && game.getGameState().nextBlack) {
@@ -100,7 +107,6 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
              *Human-controlled
              * Allows the human to select a piece and then select a destination for it. If there is forced jump it forces the human to select the next move.
              */
-
             if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!mousePressed&&window.hasFocus()){
                 sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
                 Pos highlightedPiecePos(mousePosition.x / TILE_SIZE, mousePosition.y / TILE_SIZE);
@@ -178,6 +184,7 @@ void App::launch() {
     window.setFramerateLimit(60);
     Game game(GameState(Board(0xfff00000, 0xfff), true));
     UI ui;
-    Agent agent1(std::filesystem::path("../data/hyperparameters1.json"));
-    gameLoop(game, agent1, std::nullopt, ui);
+    Agent agent1(std::filesystem::path("../data/agent1"));
+    Agent agent2(std::filesystem::path("../data/agent2"));
+    gameLoop(game, agent1, agent2, ui);
 }

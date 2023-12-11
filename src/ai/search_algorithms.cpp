@@ -18,7 +18,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     curOperations++;
     const GameState& gameState = game.getGameState();
 
-    bool maximizing = !gameState.nextBlack;
+    bool maximizing = gameState.nextBlack;
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
     piece_move bestMove = 0;
 
@@ -46,14 +46,14 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
     std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
 
-    if(bestMove == 0)
-    {
-        bestMove = possibleMoves[0];
-    }
-
     if(possibleMoves.empty())
     {
         return {maximizing ? INT32_MIN : INT32_MAX, 0};
+    }
+
+    if(bestMove == 0)
+    {
+        bestMove = possibleMoves[0];
     }
 
     for(piece_move nextMove: possibleMoves)
@@ -149,7 +149,7 @@ std::pair<int, piece_move> RandomSearch::findBestMove(Game &game)
 {
     const GameState& gameState = game.getGameState();
     std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
-    if(possibleMoves.size() == 0)
+    if(possibleMoves.empty())
         return {gameState.nextBlack ? INT32_MIN : INT32_MAX, 0};
 
     // Generate random move

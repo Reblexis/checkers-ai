@@ -8,7 +8,7 @@
 #include <functional>
 #include <iostream>
 
-#define CHECK_VALID_MOVES true
+#define CHECK_VALID_MOVES false
 
 enum Piece { whitePawn=0, whiteKing=1, blackPawn=2, blackKing=3 };
 
@@ -18,7 +18,7 @@ struct Pos {
     // Position in terms of the whole board including empty tiles
     int x;
     int y;
-    Pos(unsigned int x, unsigned int y);
+    Pos(int x, int y);
     explicit Pos (unsigned int index);
     unsigned int indexFromPos() const;
     Direction getDirection(Pos pos) const;

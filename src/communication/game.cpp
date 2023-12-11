@@ -1,6 +1,6 @@
 #include "includes/game.hpp"
 
-Pos::Pos(unsigned int x, unsigned int y) : x(x), y(y) {}
+Pos::Pos(int x, int y) : x(x), y(y) {}
 
 Pos::Pos(unsigned int index){
     x = (index % 4) * 2;
@@ -391,11 +391,17 @@ const GameState& Game::getGameState() const {
 
 void Game::makeMove(piece_move pieceMove, bool final) {
     // Final indicates whether the sub-move is the last one of the whole move (with multiple jumps there is only one final sub-move)
-    piece_move  orig_move = pieceMove;
+
 #if CHECK_VALID_MOVES
-    if(pieceMove == 0)
-        throw std::runtime_error("Invalid move. No move present.");
+    piece_move  orig_move = pieceMove;
+    std::cout<<gameHistory.back().getMove(orig_move)<<std::endl;
+    std::cout<<gameHistory.back().board<<std::endl;
 #endif
+    if (pieceMove == 0) {
+        std::cout << "Invalid move. No move present.\n";
+        return;
+    }
+
     unsigned int currentPos = pieceMove & 0x1f;
 
     pieceMove >>= 5;
@@ -404,14 +410,10 @@ void Game::makeMove(piece_move pieceMove, bool final) {
     bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
     bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
     bool isKing = controlBitboard & (1ll << (currentPos + 32));
-    controlBitboard &= (~(1ll << currentPos)) & (~(1ll << (currentPos + 32)));
-
-    std::cout<<gameHistory.back().getMove(orig_move)<<std::endl;
-    std::cout<<gameHistory.back().board<<std::endl;
 
     while (pieceMove) {
         unsigned int direction = static_cast<Direction>(pieceMove & 0x7);
-        unsigned int startPos = currentPos;
+        controlBitboard &= (~(1ll << currentPos)) & (~(1ll << (currentPos + 32)));
         for(int i = 0; i<2; i++){
             if (direction == Direction::topLeft)
                 currentPos = tl(currentPos);
@@ -427,7 +429,7 @@ void Game::makeMove(piece_move pieceMove, bool final) {
 #if CHECK_VALID_MOVES
             if(currentPos > 31)
                 throw std::runtime_error("Invalid move. Move out of bounds. " + std::to_string(currentPos) + ".");
-            if((controlBitboard)&(1<<currentPos))
+            if((controlBitboard)&(1ll<<currentPos))
                 throw std::runtime_error("Invalid move. Friendly piece present at " + std::to_string(currentPos) + ".");
             if(static_cast<int>(direction)>=3 && !isKing)
             {
@@ -445,7 +447,7 @@ void Game::makeMove(piece_move pieceMove, bool final) {
 #if CHECK_VALID_MOVES
         if(currentPos > 31)
             throw std::runtime_error("Invalid move. Move out of bounds after jump. " + std::to_string(currentPos));
-        if((controlBitboard|enemyBitboard)&(1<<currentPos))
+        if((controlBitboard|enemyBitboard)&(1ll<<currentPos))
             throw std::runtime_error("Invalid move. Incorrect jump. Piece present at " + std::to_string(currentPos) + ".");
 #endif
 
@@ -453,11 +455,11 @@ void Game::makeMove(piece_move pieceMove, bool final) {
             isKing = true;
 
         pieceMove >>= 3;
-    }
 
-    controlBitboard |= (1ll << currentPos);
-    if (isKing)
-        controlBitboard |= (1ll << (currentPos + 32));
+        controlBitboard |= (1ll << currentPos);
+        if (isKing)
+            controlBitboard |= (1ll << (currentPos + 32));
+    }
 
     Board newBoard(controlBitboard, enemyBitboard);
 
