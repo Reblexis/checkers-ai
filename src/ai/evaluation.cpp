@@ -42,9 +42,9 @@ int AdvancedEvaluation::evaluate(const GameState &gameState)
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(whitePawns & (1 << i))
-            pawnTableScore += pawnTable[NUM_SQUARES - i - 1];
+            pawnTableScore += pawnTable[i];
         else if(blackPawns & (1 << i))
-            pawnTableScore -= pawnTable[i];
+            pawnTableScore -= pawnTable[NUM_SQUARES - i - 1];
     }
 
     bitboard whiteKings = board.getWhiteKings();
@@ -52,9 +52,9 @@ int AdvancedEvaluation::evaluate(const GameState &gameState)
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(whiteKings & (1 << i))
-            kingTableScore += kingTable[NUM_SQUARES - i - 1];
+            kingTableScore += kingTable[i];
         else if(blackKings & (1 << i))
-            kingTableScore -= kingTable[i];
+            kingTableScore -= kingTable[NUM_SQUARES - i - 1];
     }
 
     int pawnDiff = board.blackPawnsCount() - board.whitePawnsCount();
