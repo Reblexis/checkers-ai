@@ -51,11 +51,6 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
         return {maximizing ? INT32_MIN : INT32_MAX, 0};
     }
 
-    if(bestMove == 0)
-    {
-        bestMove = possibleMoves[0];
-    }
-
     for(piece_move nextMove: possibleMoves)
     {
         if(curOperations >= operationLimit)
