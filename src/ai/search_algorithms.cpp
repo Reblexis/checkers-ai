@@ -10,7 +10,7 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
     useAlphaBeta = hyperparameters.get<bool>(USE_ALPHA_BETA_ID);
     useCache = hyperparameters.get<bool>(USE_CACHE_ID);
     maxDepth = hyperparameters.get<int>(MAX_DEPTH_ID);
-    operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
+    operationLimit = INT32_MAX;
 }
 
 std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha, int beta)
@@ -130,6 +130,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
 
         if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0)
         {
+            std::cout<<"Breaking at depth "<<i<<std::endl;
             break;
         }
     }
