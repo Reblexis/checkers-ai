@@ -22,25 +22,9 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     int bestScore = maximizing ? INT32_MIN : INT32_MAX;
     piece_move bestMove = 0;
 
-    if(useCache)
-    {
-        const cacheEntry &cacheInfo = cache.get(gameState);
-
-        if(leftDepth < cacheInfo.depth)
-            return {cacheInfo.score, cacheInfo.bestMove};
-
-        if(cacheInfo.depth!=0)
-        {
-            bestMove = cacheInfo.bestMove;
-            bestScore = cacheInfo.score;
-        }
-    }
-
     if(leftDepth==0)
     {
         int score = evaluation.evaluate(gameState);
-        if(useCache)
-            cache.set(gameState, 1, score, 0);
         return {score, bestMove};
     }
 
@@ -48,7 +32,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
     if(possibleMoves.empty())
     {
-        return {maximizing ? INT32_MIN : INT32_MAX, 0};
+        return {maximizing ? INT32_MIN+1 : INT32_MAX-1, 0};
     }
 
     for(piece_move nextMove: possibleMoves)
@@ -60,7 +44,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
         std::pair<int, piece_move> moveInfo = minimax(game, leftDepth-1, alpha, beta);
 
-        if(maximizing ? moveInfo.first >= bestScore : moveInfo.first <= bestScore)
+        if(maximizing ? moveInfo.first > bestScore : moveInfo.first < bestScore)
         {
             bestScore = moveInfo.first;
             bestMove = nextMove;
@@ -81,7 +65,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     }
 
     if(curOperations >= operationLimit)
-        return {maximizing ? INT32_MIN : INT32_MAX, 0};
+        return {maximizing ? INT32_MIN+1 : INT32_MAX-1, 0};
 
     return {bestScore, bestMove};
 }
@@ -112,6 +96,7 @@ IterativeMinimax::IterativeMinimax(Hyperparameters &hyperparameters, Evaluation 
 {
     maxDepth = hyperparameters.get<int>(MAX_DEPTH_ID);
     operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
+    minimax.setOperationLimit(operationLimit);
 }
 
 std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
