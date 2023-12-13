@@ -28,7 +28,7 @@ AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
 
 int AdvancedEvaluation::evaluate(const GameState &gameState)
 {
-    if (gameState.getAvailableMoves().size() == 0)
+    if (gameState.getAvailableMoves().empty())
         return gameState.nextBlack ? INT32_MIN : INT32_MAX;
 
     int score = 0;

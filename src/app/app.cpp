@@ -186,5 +186,5 @@ void App::launch() {
     UI ui;
     Agent agent1(std::filesystem::path("../data/agent1"));
     Agent agent2(std::filesystem::path("../data/agent2"));
-    gameLoop(game, agent1, std::nullopt, ui);
+    gameLoop(game, agent1, agent2, ui);
 }
