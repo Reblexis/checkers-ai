@@ -16,7 +16,7 @@ We assume the following rules: https://www.officialgamerules.org/checkers .
 - [x] Improve the structure of the project
 - [ ] Add documentation to the project
 - [x] Implement a graphical interface for a possible visualization of the simulated games and for playing against an agent
-- [ ] Hyperparameters controlling different aspects of an agent (fx. depth of search, evaluation function, strategy, etc.)
+- [x] Hyperparameters controlling different aspects of an agent (fx. depth of search, evaluation function, strategy, etc.)
 - [ ] Agent saving (including an executable and a json file containing the hyperparameters)
 - [ ] Caching into files (efficient storing of optimal moves for different game states)
 - [ ] Implement basic agent versioning (saving the best agents, comparing their performance with different hyperparameters etc.)
