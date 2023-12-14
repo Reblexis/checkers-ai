@@ -19,8 +19,8 @@
 //#define INTERFACE_PERFT
 //#define SEARCH_ALGORITHM_TEST
 //#define PLAY_TEST
-#define CLI
-//#define APP
+//#define CLI
+#define APP
 
 int main()
 {

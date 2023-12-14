@@ -98,7 +98,6 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                                                                                 : agent2->findBestMove(game);
             ui.lastMove = game.getGameState().getMove(bestMove.second).path;
             game.makeMove(bestMove.second);
-            std::cout<<game.getGameState().board<<std::endl;
         }
         else {
             if(newMove) {
