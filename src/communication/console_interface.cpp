@@ -8,6 +8,7 @@ void ConsoleInterface::run(){
         std::cin>>color;
         if(color == "exit")
             break;
+
         bool nextBlack = color == "black";
 
         std::vector<std::string> boardState(8);
@@ -48,5 +49,7 @@ void ConsoleInterface::run(){
         std::cout<<boardAfterMove<<std::endl;
     }
 }
+
+
 
 
