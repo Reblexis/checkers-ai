@@ -1,6 +1,17 @@
 #ifndef CONSOLE_INTERFACE_HPP
 #define CONSOLE_INTERFACE_HPP
 
-//void run_console_bot();
+#include <iostream>
+
+#include "includes/game.hpp"
+#include "../ai/includes/agent.hpp"
+
+class ConsoleInterface {
+private:
+    Agent *agent;
+public:
+    ConsoleInterface(Agent* agent);
+    void run();
+};
 
 #endif

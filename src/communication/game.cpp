@@ -67,15 +67,16 @@ bool Pos::operator==(const Pos& other) const{
 
 std::ostream& operator<<(std::ostream& os, const Piece& piece) {
     if(piece == Piece::whitePawn)
-        os<<"wp";
+        os<<"w";
     else if(piece == Piece::whiteKing)
-        os<<"wk";
+        os<<"W";
     else if(piece == Piece::blackPawn)
-        os<<"bp";
+        os<<"b";
     else if(piece == Piece::blackKing)
-        os<<"bk";
+        os<<"B";
     else
-        os<<"???";
+        os<<"?";
+
     return os;
 }
 
@@ -196,7 +197,7 @@ std::ostream& operator<<(std::ostream& os, const Board& board)
             if(board.getAt(Pos(j, i)))
                 os<<board.getAt(Pos(j, i)).value()<<" ";
             else
-                os<<".. ";
+                os<<". ";
         }
         os<<std::endl;
     }
