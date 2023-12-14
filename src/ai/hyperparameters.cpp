@@ -31,6 +31,8 @@ Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(pa
     message("Hyperparameters loaded from " + filePath);
 }
 
+Hyperparameters::Hyperparameters(const std::string &hyperparameters): data(nlohmann::json::parse(hyperparameters)){}
+
 void Hyperparameters::save() const
 {
     std::ofstream output(filePath);

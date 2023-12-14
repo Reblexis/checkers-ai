@@ -115,12 +115,10 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
 
         if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0)
         {
-            std::cout<<"Breaking at depth "<<i<<std::endl;
+            //std::cout<<"Breaking at depth "<<i<<std::endl;
             break;
         }
     }
-    if(bestMove.first==INT32_MAX)
-        std::cout<<"Black wins"<<std::endl;
 
     return bestMove;
 }

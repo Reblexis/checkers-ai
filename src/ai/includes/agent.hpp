@@ -16,7 +16,9 @@ private:
     Hyperparameters hyperparameters;
 
 public:
+    void initialize();
     explicit Agent(const std::filesystem::path &dataPath);
+    explicit Agent(const std::string &hyperparameters);
     std::pair<int, piece_move> findBestMove(Game &game);
 };
 

@@ -12,21 +12,24 @@ void ConsoleInterface::run(){
         bool nextBlack = color == "black";
 
         std::vector<std::string> boardState(8);
-        for(unsigned int i = 0; i < 8; i++)
-        {
-            std::cin>>boardState[i];
+        for(unsigned int i = 0; i < 8; i++) {
+            for (unsigned int j = 0; j < 8; j++){
+                char c;
+                std::cin>>c;
+                boardState[i].push_back(c);
+            }
         }
 
         bitboard_all whiteBitboard = 0;
         bitboard_all blackBitboard = 0;
 
-        for(unsigned int i = 0; i<32; i++)
+        for(unsigned long long i = 0; i<32; i++)
         {
             Pos pos(i);
-            whiteBitboard |= (tolower(boardState[pos.y][pos.x]) == 'w') << i;
-            whiteBitboard |= (boardState[pos.y][pos.x] == 'W') << (i + 32);
-            blackBitboard |= (tolower(boardState[pos.y][pos.x]) == 'b') << i;
-            blackBitboard |= (boardState[pos.y][pos.x] == 'B') << (i + 32);
+            whiteBitboard |= (long long)(tolower(boardState[pos.y][pos.x]) == 'w') << i;
+            whiteBitboard |= (long long)(boardState[pos.y][pos.x] == 'W') << (i + 32);
+            blackBitboard |= (long long)(tolower(boardState[pos.y][pos.x]) == 'b') << i;
+            blackBitboard |= (long long)(boardState[pos.y][pos.x] == 'B') << (i + 32);
         }
 
         Board board(whiteBitboard, blackBitboard);
@@ -38,15 +41,14 @@ void ConsoleInterface::run(){
 
         Move madeMove = gameState.getMove(bestMove.second);
 
-        std::cout<<madeMove.path.size()<<std::endl;
+        std::cout<<madeMove.path.size()<<" ";
         for(Pos pos: madeMove.path)
         {
             std::cout<<pos.x<<" "<<pos.y<<" ";
         }
         std::cout<<std::endl;
 
-        Board boardAfterMove = game.getGameState().board;
-        std::cout<<boardAfterMove<<std::endl;
+        std::cout<<game.getGameState().board;
     }
 }
 

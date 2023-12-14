@@ -19,6 +19,7 @@ private:
 public:
     // Constructor
     explicit Hyperparameters(const std::filesystem::path &path);
+    explicit Hyperparameters(const std::string &hyperparameters);
 
     // Template functions for getting and setting values in the json data
     template<typename T>

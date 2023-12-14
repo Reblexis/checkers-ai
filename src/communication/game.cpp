@@ -69,7 +69,9 @@ std::ostream& operator<<(std::ostream& os, const Piece& piece) {
     if(piece == Piece::whitePawn)
         os<<"w";
     else if(piece == Piece::whiteKing)
+    {
         os<<"W";
+    }
     else if(piece == Piece::blackPawn)
         os<<"b";
     else if(piece == Piece::blackKing)
@@ -108,7 +110,7 @@ std::optional<Piece> Board::getAt(Pos piecePos) const
     if(x>3 || y>7)
         return std::nullopt;
 
-    uint8_t pos = x + y*4;
+    unsigned int pos = x + y*4;
 
     if (whiteBitboard & (1ll << (BOARD_SIZE + pos))) {
         return Piece::whiteKing;

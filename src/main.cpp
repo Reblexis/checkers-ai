@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "includes/constants.hpp"
+
 #include "communication/includes/game.hpp"
 #include "ai/includes/agent.hpp"
 #include "app/includes/app.hpp"
@@ -17,7 +19,8 @@
 //#define INTERFACE_PERFT
 //#define SEARCH_ALGORITHM_TEST
 //#define PLAY_TEST
-#define APP
+#define CLI
+//#define APP
 
 int main()
 {
@@ -27,5 +30,10 @@ int main()
 #ifdef APP
     App app;
     app.launch();
+#endif
+#ifdef CLI
+    Agent agent(CURRENT_AGENT_CONFIG);
+    ConsoleInterface consoleInterface(&agent);
+    consoleInterface.run();
 #endif
 }

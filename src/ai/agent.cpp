@@ -6,7 +6,7 @@
 #include "includes/hyperparameters.hpp"
 #include "includes/search_algorithms.hpp"
 
-Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / HYPERPARAMETERS_PATH) {
+void Agent::initialize(){
     if(hyperparameters.get<int>(EVALUATION_ALGORITHM_ID) == USE_ADVANCED_EVALUATION)
         evaluation = new AdvancedEvaluation(hyperparameters);
     else
@@ -20,9 +20,16 @@ Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / 
         searchAlgorithm = new RandomSearch();
 }
 
+Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / HYPERPARAMETERS_PATH) {
+    initialize();
+}
+
+Agent::Agent(const std::string &hyperparameters): hyperparameters(hyperparameters) {
+    initialize();
+}
+
 std::pair<int, piece_move> Agent::findBestMove(Game &game) {
     std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game);
-    std::cout<<"Estimated score: "<<bestMove.first<<"\n";
-    std::cout<<"Making move: "<<bestMove.second<<std::endl;
+    // std::cout<<"Estimated score: "<<bestMove.first<<"\n";
     return bestMove;
 }
