@@ -21,6 +21,7 @@ add_executable(checkers
 		src/ai/evaluation.cpp
 		src/ai/hyperparameters.cpp
 		src/communication/game.cpp
+		src/main_cli.cpp
 )
 
 target_link_libraries(checkers sfml-graphics sfml-audio sfml-window sfml-system)
