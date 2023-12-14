@@ -16,6 +16,7 @@ const sf::Color WHITE_TILE_COLOR = sf::Color(245, 245, 220);
 const sf::Color BLACK_TILE_COLOR = sf::Color(160, 82, 45);
 const sf::Color SELECTED_TILE_COLOR = sf::Color(240, 240, 10, 90);
 const sf::Color POSSIBLE_MOVE_COLOR = sf::Color(10, 240, 10, 90);
+const sf::Color LAST_MOVE_COLOR = sf::Color(224, 85, 169, 90);
 const sf::Color BLACK_PIECE_COLOR = sf::Color(0, 0,0);
 const sf::Color WHITE_PIECE_COLOR = sf::Color(200,200,200);
 
@@ -23,6 +24,7 @@ class UI{
 public:
     std::optional<Pos> selectedSquare;
     std::vector<Pos> possibleMoves;
+    std::vector<Pos> lastMove;
 };
 
 class PieceSprite : public sf::CircleShape {

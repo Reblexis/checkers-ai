@@ -59,6 +59,10 @@ void App::drawUI(const UI &ui) {
             highlightField(pos, POSSIBLE_MOVE_COLOR);
         }
     }
+    for(Pos pos: ui.lastMove)
+    {
+        highlightField(pos, LAST_MOVE_COLOR);
+    }
 }
 
 void App::drawWindow(const Game &game, const UI &ui){
@@ -89,12 +93,10 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                 }
             }
         }
-
-        if (agent1 && game.getGameState().nextBlack) {
-            std::pair<int, piece_move> bestMove = agent1->findBestMove(game);
-            game.makeMove(bestMove.second);
-        } else if (agent2 && !game.getGameState().nextBlack) {
-            std::pair<int, piece_move> bestMove = agent2->findBestMove(game);
+        if((agent1 && game.getGameState().nextBlack) || (agent2 && !game.getGameState().nextBlack)) {
+            std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game)
+                                                                                : agent2->findBestMove(game);
+            ui.lastMove = game.getGameState().getMove(bestMove.second).path;
             game.makeMove(bestMove.second);
         }
         else {
@@ -141,6 +143,12 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
 
                     game.makeMove(madeMove->getSubMove(currentSubMove-1),  newPossibilities.empty());
                     possibleMoves = newPossibilities;
+                    if(currentSubMove == 1){
+                        ui.lastMove = madeMove->path;
+                    }
+                    else
+                        ui.lastMove.push_back(highlightedPiecePos);
+
                     if(!possibleMoves.empty())
                     {
                         currentSubMove++;
@@ -186,5 +194,5 @@ void App::launch() {
     UI ui;
     Agent agent1(std::filesystem::path("../data/agent1"));
     Agent agent2(std::filesystem::path("../data/agent2"));
-    gameLoop(game, agent1, agent2, ui);
+    gameLoop(game, agent1, std::nullopt, ui);
 }
