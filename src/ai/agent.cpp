@@ -20,7 +20,7 @@ void Agent::initialize(){
         searchAlgorithm = new RandomSearch();
 }
 
-Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / HYPERPARAMETERS_PATH) {
+Agent::Agent(const std::filesystem::path &dataPath): hyperparameters(dataPath / HYPERPARAMETERS_PATH), statistics(dataPath / STATISTICS_PATH) {
     initialize();
 }
 
@@ -32,4 +32,16 @@ std::pair<int, piece_move> Agent::findBestMove(Game &game) {
     std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game);
     // std::cout<<"Estimated score: "<<bestMove.first<<"\n";
     return bestMove;
+}
+
+void Agent::addGame(const int enemyRating, double result) {
+    if(statistics.has_value())
+        statistics->addGame(enemyRating, result);
+}
+
+int Agent::getRating() const {
+    if(statistics.has_value())
+        return statistics->getRating();
+    else
+        return DEFAULT_RATING;
 }

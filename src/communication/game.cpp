@@ -368,6 +368,10 @@ void GameState::calculateAvailableMoves() {
     }
 }
 
+Game::Game(){
+    addGameState(GameState(Board(0xfff00000, 0xfff), true));
+}
+
 Game::Game(const GameState& state) {
     addGameState(state);
 }
@@ -469,4 +473,8 @@ void Game::makeMove(piece_move pieceMove, bool final) {
     const GameState newGameState(gameHistory.back().nextBlack ? newBoard.getBoardRev() : newBoard,
                                  gameHistory.back().nextBlack^final);
     addGameState(newGameState);
+}
+
+bool Game::isFinished() const {
+    return gameHistory.back().getAvailableMoves().empty();
 }

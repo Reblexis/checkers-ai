@@ -10,6 +10,8 @@
 
 #define CHECK_VALID_MOVES false
 
+constexpr int NUM_SQUARES = 32;
+
 enum Piece { whitePawn=0, whiteKing=1, blackPawn=2, blackKing=3 };
 
 enum Direction { topLeft=1, topRight=2, bottomLeft=3, bottomRight=4 };
@@ -91,12 +93,14 @@ private:
 
 class Game {
 public:
+    Game();
     explicit Game(const GameState& state);
     void addGameState(const GameState& state);
     void undoMove();
     void reset(const GameState& state);
     const GameState& getGameState() const;
     void makeMove(piece_move pieceMove, bool final=true);
+    bool isFinished() const;
 
 private:
     std::vector<GameState> gameHistory;

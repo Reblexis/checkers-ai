@@ -190,9 +190,9 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
 void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
-    Game game(GameState(Board(0xfff00000, 0xfff), true));
+    Game game{};
     UI ui;
-    Agent agent1(std::filesystem::path("../data/agent1"));
-    Agent agent2(std::filesystem::path("../data/agent2"));
+    Agent agent1(AGENTS_PATH / "agent1");
+    Agent agent2(AGENTS_PATH / "agent2");
     gameLoop(game, std::nullopt, agent1, ui);
 }
