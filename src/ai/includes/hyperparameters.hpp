@@ -14,14 +14,10 @@ private:
     nlohmann::json data;
     std::string filePath;
 
-    // Private member functions if any...
-
 public:
-    // Constructor
     explicit Hyperparameters(const std::filesystem::path &path);
     explicit Hyperparameters(const std::string &hyperparameters);
 
-    // Template functions for getting and setting values in the json data
     template<typename T>
     inline void set(const std::string& key, const T& value){
         data[key] = value;
