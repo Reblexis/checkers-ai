@@ -18,7 +18,7 @@ constexpr int DEFAULT_RATING = 1000;
 
 class Statistics{
 private:
-    const std::filesystem::path &filePath;
+    const std::filesystem::path filePath;
     nlohmann::json data;
 public:
     Statistics(const std::filesystem::path &path);

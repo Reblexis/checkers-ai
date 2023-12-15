@@ -22,7 +22,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
     int whiteRating = whiteAgent->getRating();
     int blackRating = blackAgent->getRating();
     double result = game.getGameState().nextBlack ? 1 : 0;
-    if(game.isFinished()){
+    if(moves >= MAX_MOVES){
         result = 0.5;
     }
 

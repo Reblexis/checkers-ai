@@ -1,6 +1,7 @@
 #include "includes/statistics.hpp"
 
 #include <fstream>
+#include <iostream>
 
 
 Statistics::Statistics(const std::filesystem::path &path): filePath(path)
@@ -32,6 +33,7 @@ void Statistics::save() const
         output << std::setw(4) << data << std::endl;
         output.close();
     }
+    std::cout<<"Saving statistics from "<<filePath<<"\n";
 }
 
 int Statistics::getRating() const
