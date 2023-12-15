@@ -19,4 +19,4 @@ We assume the following rules: https://www.officialgamerules.org/checkers .
 - [x] Hyperparameters controlling different aspects of an agent (fx. depth of search, evaluation function, strategy, etc.)
 - [x] Agent saving (including an executable and a json file containing the hyperparameters)
 - [ ] Caching into files (efficient storing of optimal moves for different game states)
-- [ ] Implement basic agent versioning (saving the best agents, comparing their performance with different hyperparameters etc.)
+- [x] Implement basic agent versioning (saving the best agents, comparing their performance with different hyperparameters etc.)
