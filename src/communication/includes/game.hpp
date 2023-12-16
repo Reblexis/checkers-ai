@@ -79,9 +79,9 @@ struct GameState {
 public:
     const Board board;
     const bool nextBlack;
-    uint64_t hash;
 
     GameState(Board board, bool nextBlack);
+    Board getPerspectiveBoard() const;
     std::span<const piece_move> getAvailableMoves() const;
     Move getMove(piece_move pieceMove) const;
     std::vector<Move> getAvailableMoves2() const;

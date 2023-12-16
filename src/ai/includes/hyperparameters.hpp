@@ -32,6 +32,8 @@ const std::string MAX_DEPTH_ID = "max_depth";
 const std::string USE_CACHE_ID = "use_cache";
 constexpr int USE_CACHE = 1;
 
+const std::string REORDER_MOVES_ID = "reorder_moves";
+
 const std::string OPERATION_LIMIT_ID = "operation_limit";
 const std::string DEBUG_BIT_ID = "debug_bit";
 

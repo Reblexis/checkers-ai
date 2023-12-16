@@ -19,7 +19,7 @@ public:
 
     void simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game);
     void simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCount);
-    void randomMatches(std::vector<Agent *> &agents, int matches, int randomMovesCount);
+    void randomMatches(std::vector<Agent *> &agents, int matches, int randomMovesCount, std::optional<int> focusAgent = std::nullopt);
 };
 
 #endif //CHECKERS_TOURNAMENT_HPP

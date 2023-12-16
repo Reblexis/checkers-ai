@@ -35,7 +35,7 @@ int main()
     Agent agent4(AGENTS_PATH / "agent4");
     Agent agent5(AGENTS_PATH / "agent5");
     Agent agent6(AGENTS_PATH / "agent6");
-    std::vector<Agent*> agents = {&agent1, &agent2, &agent3, &agent4, &agent5, &agent6};
-    tournament.randomMatches(agents, 50, 6);
+    std::vector<Agent*> agents = {&agent1, &agent2, &agent3, &agent4, &agent5};
+    tournament.randomMatches(agents, 50, 12, 2);
 #endif
 }

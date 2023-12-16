@@ -30,7 +30,6 @@ Agent::Agent(const std::string &hyperparameters): hyperparameters(hyperparameter
 
 std::pair<int, piece_move> Agent::findBestMove(Game &game) {
     std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game);
-    // std::cout<<"Estimated score: "<<bestMove.first<<"\n";
     return bestMove;
 }
 

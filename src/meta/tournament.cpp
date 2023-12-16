@@ -46,7 +46,7 @@ void Tournament::simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCoun
     simulateGame(agent2, agent1, game2);
 }
 
-void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, int randomMovesCount = 6){
+void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, int randomMovesCount = 6, std::optional<int> focusAgent){
     std::random_device rd;
     std::mt19937 g(rd());
     std::uniform_int_distribution<> dis(0, agents.size() - 1);
@@ -54,7 +54,7 @@ void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, int ran
     for(int i = 0; i < matches; i++){
         message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
 
-        int agent1Index = dis(g);
+        int agent1Index = focusAgent.value_or(dis(g));
         int agent2Index = dis(g);
         while(agent1Index == agent2Index){
             agent2Index = dis(g);

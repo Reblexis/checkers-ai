@@ -19,6 +19,7 @@ class Minimax : public SearchAlgorithm {
 private:
     bool useAlphaBeta;
     bool useCache;
+    bool reorderMoves;
     int maxDepth;
     int operationLimit;
     int curOperations;

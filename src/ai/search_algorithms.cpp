@@ -9,6 +9,7 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
 {
     useAlphaBeta = hyperparameters.get<bool>(USE_ALPHA_BETA_ID);
     useCache = hyperparameters.get<bool>(USE_CACHE_ID);
+    reorderMoves = hyperparameters.get<bool>(REORDER_MOVES_ID);
     maxDepth = hyperparameters.get<int>(MAX_DEPTH_ID);
     operationLimit = INT32_MAX;
 }
@@ -25,10 +26,40 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     if(leftDepth==0)
     {
         int score = evaluation.evaluate(gameState);
-        return {score, bestMove};
+        return {score, 0};
     }
 
-    std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
+    std::span<const piece_move> possibleMovesSpan = gameState.getAvailableMoves();
+    std::vector<piece_move> possibleMoves(possibleMovesSpan.begin(), possibleMovesSpan.end());
+
+    if(reorderMoves){
+        std::vector<std::pair<int, int>> scores(possibleMoves.size());
+        for(int i = 0; i < possibleMoves.size(); i++){
+            game.makeMove(possibleMoves[i]);
+            scores[i] = {evaluation.evaluate(game.getGameState()), i};
+            game.undoMove();
+        }
+        std::sort(scores.begin(), scores.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b){
+            return a.first > b.first;
+        });
+        std::vector<piece_move> newMoves(possibleMoves.size());
+        for(int i = 0; i < possibleMoves.size(); i++)
+            newMoves[i] = possibleMoves[scores[i].second];
+        possibleMoves = newMoves;
+    }
+
+    if(useCache)
+    {
+        const cacheEntry &cacheInfo = cache.get(game.getGameState());
+        bestMove = cacheInfo.bestMove;
+        if(bestMove!=0){
+            auto it = std::find(possibleMoves.begin(), possibleMoves.end(), bestMove);
+            if(it != possibleMoves.end())
+                std::iter_swap(possibleMoves.begin(), it);
+        }
+        //if(leftDepth < cacheInfo.depth)
+          //  return {cacheInfo.score, cacheInfo.bestMove};
+    }
 
     if(possibleMoves.empty())
     {
@@ -63,6 +94,9 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
                 break;
         }
     }
+
+    if(useCache)
+        cache.set(gameState, leftDepth, bestScore, bestMove);
 
     if(curOperations >= operationLimit)
         return {maximizing ? INT32_MIN+1 : INT32_MAX-1, 0};
@@ -115,7 +149,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
 
         if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0)
         {
-            //std::cout<<"Breaking at depth "<<i<<std::endl;
+            std::cout<<"Breaking at depth "<<i<<std::endl;
             break;
         }
     }

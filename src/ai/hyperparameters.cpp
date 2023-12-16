@@ -11,23 +11,36 @@
 
 Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(path)
 {
+    nlohmann::json defaultData;
+    std::ifstream defaultInput(DEFAULT_HYPERPARAMETERS_PATH);
+    if (defaultInput.is_open()) {
+        defaultInput >> defaultData;
+        defaultInput.close();
+    }
+    else{
+        throw std::runtime_error("Default hyperparameters file not found");
+    }
+
     std::filesystem::create_directories(path.parent_path());
     std::ifstream input(filePath);
     if (input.is_open())
     {
         input >> data;
         input.close();
-    }
-    else
-    {
-        std::ifstream defaultInput(DEFAULT_HYPERPARAMETERS_PATH);
-        if (defaultInput.is_open())
+        for (auto& [key, value] : defaultData.items())
         {
-            defaultInput >> data;
-            defaultInput.close();
-            save();
+            if (data.find(key) == data.end())
+            {
+                data[key] = value;
+                save();
+            }
         }
     }
+    else{
+        data = defaultData;
+        save();
+    }
+
     message("Hyperparameters loaded from " + filePath);
 }
 

@@ -215,8 +215,12 @@ std::ostream& operator<<(std::ostream& os, const Move& move){
 }
 
 GameState::GameState(Board board, bool nextBlack)
-        : board(board), nextBlack(nextBlack), hash(0) {
+        : board(board), nextBlack(nextBlack) {
     calculateAvailableMoves();
+}
+
+Board GameState::getPerspectiveBoard() const {
+    return nextBlack ? board.getBoardRev() : board;
 }
 
 std::span<const piece_move> GameState::getAvailableMoves() const {
@@ -229,7 +233,7 @@ Move GameState::getMove(piece_move pieceMove) const {
     Move move{pieceMove, {Pos(currentPos)}, nextBlack};
 
     pieceMove >>= 5;
-    Board perspectiveBoard = nextBlack ? board.getBoardRev(): board;
+    Board perspectiveBoard = getPerspectiveBoard();
     bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
     bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
 
@@ -280,7 +284,7 @@ std::vector<Move> GameState::getAvailableMoves2() const {
 void GameState::calculateAvailableMoves() {
     availableMoves.clear();
 
-    Board boards = nextBlack ? board.getBoardRev() : board;
+    Board boards = getPerspectiveBoard();
     bitboard_all controlBitboard = boards.whiteBitboard; // The bitboard_all of the pieces that can move next
     bitboard_all enemyBitboard = boards.blackBitboard; // The bitboard_all of the pieces that can be captured
 
@@ -412,8 +416,7 @@ void Game::makeMove(piece_move pieceMove, bool final) {
     unsigned int currentPos = pieceMove & 0x1f;
 
     pieceMove >>= 5;
-    Board perspectiveBoard = gameHistory.back().nextBlack ? gameHistory.back().board.getBoardRev()
-                                                          : gameHistory.back().board;
+    Board perspectiveBoard = gameHistory.back().getPerspectiveBoard();
     bitboard_all controlBitboard = perspectiveBoard.whiteBitboard;
     bitboard_all enemyBitboard = perspectiveBoard.blackBitboard;
     bool isKing = controlBitboard & (1ll << (currentPos + 32));
