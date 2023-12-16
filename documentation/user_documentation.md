@@ -33,6 +33,3 @@ First number `n` will represent the amount of different positions the agent visi
 The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the column (from 0 to 7 left to right), 
 the second number will represent the row (from 0 to 7 top to bottom).
 - **Line 2: resulting board**. The second line will contain the resulting board state after the move. The format is the same as the input format.
- 
-## Contact
-If you have any questions, please contact me at: `viktor.cihal@gmail.com`.

@@ -30,3 +30,6 @@ cmake --build . --config Release
 
 ## Documentation
 If you want to learn more about the project (and how to use it), you can find the documentation in the [documentation](documentation) folder. 
+
+## Contact
+If you have any questions, please contact me at: `viktor.cihal@gmail.com` or write it in the issues section of this repository.
