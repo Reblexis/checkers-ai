@@ -20,7 +20,7 @@ cmake --build . --config Release
 
 ## Current state
 - [x] Implemented the rules of the game into move generation
-- [x] Basic agent that uses minimax strategy with alpha-beta pruning and caching into RAM
+- [x] Agent using iterative-deepening, alpha-beta pruning, cache and move reordering
 - [x] Simple state evaluation algorithm
 - [x] Visualization of moves in the console
 - [x] Graphical interface for playing against an agent (or another player) or watching agents fight each other
