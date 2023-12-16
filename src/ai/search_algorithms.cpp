@@ -40,8 +40,10 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
             game.undoMove();
         }
         std::sort(scores.begin(), scores.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b){
-            return a.first > b.first;
+            return (a.first > b.first);
         });
+        if(!maximizing)
+            std::reverse(scores.begin(), scores.end());
         std::vector<piece_move> newMoves(possibleMoves.size());
         for(int i = 0; i < possibleMoves.size(); i++)
             newMoves[i] = possibleMoves[scores[i].second];

@@ -56,7 +56,7 @@ void Statistics::addGame(const int enemyRating, double result)
     double expectedScore = 1.0 / (1.0 + pow(10.0, exponent));
     double newRating = data[RATING_ID].get<int>() + 32.0 * (result - expectedScore);
 
-    data[RATING_ID] = static_cast<int>(newRating);
+    data[RATING_ID] = static_cast<int>(round(newRating));
 
     save();
 }

@@ -194,5 +194,5 @@ void App::launch() {
     UI ui;
     Agent agent1(AGENTS_PATH / "agent1");
     Agent agent2(AGENTS_PATH / "agent2");
-    gameLoop(game, std::nullopt, agent1, ui);
+    gameLoop(game, agent1, std::nullopt, ui);
 }
