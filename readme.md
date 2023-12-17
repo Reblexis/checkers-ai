@@ -20,7 +20,7 @@ cmake --build . --config Release
 
 ## Current state
 - [x] Implemented the rules of the game into move generation
-- [x] Basic agent that uses minimax strategy with alpha-beta pruning and caching into RAM
+- [x] Agent using iterative-deepening, alpha-beta pruning, cache and move reordering
 - [x] Simple state evaluation algorithm
 - [x] Visualization of moves in the console
 - [x] Graphical interface for playing against an agent (or another player) or watching agents fight each other
@@ -32,4 +32,4 @@ cmake --build . --config Release
 If you want to learn more about the project (and how to use it), you can find the documentation in the [documentation](documentation) folder. 
 
 ## Contact
-If you have any questions, please contact me at: `viktor.cihal@gmail.com` or write it in the issues section of this repository.
+If you have any questions or if you find any suspicious behaviour of the software, please contact me at: `viktor.cihal@gmail.com` or write it in the issues section of this repository.
