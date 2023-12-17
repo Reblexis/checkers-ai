@@ -55,6 +55,7 @@ public:
 
     std::optional<Piece> getAt(Pos pos) const;
     Board getBoardRev() const;
+    int allPiecesCount() const;
     int whitePiecesCount() const;
     int blackPiecesCount() const;
     int whiteKingsCount() const;

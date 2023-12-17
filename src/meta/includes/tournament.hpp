@@ -9,7 +9,7 @@
 
 #include "../../ai/includes/agent.hpp"
 
-constexpr int MAX_MOVES = 100;
+constexpr int MAX_MOVES = 150;
 
 class Tournament{
 private:

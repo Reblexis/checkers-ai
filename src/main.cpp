@@ -13,8 +13,8 @@
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
-//#define APP
-#define TOURNAMENT
+#define APP
+//#define TOURNAMENT
 
 int main()
 {

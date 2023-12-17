@@ -39,12 +39,13 @@ int AdvancedEvaluation::evaluate(const GameState &gameState)
     bitboard whitePawns = board.getWhitePieces() & ~board.getWhiteKings();
     bitboard blackPawns = board.getBlackPieces() & ~board.getBlackKings();
 
+
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(whitePawns & (1 << i))
-            pawnTableScore += pawnTable[i];
+            pawnTableScore -= pawnTable[i];
         else if(blackPawns & (1 << i))
-            pawnTableScore -= pawnTable[NUM_SQUARES - i - 1];
+            pawnTableScore += pawnTable[NUM_SQUARES - i - 1];
     }
 
     bitboard whiteKings = board.getWhiteKings();
@@ -52,19 +53,20 @@ int AdvancedEvaluation::evaluate(const GameState &gameState)
     for(int i = 0; i < NUM_SQUARES; i++)
     {
         if(whiteKings & (1 << i))
-            kingTableScore += kingTable[i];
+            kingTableScore -= kingTable[i];
         else if(blackKings & (1 << i))
-            kingTableScore -= kingTable[NUM_SQUARES - i - 1];
+            kingTableScore += kingTable[NUM_SQUARES - i - 1];
     }
 
-    int pawnDiff = board.blackPawnsCount() - board.whitePawnsCount();
-    int kingDiff = board.blackKingsCount() - board.whiteKingsCount();
+    float pawnDiff = static_cast<float>(board.blackPawnsCount() - board.whitePawnsCount());
+    float kingDiff = static_cast<float>(board.blackKingsCount() - board.whiteKingsCount());
 
-    pawnDiff *= pawnValue * diffMultiplier;
-    kingDiff *= kingValue * diffMultiplier;
+    pawnDiff *= 100.0f / static_cast<float>(board.allPiecesCount()) * pawnValue * diffMultiplier ;
+    kingDiff *= 100.0f / static_cast<float>(board.allPiecesCount()) * kingValue * diffMultiplier;
     kingTableScore *= kingValue;
     pawnTableScore *= pawnValue;
 
-    score = pawnDiff + kingDiff + kingTableScore + pawnTableScore;
+    score = static_cast<int>(pawnDiff + kingDiff) + kingTableScore + pawnTableScore;
     return score;
 }
+

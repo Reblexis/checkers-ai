@@ -54,7 +54,7 @@ void Statistics::addGame(const int enemyRating, double result)
     // Calculate new rating (https://en.wikipedia.org/wiki/Elo_rating_system)
     double exponent = static_cast<double>(enemyRating - data[RATING_ID].get<int>()) / 400.0;
     double expectedScore = 1.0 / (1.0 + pow(10.0, exponent));
-    double newRating = data[RATING_ID].get<int>() + 32.0 * (result - expectedScore);
+    double newRating = data[RATING_ID].get<int>() + 5.0 * (result - expectedScore);
 
     data[RATING_ID] = static_cast<int>(round(newRating));
 

@@ -131,6 +131,10 @@ Board Board::getBoardRev() const {
     return {reverseBoard(blackBitboard), reverseBoard(whiteBitboard)};
 }
 
+int Board::allPiecesCount() const {
+    return __builtin_popcount(whiteBitboard & 0xffffffff) + __builtin_popcount(blackBitboard & 0xffffffff);
+}
+
 int Board::whitePiecesCount() const {
     return __builtin_popcount(whiteBitboard & 0xffffffff);
 }
