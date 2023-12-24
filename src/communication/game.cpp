@@ -95,6 +95,21 @@ piece_move Move::getSubMove(unsigned int index) {
     return (static_cast<unsigned int>(direction) << 5) + startPos;
 }
 
+piece_move Move::getPieceMove() const {
+    unsigned int startPos = path[0].indexFromPos();
+    if(rotated)
+        startPos = 31-startPos;
+    piece_move pieceMove = startPos;
+    for(unsigned int i = 1; i<path.size(); i++){
+        Direction direction = path[i-1].getDirection(path[i]);
+        if(rotated)
+            direction = path[i].getDirection(path[i-1]);
+
+        pieceMove |= (static_cast<unsigned int>(direction) << (i*3 + 2));
+    }
+    return pieceMove;
+}
+
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
@@ -402,6 +417,12 @@ void Game::reset(const GameState& state) {
 
 const GameState& Game::getGameState() const {
     return gameHistory.back();
+}
+
+std::ostream& operator<<(std::ostream& os, const GameState& gameState) {
+    os << (gameState.nextBlack ? "black" : "white") << '\n';
+    os<<gameState.board;
+    return os;
 }
 
 void Game::makeMove(piece_move pieceMove, bool final) {

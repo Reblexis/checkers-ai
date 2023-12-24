@@ -73,7 +73,7 @@ void App::drawWindow(const Game &game, const UI &ui){
     window.display();
 }
 
-void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent> agent2, UI &ui) {
+void App::gameLoop(Game &game, const Agent* agent1, const Agent* agent2, UI &ui) {
     std::vector<Move> possibleMoves;
     int currentSubMove = 1;
     bool newMove = true;
@@ -190,9 +190,4 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
 void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
-    Game game{};
-    UI ui;
-    Agent agent1(AGENTS_PATH / "agent1");
-    Agent agent2(AGENTS_PATH / "agent2");
-    gameLoop(game, agent1, std::nullopt, ui);
 }

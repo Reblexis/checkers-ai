@@ -43,7 +43,7 @@ public:
     void drawPieces(const Board &board);
     void drawUI(const UI &ui);
     void drawWindow(const Game &game, const UI &ui);
-    void gameLoop(Game& game, std::optional<Agent> agent1, std::optional<Agent> agent2, UI &ui);
+    void gameLoop(Game& game, const Agent* agent1, const Agent* agent2, UI &ui);
     void launch();
 
 private:

@@ -13,8 +13,8 @@
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
-#define APP
-//#define TOURNAMENT
+//#define APP
+#define TOURNAMENT
 
 int main()
 {
@@ -28,13 +28,9 @@ int main()
     app.launch();
 #endif
 #ifdef TOURNAMENT
-    Tournament tournament;
-    Agent agent1(AGENTS_PATH / "agent1");
-    Agent agent2(AGENTS_PATH / "agent2");
-    Agent agent3(AGENTS_PATH / "agent3");
-    Agent agent4(AGENTS_PATH / "agent4");
-    Agent agent5(AGENTS_PATH / "agent5");
-    Agent agent6(AGENTS_PATH / "agent6");
+    Tournament tournament(true);
+    HyperparametersAgent agent1 = HyperparametersAgent(CURRENT_AGENT_CONFIG);
+    HyperparametersAgent agent2 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH);
     std::vector<Agent*> agents = {&agent1, &agent2};
     tournament.randomMatches(agents, 200, 6);
 #endif

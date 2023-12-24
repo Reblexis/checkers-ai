@@ -2,24 +2,30 @@
 
 #include "includes/tournament.hpp"
 
-Tournament::Tournament(){};
+Tournament::Tournament(bool visualize) : visualize(visualize) {}
 
 void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
     unsigned int moves = 0;
-    message("Starting new game!", true);
+   /* message("Starting new game!", true);
     std::cout<<"White rating: "<<whiteAgent->getRating()<<"\n";
-    std::cout<<"Black rating: "<<blackAgent->getRating()<<"\n";
-    std::cout<<game.getGameState().board<<"\n";
+    std::cout<<"Black rating: "<<blackAgent->getRating()<<"\n";*/
+    App app;
+    if(visualize){
+        app.launch();
+        app.drawWindow(game, UI({}, {}));
+    }
 
     while(!game.isFinished() && moves < MAX_MOVES){
         bool nextBlack = game.getGameState().nextBlack;
         std::pair<int, piece_move> receivedMove = nextBlack ? blackAgent->findBestMove(game) : whiteAgent->findBestMove(game);
         game.makeMove(receivedMove.second);
         moves++;
-        std::cout<<game.getGameState().board<<"\n";
+        if(visualize){
+            app.drawWindow(game, UI({}, game.getGameState().getMove(receivedMove.second).path));
+        }
     }
 
-    int whiteRating = whiteAgent->getRating();
+   /* int whiteRating = whiteAgent->getRating();
     int blackRating = blackAgent->getRating();
     double result = game.getGameState().nextBlack ? 1 : 0;
     if(moves >= MAX_MOVES){
@@ -29,9 +35,10 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
     whiteAgent->addGame(blackRating, result);
     blackAgent->addGame(whiteRating,  1 - result);
 
+
     std::cout<<"Game finished! Result: "<<result<<"\n";
     std::cout<<"White rating: "<<whiteAgent->getRating()<<"\n";
-    std::cout<<"Black rating: "<<blackAgent->getRating()<<"\n";
+    std::cout<<"Black rating: "<<blackAgent->getRating()<<"\n";*/
 }
 
 void Tournament::simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCount){

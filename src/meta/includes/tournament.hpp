@@ -8,14 +8,15 @@
 #include <vector>
 
 #include "../../ai/includes/agent.hpp"
+#include "../../app/includes/app.hpp"
 
 constexpr int MAX_MOVES = 150;
 
 class Tournament{
 private:
-
+    bool visualize;
 public:
-    Tournament();
+    Tournament(bool visualize = false);
 
     void simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game);
     void simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCount);

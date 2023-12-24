@@ -45,6 +45,7 @@ struct Move {
     std::vector<Pos> path;
     bool rotated = false;
     piece_move getSubMove(unsigned int index);
+    piece_move getPieceMove() const;
 };
 
 using position = uint8_t;
@@ -86,6 +87,8 @@ public:
     std::span<const piece_move> getAvailableMoves() const;
     Move getMove(piece_move pieceMove) const;
     std::vector<Move> getAvailableMoves2() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const GameState& obj);
 
 private:
     void calculateAvailableMoves();
