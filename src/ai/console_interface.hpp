@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#include "game.hpp"
-#include "../../ai/includes/agent.hpp"
+#include "../communication/includes/game.hpp"
+#include "includes/agent.hpp"
 
 class ConsoleInterface {
 private:

@@ -19,7 +19,7 @@ add_executable(checkers
         src/meta/statistics.cpp
 		src/meta/tournament.cpp
 		src/app/app.cpp
-		src/communication/console_interface.cpp
+        src/ai/console_interface.cpp
 		src/tests/functionality_tests.cpp
 		src/tests/performance_tests.cpp
 		src/main.cpp

@@ -9,7 +9,7 @@
 #include "communication/includes/game.hpp"
 #include "ai/includes/agent.hpp"
 #include "app/includes/app.hpp"
-#include "communication/includes/console_interface.hpp"
+#include "ai/console_interface.hpp"
 #include "meta/includes/tournament.hpp"
 
 //#define CLI

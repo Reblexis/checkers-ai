@@ -1,4 +1,4 @@
-#include "includes/console_interface.hpp"
+#include "console_interface.hpp"
 
 ConsoleInterface::ConsoleInterface(Agent *agent) : agent(agent) {}
 
