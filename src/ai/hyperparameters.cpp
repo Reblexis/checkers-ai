@@ -22,6 +22,7 @@ Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(pa
         throw std::runtime_error(std::format("Default hyperparameters file {} not found.", DEFAULT_HYPERPARAMETERS_PATH.string()));
     }
 
+    std::filesystem::create_directories(path.parent_path());
     std::ifstream input(filePath);
     if (input.is_open())
     {
