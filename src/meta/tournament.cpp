@@ -1,14 +1,20 @@
 #include <random>
+#include <utility>
 
 #include "includes/tournament.hpp"
 
-Tournament::Tournament(bool visualize) : visualize(visualize) {}
+Tournament::Tournament(std::string id, bool visualize) : id(std::move(id)), visualize(visualize)
+{
+    std::filesystem::create_directories(TOURNAMENT_LOGS_PATH / id);
+}
 
-void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
+void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) const{
     unsigned int moves = 0;
-   /* message("Starting new game!", true);
-    std::cout<<"White rating: "<<whiteAgent->getRating()<<"\n";
-    std::cout<<"Black rating: "<<blackAgent->getRating()<<"\n";*/
+    Statistics whiteStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (whiteAgent->id + ".json"));
+    Statistics blackStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (blackAgent->id + ".json"));
+    message("Starting new game!", true);
+    std::cout<<"White rating: "<<whiteStatistics.getRating()<<"\n";
+    std::cout<<"Black rating: "<<blackStatistics.getRating()<<"\n";
     App app;
     if(visualize){
         app.launch();
@@ -25,23 +31,23 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
         }
     }
 
-   /* int whiteRating = whiteAgent->getRating();
-    int blackRating = blackAgent->getRating();
+    int whiteRating = whiteStatistics.getRating();
+    int blackRating = blackStatistics.getRating();
     double result = game.getGameState().nextBlack ? 1 : 0;
     if(moves >= MAX_MOVES){
         result = 0.5;
     }
 
-    whiteAgent->addGame(blackRating, result);
-    blackAgent->addGame(whiteRating,  1 - result);
+    whiteStatistics.addGame(blackRating, result);
+    blackStatistics.addGame(whiteRating,  1 - result);
 
 
     std::cout<<"Game finished! Result: "<<result<<"\n";
-    std::cout<<"White rating: "<<whiteAgent->getRating()<<"\n";
-    std::cout<<"Black rating: "<<blackAgent->getRating()<<"\n";*/
+    std::cout<<"White rating: "<<whiteStatistics.getRating()<<"\n";
+    std::cout<<"Black rating: "<<blackStatistics.getRating()<<"\n";
 }
 
-void Tournament::simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCount){
+void Tournament::simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCount) const{
     Game game{};
     RandomSearch randomSearch;
     for(int i = 0; i < randomMovesCount; i++){
@@ -53,7 +59,7 @@ void Tournament::simulateMatch(Agent *agent1, Agent *agent2, int randomMovesCoun
     simulateGame(agent2, agent1, game2);
 }
 
-void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, int randomMovesCount = 6, std::optional<int> focusAgent){
+void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, int randomMovesCount = 6, std::optional<int> focusAgent) const{
     std::random_device rd;
     std::mt19937 g(rd());
     std::uniform_int_distribution<> dis(0, agents.size() - 1);

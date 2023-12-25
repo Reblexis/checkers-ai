@@ -28,7 +28,7 @@ void HyperparametersAgent::initialize(){
         searchAlgorithm = new RandomSearch();
 }
 
-HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperparametersPath): Agent(hyperparametersPath.string()), hyperparameters(hyperparametersPath)
+HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id): Agent(id), hyperparameters(hyperparametersPath)
 {
     initialize();
 }
@@ -42,8 +42,8 @@ std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game) const 
     std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game);
     return bestMove;
 }
-ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath)
-        : Agent(executablePath.string()), executablePath(executablePath) {
+ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, std::string id)
+        : Agent(id), executablePath(executablePath) {
     if (!std::filesystem::exists(executablePath)) {
         throw std::invalid_argument(std::format("Executable path {} does not exist.", executablePath.string()));
     }
@@ -64,32 +64,37 @@ std::string ExecutableAgent::formatInput(Game &game) {
 }
 
 std::string ExecutableAgent::runExecutable(const std::string &input) const {
-    std::string command = executablePath.string() + " 2>&1"; // Redirect stderr to stdout
-    std::array<char, 128> buffer{};
-    std::string result;
+    auto tempInputPath = std::filesystem::temp_directory_path() / "agent_input.txt";
+    auto tempOutputPath = std::filesystem::temp_directory_path() / "agent_output.txt";
 
-    FILE *pipe = popen(command.c_str(), "r+");
-    if (!pipe) throw std::runtime_error("popen() failed!");
-
-    if (fputs(input.c_str(), pipe) == EOF) {
-        pclose(pipe);
-        throw std::runtime_error("Failed to write to pipe");
+    std::ofstream inputFile(tempInputPath);
+    if (!inputFile) {
+        throw std::runtime_error("Failed to create input file");
     }
-    fflush(pipe);
+    inputFile << input;
+    inputFile.close();
 
-    for (int i = 0; i < 9; ++i) {
-        if (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
-            result += buffer.data();
-        } else {
-            pclose(pipe);
-            throw std::runtime_error("Failed to read state from pipe. Ensure your agent abides the described protocol exactly.");
-        }
+    std::string command = executablePath.string() + " < " + tempInputPath.string() + " > " + tempOutputPath.string();
+
+    int result = system(command.c_str());
+    if (result != 0) {
+        throw std::runtime_error("Failed to execute command");
     }
 
-    pclose(pipe);
+    std::ifstream outputFile(tempOutputPath);
+    if (!outputFile) {
+        throw std::runtime_error("Failed to open output file");
+    }
+    std::stringstream outputBuffer;
+    outputBuffer << outputFile.rdbuf();
+    outputFile.close();
 
-    return result;
+    std::filesystem::remove(tempInputPath);
+    std::filesystem::remove(tempOutputPath);
+
+    return outputBuffer.str();
 }
+
 std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &output) {
     std::istringstream outputStream(output);
     int numberOfPositions;

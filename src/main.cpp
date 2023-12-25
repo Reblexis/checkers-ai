@@ -19,7 +19,8 @@
 int main()
 {
 #ifdef CLI
-    Agent agent(CURRENT_AGENT_CONFIG);
+    Hyperparameters hyperparameters = Hyperparameters(CURRENT_AGENT_CONFIG);
+    HyperparametersAgent agent = HyperparametersAgent(std::move(hyperparameters), "first_agent");
     ConsoleInterface consoleInterface(&agent);
     consoleInterface.run();
 #endif
@@ -28,11 +29,12 @@ int main()
     app.launch();
 #endif
 #ifdef TOURNAMENT
-    Tournament tournament(true);
-    HyperparametersAgent agent1 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH);
+    Tournament tournament("test_tournament", true);
+    HyperparametersAgent agent1 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH, "default2");
     Hyperparameters hyperparameters = Hyperparameters(CURRENT_AGENT_CONFIG);
     HyperparametersAgent agent2 = HyperparametersAgent(std::move(hyperparameters), "default");
-    std::vector<Agent*> agents = {&agent1, &agent2};
+    ExecutableAgent agent3 = ExecutableAgent(std::filesystem::path(DATA_PATH/"agents" / "first_agent"), "first_agent");
+    std::vector<Agent*> agents = {&agent1, &agent3};
     tournament.randomMatches(agents, 200, 6);
 #endif
 }

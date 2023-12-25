@@ -6,7 +6,7 @@
 #include "hyperparameters.hpp"
 #include "search_algorithms.hpp"
 #include "evaluation.hpp"
-#include "statistics.hpp"
+#include "../../meta/includes/statistics.hpp"
 
 class Agent {
 public:
@@ -25,8 +25,8 @@ private:
     void initialize();
 public:
     HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id);
-    HyperparametersAgent(const std::filesystem::path &hyperparametersPath);
-    virtual std::pair<int, piece_move> findBestMove(Game &game) const override;
+    HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id);
+    std::pair<int, piece_move> findBestMove(Game &game) const override;
 };
 
 // Contains executable path through which moves are received by specified protocol (described in user documentation)
@@ -38,8 +38,8 @@ private:
     static std::pair<int, piece_move> parseOutput(const std::string &output);
 
 public:
-    ExecutableAgent(const std::filesystem::path &executablePath);
-    virtual std::pair<int, piece_move> findBestMove(Game &game) const override;
+    ExecutableAgent(const std::filesystem::path &executablePath, std::string id);
+    std::pair<int, piece_move> findBestMove(Game &game) const override;
 };
 
 #endif // AGENT_HPP

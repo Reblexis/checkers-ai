@@ -16,7 +16,7 @@ add_executable(checkers
 		src/ai/cache.cpp
 		src/ai/hyperparameters.cpp
 		src/ai/agent.cpp
-		src/ai/statistics.cpp
+        src/meta/statistics.cpp
 		src/meta/tournament.cpp
 		src/app/app.cpp
 		src/communication/console_interface.cpp
