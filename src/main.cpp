@@ -29,8 +29,9 @@ int main()
 #endif
 #ifdef TOURNAMENT
     Tournament tournament(true);
-    HyperparametersAgent agent1 = HyperparametersAgent(CURRENT_AGENT_CONFIG);
-    HyperparametersAgent agent2 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH);
+    HyperparametersAgent agent1 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH);
+    Hyperparameters hyperparameters = Hyperparameters(CURRENT_AGENT_CONFIG);
+    HyperparametersAgent agent2 = HyperparametersAgent(std::move(hyperparameters), "default");
     std::vector<Agent*> agents = {&agent1, &agent2};
     tournament.randomMatches(agents, 200, 6);
 #endif

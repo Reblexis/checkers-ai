@@ -43,7 +43,7 @@ const std::string CURRENT_AGENT_CONFIG = R"(
             6
     ],
     "king_value": 1,
-            "max_depth": 19,
+            "max_depth": 5,
             "operation_limit": 1000000,
             "pawn_table": [
     15,

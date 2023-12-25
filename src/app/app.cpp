@@ -73,6 +73,16 @@ void App::drawWindow(const Game &game, const UI &ui){
     window.display();
 }
 
+void App::refreshWindow(const Game &game, const UI &ui){
+    sf::Event event;
+
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed)
+            window.close();
+    }
+    drawWindow(game, ui);
+}
+
 void App::gameLoop(Game &game, const Agent* agent1, const Agent* agent2, UI &ui) {
     std::vector<Move> possibleMoves;
     int currentSubMove = 1;

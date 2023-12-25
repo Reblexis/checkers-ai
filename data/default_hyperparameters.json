@@ -12,7 +12,7 @@
         7, 7, 7, 7
     ],
     "king_value": 10,
-    "max_depth": 5,
+    "max_depth": 10,
     "operation_limit": 1000000,
     "pawn_table":
     [

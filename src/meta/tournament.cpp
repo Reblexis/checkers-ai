@@ -12,7 +12,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
     App app;
     if(visualize){
         app.launch();
-        app.drawWindow(game, UI({}, {}));
+        app.refreshWindow(game, UI({}, {}));
     }
 
     while(!game.isFinished() && moves < MAX_MOVES){
@@ -21,7 +21,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game){
         game.makeMove(receivedMove.second);
         moves++;
         if(visualize){
-            app.drawWindow(game, UI({}, game.getGameState().getMove(receivedMove.second).path));
+            app.refreshWindow(game, UI({}, game.getGameState().getMove(receivedMove.second).path));
         }
     }
 
