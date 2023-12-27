@@ -28,36 +28,38 @@ void HyperparametersAgent::initialize(){
         searchAlgorithm = new RandomSearch();
 }
 
-HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id): Agent(id), hyperparameters(hyperparametersPath)
+HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id): Agent(std::move(id)), hyperparameters(hyperparametersPath)
 {
     initialize();
 }
 
-HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(id), hyperparameters(std::move(hyperparameters))
+HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(std::move(id)), hyperparameters(std::move(hyperparameters))
 {
     initialize();
 }
 
-std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game) const {
-    std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game);
+std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game, const Timer& timer) const {
+    std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game, timer);
     return bestMove;
 }
+
 ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, std::string id)
-        : Agent(id), executablePath(executablePath) {
+        : Agent(std::move(id)), executablePath(executablePath) {
     if (!std::filesystem::exists(executablePath)) {
         throw std::invalid_argument(std::format("Executable path {} does not exist.", executablePath.string()));
     }
 }
 
-std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game) const {
-    std::string inputString = formatInput(game);
+std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer& timer) const {
+    std::string inputString = formatInput(game, timer);
     std::string output = runExecutable(inputString);
-    return parseOutput(output);
+    return parseOutput(output, game);
 }
 
-std::string ExecutableAgent::formatInput(Game &game) {
+std::string ExecutableAgent::formatInput(Game &game, const Timer& timer) {
     std::ostringstream input;
 
+    input<< timer.getRemainingTime()<<'\n';
     input<<game.getGameState();
 
     return input.str();
@@ -95,10 +97,11 @@ std::string ExecutableAgent::runExecutable(const std::string &input) const {
     return outputBuffer.str();
 }
 
-std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &output) {
+std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &output, Game &game) {
     std::istringstream outputStream(output);
     int numberOfPositions;
     Move bestMove;
+    bestMove.rotated = game.getGameState().nextBlack;
 
     outputStream >> numberOfPositions;
     for (int i = 0; i < numberOfPositions; ++i) {

@@ -83,7 +83,8 @@ void App::refreshWindow(const Game &game, const UI &ui){
     drawWindow(game, ui);
 }
 
-void App::gameLoop(Game &game, const Agent* agent1, const Agent* agent2, UI &ui) {
+void App::gameLoop(Game &game, const Agent* agent1, const Agent* agent2) {
+    UI ui({}, {});
     std::vector<Move> possibleMoves;
     int currentSubMove = 1;
     bool newMove = true;
@@ -103,9 +104,10 @@ void App::gameLoop(Game &game, const Agent* agent1, const Agent* agent2, UI &ui)
                 }
             }
         }
-        if((agent1 && game.getGameState().nextBlack) || (agent2 && !game.getGameState().nextBlack)) {
-            std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game)
-                                                                                : agent2->findBestMove(game);
+        if((agent1!=nullptr && game.getGameState().nextBlack) || (agent2!=nullptr && !game.getGameState().nextBlack)) {
+            Timer timer(1000000000);
+            std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game, timer)
+                                                                                : agent2->findBestMove(game, timer);
             ui.lastMove = game.getGameState().getMove(bestMove.second).path;
             game.makeMove(bestMove.second);
         }

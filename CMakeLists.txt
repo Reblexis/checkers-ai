@@ -10,6 +10,7 @@ include_directories(libs)
 
 add_executable(checkers
 		src/communication/debugging.cpp
+		src/meta/timer.cpp
 		src/communication/game.cpp
 		src/ai/search_algorithms.cpp
 		src/ai/evaluation.cpp

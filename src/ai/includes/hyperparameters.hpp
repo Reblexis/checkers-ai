@@ -25,16 +25,14 @@ const std::string KING_TABLE_ID = "king_table";
 const std::string PAWN_TABLE_ID = "pawn_table";
 
 const std::string USE_ALPHA_BETA_ID = "use_alpha_beta";
-constexpr int USE_ALPHA_BETA = 1;
 
 const std::string MAX_DEPTH_ID = "max_depth";
 
 const std::string USE_CACHE_ID = "use_cache";
-constexpr int USE_CACHE = 1;
 
 const std::string REORDER_MOVES_ID = "reorder_moves";
 
-const std::string OPERATION_LIMIT_ID = "operation_limit";
+const std::string MOVE_TIME_LIMIT_ID= "move_time_limit";
 const std::string DEBUG_BIT_ID = "debug_bit";
 
 class Hyperparameters

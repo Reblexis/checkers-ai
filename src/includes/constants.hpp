@@ -44,7 +44,7 @@ const std::string CURRENT_AGENT_CONFIG = R"(
     ],
     "king_value": 1,
             "max_depth": 5,
-            "operation_limit": 1000000,
+            "move_time_limit": 10000,
             "pawn_table": [
     15,
             15,
@@ -80,9 +80,10 @@ const std::string CURRENT_AGENT_CONFIG = R"(
             10
     ],
     "pawn_value": 1,
-            "search_algorithm": 2,
+            "search_algorithm": 1,
             "use_alpha_beta": true,
-            "use_cache": false
+            "use_cache": false,
+            "reorder_moves": false
 }
 )";
 #endif

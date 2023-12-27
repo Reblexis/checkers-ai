@@ -9,7 +9,7 @@
 #include "communication/includes/game.hpp"
 #include "ai/includes/agent.hpp"
 #include "app/includes/app.hpp"
-#include "ai/console_interface.hpp"
+#include "ai/includes/console_interface.hpp"
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
@@ -26,15 +26,20 @@ int main()
 #endif
 #ifdef APP
     App app;
+    ExecutableAgent agent = ExecutableAgent(std::filesystem::path(DATA_PATH/"agents" / "first_agent"), "first_agent");
     app.launch();
+    Game game{};
+    HyperparametersAgent agent1 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH, "default2");
+    app.gameLoop(game, &agent, nullptr);
 #endif
 #ifdef TOURNAMENT
-    Tournament tournament("test_tournament", true);
+    Tournament tournament("test_tournament", false);
     HyperparametersAgent agent1 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH, "default2");
     Hyperparameters hyperparameters = Hyperparameters(CURRENT_AGENT_CONFIG);
     HyperparametersAgent agent2 = HyperparametersAgent(std::move(hyperparameters), "default");
     ExecutableAgent agent3 = ExecutableAgent(std::filesystem::path(DATA_PATH/"agents" / "first_agent"), "first_agent");
-    std::vector<Agent*> agents = {&agent1, &agent3};
-    tournament.randomMatches(agents, 200, 6);
+    HyperparametersAgent agent4 = HyperparametersAgent(DATA_PATH / "agents" / "random_agent.json", "random_agent");
+    std::vector<Agent*> agents = {&agent3, &agent4};
+    tournament.randomMatches(agents, 200);
 #endif
 }

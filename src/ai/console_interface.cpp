@@ -1,8 +1,10 @@
-#include "console_interface.hpp"
+#include "includes/console_interface.hpp"
 
 ConsoleInterface::ConsoleInterface(Agent *agent) : agent(agent) {}
 
 void ConsoleInterface::run(){
+    int timeLeft; // in milliseconds
+    std::cin>>timeLeft;
     std::string color;
     std::cin>>color;
 
@@ -33,7 +35,9 @@ void ConsoleInterface::run(){
     GameState gameState(board, nextBlack);
     Game game(gameState);
 
-    std::pair<int, piece_move> bestMove = agent->findBestMove(game);
+    Timer timer(timeLeft);
+    timer.resume();
+    std::pair<int, piece_move> bestMove = agent->findBestMove(game, timer);
     game.makeMove(bestMove.second);
 
     Move madeMove = gameState.getMove(bestMove.second);

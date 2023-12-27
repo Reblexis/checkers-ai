@@ -8,7 +8,7 @@
 #include <functional>
 #include <iostream>
 
-#define CHECK_VALID_MOVES false
+#define CHECK_VALID_MOVES true
 
 constexpr int NUM_SQUARES = 32;
 

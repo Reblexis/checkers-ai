@@ -3,6 +3,7 @@
 
 #include "../../communication/includes/debugging.hpp"
 #include "../../communication/includes/game.hpp"
+#include "../../meta/includes/timer.hpp"
 #include "hyperparameters.hpp"
 #include "cache.hpp"
 #include "evaluation.hpp"
@@ -11,7 +12,7 @@
 
 class SearchAlgorithm {
 public:
-    virtual std::pair<int, piece_move> findBestMove(Game &game) = 0;
+    virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) = 0;
     virtual ~SearchAlgorithm() = default;
 };
 
@@ -21,35 +22,32 @@ private:
     bool useCache;
     bool reorderMoves;
     int maxDepth;
-    int operationLimit;
-    int curOperations;
+    long long moveTimeLimit; // Milliseconds
     Evaluation &evaluation;
     Cache<> cache; // Assuming template specialization if needed
 
 public:
     Minimax(Hyperparameters &hyperparameters, Evaluation &evaluation);
-    std::pair<int, piece_move> minimax(Game &game, int leftDepth, int alpha = INT32_MIN, int beta = INT32_MAX);
-    std::pair<int, piece_move> findBestMove(Game &game) override;
-    void resetOperations();
+    std::pair<int, piece_move> minimax(Game &game, const Timer& timer, int leftDepth, int alpha = INT32_MIN, int beta = INT32_MAX);
+    std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) override;
     void setMaxDepth(int newDepth);
-    void setOperationLimit(int newLimit);
 };
 
 class IterativeMinimax : public SearchAlgorithm {
 private:
     Minimax minimax;
     int maxDepth;
-    int operationLimit;
+    long long moveTimeLimit;
 
 public:
     IterativeMinimax(Hyperparameters &hyperparameters, Evaluation &evaluation);
-    std::pair<int, piece_move> findBestMove(Game &game) override;
+    std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) override;
 };
 
 class RandomSearch : public SearchAlgorithm {
 public:
     RandomSearch();
-    std::pair<int, piece_move> findBestMove(Game &game) override;
+    std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) override;
 };
 
 #endif // SEARCH_ALGORITHM_HPP

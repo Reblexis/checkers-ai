@@ -20,10 +20,11 @@ class Statistics{
 private:
     const std::filesystem::path filePath;
     nlohmann::json data;
+    void load();
+    void save() const;
 public:
     Statistics(const std::filesystem::path &path);
-    void save() const;
-    int getRating() const;
+    int getRating();
     void addGame(int enemyRating, double result);
 };
 
