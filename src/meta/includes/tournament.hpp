@@ -13,7 +13,7 @@
 
 const std::filesystem::path TOURNAMENT_LOGS_PATH = DATA_PATH / "tournament_logs/";
 
-constexpr int MAX_MOVES = 150;
+constexpr int MAX_MOVES = 200;
 
 class Tournament{
 private:
@@ -22,7 +22,7 @@ private:
     int timeLimit;
     int randomStartMoves;
 public:
-    Tournament(std::string id, bool visualize = false, int timeLimit = 120, int randomStartMoves = 6);
+    Tournament(std::string id, bool visualize = false, int timeLimit = 60, int randomStartMoves = 6);
 
     void simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) const;
     void simulateMatch(Agent *agent1, Agent *agent2) const;

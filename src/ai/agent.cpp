@@ -12,9 +12,20 @@
 #include "includes/hyperparameters.hpp"
 #include "includes/search_algorithms.hpp"
 
-Agent::Agent(std::string id) : id(std::move(id)) {}
+Agent::Agent(std::string id) : id(std::move(id)) {
+    pipe(inpipe_fd);
+    pipe(outpipe_fd);
+
+    subprocess_pid = fork();
+    if(subprocess_pid == 0)
+        setuid(1001);
+}
+
 
 void HyperparametersAgent::initialize(){
+    if(subprocess_pid == 0){
+        exit(0);
+    }
     if(hyperparameters.get<int>(EVALUATION_ALGORITHM_ID) == USE_ADVANCED_EVALUATION)
         evaluation = new AdvancedEvaluation(hyperparameters);
     else
@@ -38,7 +49,11 @@ HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, st
     initialize();
 }
 
-std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game, const Timer& timer) const {
+void HyperparametersAgent::runInBackground() {
+
+}
+
+std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game, const Timer& timer) {
     std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game, timer);
     return bestMove;
 }
@@ -48,11 +63,18 @@ ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, st
     if (!std::filesystem::exists(executablePath)) {
         throw std::invalid_argument(std::format("Executable path {} does not exist.", executablePath.string()));
     }
+
+    if (subprocess_pid == 0) {
+        runInBackground();
+    } else {
+        close(inpipe_fd[0]);
+        close(outpipe_fd[1]);
+    }
 }
 
-std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer& timer) const {
-    std::string inputString = formatInput(game, timer);
-    std::string output = runExecutable(inputString);
+std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer &timer){
+    std::string input = formatInput(game, timer);
+    std::string output = communicateWithSubprocess(input);
     return parseOutput(output, game);
 }
 
@@ -97,6 +119,20 @@ std::string ExecutableAgent::runExecutable(const std::string &input) const {
     return outputBuffer.str();
 }
 
+std::string ExecutableAgent::communicateWithSubprocess(const std::string& input) {
+    write(inpipe_fd[1], input.c_str(), input.size());
+
+    std::string output;
+    std::array<char, 256> buffer{};
+    ssize_t bytes_read = read(outpipe_fd[0], buffer.data(), buffer.size() - 1);
+    if (bytes_read > 0) {
+        buffer[bytes_read] = '\0';
+        output = buffer.data();
+    }
+
+    return output;
+}
+
 std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &output, Game &game) {
     std::istringstream outputStream(output);
     int numberOfPositions;
@@ -111,4 +147,17 @@ std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &outpu
     }
 
     return {0, bestMove.getPieceMove()};
+}
+
+void ExecutableAgent::runInBackground() {
+    dup2(inpipe_fd[0], STDIN_FILENO);
+    dup2(outpipe_fd[1], STDOUT_FILENO);
+
+    close(inpipe_fd[0]);
+    close(inpipe_fd[1]);
+    close(outpipe_fd[0]);
+    close(outpipe_fd[1]);
+
+    execl(executablePath.c_str(), executablePath.c_str(), (char *)NULL);
+    exit(1);
 }

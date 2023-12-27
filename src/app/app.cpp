@@ -83,7 +83,7 @@ void App::refreshWindow(const Game &game, const UI &ui){
     drawWindow(game, ui);
 }
 
-void App::gameLoop(Game &game, const Agent* agent1, const Agent* agent2) {
+void App::gameLoop(Game &game, Agent* agent1, Agent* agent2) {
     UI ui({}, {});
     std::vector<Move> possibleMoves;
     int currentSubMove = 1;

@@ -44,7 +44,7 @@ public:
     void drawUI(const UI &ui);
     void drawWindow(const Game &game, const UI &ui);
     void refreshWindow(const Game &game, const UI &ui);
-    void gameLoop(Game& game, const Agent* agent1, const Agent* agent2);
+    void gameLoop(Game& game, Agent* agent1, Agent* agent2);
     void launch();
 
 private:

@@ -2,16 +2,16 @@
 #include <iostream>
 
 Timer::Timer(long long milliseconds)
-        : leftTime(milliseconds),
+        : leftTime(std::chrono::milliseconds(milliseconds)),
           isRunning(false), lastStartTime(std::chrono::steady_clock::now())
 {}
 
 void Timer::update() {
-    auto now = std::chrono::steady_clock::now();
-    lastStartTime = now;
     if(!isRunning)
-        return;
-    leftTime -= now - lastStartTime;
+        lastStartTime = std::chrono::steady_clock::now();
+    auto now = std::chrono::steady_clock::now();
+    leftTime -= std::chrono::duration_cast<std::chrono::milliseconds>(now - lastStartTime);
+    lastStartTime = now;
 }
 
 void Timer::reset(long long milliseconds) {
@@ -30,7 +30,7 @@ void Timer::pause() {
 }
 
 long long Timer::getRemainingTime() const {
-    long long remainingTime = leftTime.count();
+    long long remainingTime = std::chrono::duration_cast<std::chrono::milliseconds>(leftTime).count();
     if(isRunning)
         remainingTime -= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastStartTime).count();
     return remainingTime;

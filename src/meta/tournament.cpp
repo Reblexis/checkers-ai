@@ -20,9 +20,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     Statistics whiteStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (whiteAgent->id + ".json"));
     Statistics blackStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (blackAgent->id + ".json"));
     message("Starting new game!", true);
-    std::cout<<whiteAgent->id<<" vs "<<blackAgent->id<<"\n";
-    std::cout<<"White rating: "<<whiteStatistics.getRating()<<"\n";
-    std::cout<<"Black rating: "<<blackStatistics.getRating()<<"\n";
+    std::cout<<std::format("{} (white, rating: {}) vs {} (black, rating: {})\n", whiteAgent->id, whiteStatistics.getRating(), blackAgent->id, blackStatistics.getRating());
 
     Timer timerWhite(timeLimit * 1000);
     Timer timerBlack(timeLimit * 1000);
@@ -42,6 +40,9 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
         timer->resume();
         std::pair<int, piece_move> receivedMove = nextBlack ? blackAgent->findBestMove(game, *timer) : whiteAgent->findBestMove(game, *timer);
         timer->pause();
+
+        std::cout<< std::format("White agent (id: {}) has {} ms left.\n", whiteAgent->id, timerWhite.getRemainingTime());
+        std::cout<< std::format("Black agent (id: {}) has {} ms left.\n", blackAgent->id, timerBlack.getRemainingTime());
         if(timer->isFinished()){
             std::cout<<"Time limit exceeded!\n";
             break;
