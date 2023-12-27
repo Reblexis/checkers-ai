@@ -12,7 +12,7 @@
         12, 12, 12, 12
     ],
     "king_value": 1,
-    "max_depth": 10,
+    "max_depth": 20,
     "pawn_table":
     [
         0, 0, 0, 0,
@@ -26,7 +26,7 @@
     ],
     "pawn_value": 1,
     "search_algorithm": 2,
-    "move_time_limit": 1000,
+    "move_time_limit": 500,
     "use_alpha_beta": true,
     "use_cache": true,
     "reorder_moves": false
