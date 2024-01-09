@@ -18,6 +18,7 @@ public:
     int outpipe_fd[2];
 
     explicit Agent(std::string id);
+    virtual void newGame() = 0;
     virtual void runInBackground() = 0;
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) = 0; // Pure virtual function
 };
@@ -34,6 +35,7 @@ private:
 public:
     HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id);
     HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id);
+    void newGame() override;
     std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) override;
 };
 
@@ -51,6 +53,7 @@ private:
 public:
     ExecutableAgent(const std::filesystem::path &executablePath, std::string id);
     std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) override;
+    void newGame() override;
 };
 
 #endif // AGENT_HPP

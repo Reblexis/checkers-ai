@@ -49,6 +49,10 @@ HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, st
     initialize();
 }
 
+void HyperparametersAgent::newGame() {
+
+}
+
 void HyperparametersAgent::runInBackground() {
 
 }
@@ -147,6 +151,10 @@ std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &outpu
     }
 
     return {0, bestMove.getPieceMove()};
+}
+
+void ExecutableAgent::newGame() {
+    
 }
 
 void ExecutableAgent::runInBackground() {

@@ -13,8 +13,8 @@
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
-//#define APP
-#define TOURNAMENT
+#define APP
+//#define TOURNAMENT
 
 int main()
 {
@@ -26,18 +26,19 @@ int main()
 #endif
 #ifdef APP
     App app;
-    ExecutableAgent agent = ExecutableAgent(std::filesystem::path(DATA_PATH/"agents" / "first_agent"), "first_agent");
+    HyperparametersAgent agent = HyperparametersAgent(AGENTS_PATH/"basic_agent.json", "basic_agent");
     app.launch();
     Game game{};
-    HyperparametersAgent agent1 = HyperparametersAgent(DEFAULT_HYPERPARAMETERS_PATH, "default2");
     app.gameLoop(game, &agent, nullptr);
 #endif
 #ifdef TOURNAMENT
-    Tournament tournament("fight_test", true, 60, 6);
+    Tournament tournament("fight_test", true, 60, 0);
     HyperparametersAgent agent1 = HyperparametersAgent(AGENTS_PATH/"random_agent.json", "random_agent");
     HyperparametersAgent agent2 = HyperparametersAgent(AGENTS_PATH/"basic_agent.json", "basic_agent");
+    ExecutableAgent muj = ExecutableAgent(AGENTS_PATH/"basic_agent", "basic_agent");
+    ExecutableAgent patrik = ExecutableAgent(AGENTS_PATH/"patrikuv_bot", "patrik");
     HyperparametersAgent agent3 = HyperparametersAgent(AGENTS_PATH/"basic_agent_no_cache.json", "basic_agent_no_cache");
-    std::vector<Agent*> agents = {&agent1, &agent2};
+    std::vector<Agent*> agents = {&patrik, &muj};
     tournament.randomMatches(agents, 200);
 #endif
 }
