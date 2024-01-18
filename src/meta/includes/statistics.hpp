@@ -1,7 +1,7 @@
 #ifndef STATISTICS_HPP
 #define STATISTICS_HPP
 
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 #include <filesystem>
 
 #include "../../includes/constants.hpp"
@@ -20,10 +20,11 @@ class Statistics{
 private:
     const std::filesystem::path filePath;
     nlohmann::json data;
+    void load();
+    void save() const;
 public:
     Statistics(const std::filesystem::path &path);
-    void save() const;
-    int getRating() const;
+    int getRating();
     void addGame(int enemyRating, double result);
 };
 

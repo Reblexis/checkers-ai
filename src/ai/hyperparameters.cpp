@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <utility>
+#include <format>
 #include "../includes/constants.hpp"
 
 Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(path)
@@ -18,7 +19,7 @@ Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(pa
         defaultInput.close();
     }
     else{
-        throw std::runtime_error("Default hyperparameters file not found");
+        throw std::runtime_error(std::format("Default hyperparameters file {} not found.", DEFAULT_HYPERPARAMETERS_PATH.string()));
     }
 
     std::filesystem::create_directories(path.parent_path());

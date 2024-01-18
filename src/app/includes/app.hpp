@@ -43,8 +43,9 @@ public:
     void drawPieces(const Board &board);
     void drawUI(const UI &ui);
     void drawWindow(const Game &game, const UI &ui);
-    void gameLoop(Game& game, std::optional<Agent> agent1, std::optional<Agent> agent2, UI &ui);
-    void launch(std::optional<Agent> &agent1, std::optional<Agent> &agent2);
+    void refreshWindow(const Game &game, const UI &ui);
+    void gameLoop(Game& game, Agent* agent1, Agent* agent2);
+    void launch();
 
 private:
     sf::RenderWindow window;

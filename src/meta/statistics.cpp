@@ -25,6 +25,16 @@ Statistics::Statistics(const std::filesystem::path &path): filePath(path)
     }
 }
 
+void Statistics::load()
+{
+    std::ifstream input(filePath);
+    if (input.is_open())
+    {
+        input >> data;
+        input.close();
+    }
+}
+
 void Statistics::save() const
 {
     std::ofstream output(filePath);
@@ -33,16 +43,18 @@ void Statistics::save() const
         output << std::setw(4) << data << std::endl;
         output.close();
     }
-    std::cout<<"Saving statistics from "<<filePath<<"\n";
 }
 
-int Statistics::getRating() const
+int Statistics::getRating()
 {
+    load();
     return data[RATING_ID].get<int>();
 }
 
 void Statistics::addGame(const int enemyRating, double result)
 {
+    load();
+
     data[GAMES_ID] = data[GAMES_ID].get<int>() + 1;
     if(result >= 0.9)
         data[WINS_ID] = data[WINS_ID].get<int>() + 1;

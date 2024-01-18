@@ -5,18 +5,14 @@
 #include "../communication/includes/game.hpp"
 
 Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
-        : evaluation(eval), cache()
+        : evaluation(eval), cache(), maxDepth(hyperparameters.get<int>(MAX_DEPTH_ID)), useAlphaBeta(hyperparameters.get<bool>(USE_ALPHA_BETA_ID)),
+        useCache(hyperparameters.get<bool>(USE_CACHE_ID)), reorderMoves(hyperparameters.get<bool>(REORDER_MOVES_ID)),
+        moveTimeLimit(hyperparameters.get<long long>(MOVE_TIME_LIMIT_ID))
 {
-    useAlphaBeta = hyperparameters.get<bool>(USE_ALPHA_BETA_ID);
-    useCache = hyperparameters.get<bool>(USE_CACHE_ID);
-    reorderMoves = hyperparameters.get<bool>(REORDER_MOVES_ID);
-    maxDepth = hyperparameters.get<int>(MAX_DEPTH_ID);
-    operationLimit = INT32_MAX;
 }
 
-std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha, int beta)
+std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int leftDepth, int alpha, int beta)
 {
-    curOperations++;
     const GameState& gameState = game.getGameState();
 
     bool maximizing = gameState.nextBlack;
@@ -70,12 +66,12 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
 
     for(piece_move nextMove: possibleMoves)
     {
-        if(curOperations >= operationLimit)
+        if(timer.isFinished())
             break;
 
         game.makeMove(nextMove);
 
-        std::pair<int, piece_move> moveInfo = minimax(game, leftDepth-1, alpha, beta);
+        std::pair<int, piece_move> moveInfo = minimax(game, timer, leftDepth-1, alpha, beta);
 
         if(maximizing ? moveInfo.first > bestScore : moveInfo.first < bestScore)
         {
@@ -100,21 +96,16 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, int leftDepth, int alpha
     if(useCache)
         cache.set(gameState, leftDepth, bestScore, bestMove);
 
-    if(curOperations >= operationLimit)
-        return {maximizing ? INT32_MIN+1 : INT32_MAX-1, 0};
+    if(timer.isFinished())
+        return {maximizing ? INT32_MIN+1 : INT32_MAX-1, bestMove};
 
     return {bestScore, bestMove};
 }
 
-std::pair<int, piece_move> Minimax::findBestMove(Game &game)
+std::pair<int, piece_move> Minimax::findBestMove(Game &game, const Timer& timer)
 {
-    resetOperations();
-    return minimax(game, maxDepth);
-}
-
-void Minimax::resetOperations()
-{
-    curOperations = 0;
+    Timer localTimer = Timer(std::min(moveTimeLimit, timer.getRemainingTime()));
+    return minimax(game, localTimer, maxDepth);
 }
 
 void Minimax::setMaxDepth(int newDepth)
@@ -122,36 +113,33 @@ void Minimax::setMaxDepth(int newDepth)
     maxDepth = newDepth;
 }
 
-void Minimax::setOperationLimit(int newLimit)
-{
-    operationLimit = newLimit;
-}
-
 IterativeMinimax::IterativeMinimax(Hyperparameters &hyperparameters, Evaluation &eval)
-        : minimax(hyperparameters, eval)
+        : minimax(hyperparameters, eval), maxDepth(hyperparameters.get<int>(MAX_DEPTH_ID)),
+        moveTimeLimit(hyperparameters.get<long long>(MOVE_TIME_LIMIT_ID))
 {
-    maxDepth = hyperparameters.get<int>(MAX_DEPTH_ID);
-    operationLimit = hyperparameters.get<int>(OPERATION_LIMIT_ID);
-    minimax.setOperationLimit(operationLimit);
 }
 
-std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
+std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Timer& timer)
 {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
     const GameState& gameState = game.getGameState();
 
     std::pair<int, piece_move> bestMove;
     bestMove.first = gameState.nextBlack ? INT32_MIN : INT32_MAX;
-    minimax.resetOperations();
+    bestMove.second = 0;
+
+    Timer localTimer = Timer(std::min(moveTimeLimit, timer.getRemainingTime()/4));
+    localTimer.resume();
 
     for(int i = 1; i <= maxDepth; i++)
     {
-        std::pair<int, piece_move> candidate = minimax.minimax(game, i);
-        if(candidate.second != 0)
+        std::pair<int, piece_move> candidate = minimax.minimax(game, localTimer, i);
+        if(candidate.second != 0 && !localTimer.isFinished())
             bestMove = candidate;
 
-        if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0)
+        if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0 || localTimer.isFinished())
         {
-            std::cout<<"Breaking at depth "<<i<<std::endl;
             break;
         }
     }
@@ -159,9 +147,9 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game)
     return bestMove;
 }
 
-RandomSearch::RandomSearch() {}
+RandomSearch::RandomSearch() = default;
 
-std::pair<int, piece_move> RandomSearch::findBestMove(Game &game)
+std::pair<int, piece_move> RandomSearch::findBestMove(Game &game, const Timer& timer)
 {
     const GameState& gameState = game.getGameState();
     std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();

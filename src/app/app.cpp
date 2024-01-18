@@ -1,5 +1,4 @@
 #include "includes/app.hpp"
-#include <chrono>
 
 PieceSprite::PieceSprite(Piece piece)
         : sf::CircleShape((float)TILE_SIZE / 2.3f),  // Adjusting for a small border
@@ -74,7 +73,18 @@ void App::drawWindow(const Game &game, const UI &ui){
     window.display();
 }
 
-void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent> agent2, UI &ui) {
+void App::refreshWindow(const Game &game, const UI &ui){
+    sf::Event event;
+
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed)
+            window.close();
+    }
+    drawWindow(game, ui);
+}
+
+void App::gameLoop(Game &game, Agent* agent1, Agent* agent2) {
+    UI ui({}, {});
     std::vector<Move> possibleMoves;
     int currentSubMove = 1;
     bool newMove = true;
@@ -94,14 +104,10 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
                 }
             }
         }
-        if((agent1 && game.getGameState().nextBlack) || (agent2 && !game.getGameState().nextBlack)) {
-            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-            std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game)
-                                                                                : agent2->findBestMove(game);
-            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-            std::cout<<"Elapsed time in milliseconds : "
-                     << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
-                     << " ms"<<std::endl;
+        if((agent1!=nullptr && game.getGameState().nextBlack) || (agent2!=nullptr && !game.getGameState().nextBlack)) {
+            Timer timer(1000000000);
+            std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game, timer)
+                                                                                : agent2->findBestMove(game, timer);
             ui.lastMove = game.getGameState().getMove(bestMove.second).path;
             game.makeMove(bestMove.second);
         }
@@ -193,10 +199,7 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
     }
 }
 
-void App::launch(std::optional<Agent> &agent1, std::optional<Agent> &agent2) {
+void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
-    Game game{};
-    UI ui;
-    gameLoop(game, agent1, agent2, ui);
 }

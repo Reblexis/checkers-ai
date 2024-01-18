@@ -95,6 +95,21 @@ piece_move Move::getSubMove(unsigned int index) {
     return (static_cast<unsigned int>(direction) << 5) + startPos;
 }
 
+piece_move Move::getPieceMove() const {
+    unsigned int startPos = path[0].indexFromPos();
+    if(rotated)
+        startPos = 31-startPos;
+    piece_move pieceMove = startPos;
+    for(unsigned int i = 1; i<path.size(); i++){
+        Direction direction = path[i-1].getDirection(path[i]);
+        if(rotated)
+            direction = path[i].getDirection(path[i-1]);
+
+        pieceMove |= (static_cast<unsigned int>(direction) << (i*3 + 2));
+    }
+    return pieceMove;
+}
+
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
@@ -404,17 +419,22 @@ const GameState& Game::getGameState() const {
     return gameHistory.back();
 }
 
+std::ostream& operator<<(std::ostream& os, const GameState& gameState) {
+    os << (gameState.nextBlack ? "black" : "white") << '\n';
+    os<<gameState.board;
+    return os;
+}
+
 void Game::makeMove(piece_move pieceMove, bool final) {
     // Final indicates whether the sub-move is the last one of the whole move (with multiple jumps there is only one final sub-move)
 
 #if CHECK_VALID_MOVES
-    piece_move  orig_move = pieceMove;
-    std::cout<<gameHistory.back().getMove(orig_move)<<std::endl;
-    std::cout<<gameHistory.back().board<<std::endl;
+    if (std::find(gameHistory.back().getAvailableMoves().begin(), gameHistory.back().getAvailableMoves().end(), pieceMove) == gameHistory.back().getAvailableMoves().end()) {
+        throw std::runtime_error("Invalid move. Move not in available moves.");
+    }
 #endif
     if (pieceMove == 0) {
-        std::cout << "Invalid move. No move present.\n";
-        return;
+        throw std::runtime_error("Invalid move. Move is 0.");
     }
 
     unsigned int currentPos = pieceMove & 0x1f;
@@ -440,30 +460,11 @@ void Game::makeMove(piece_move pieceMove, bool final) {
             else
                 throw std::runtime_error("Invalid direction.");
 
-#if CHECK_VALID_MOVES
-            if(currentPos > 31)
-                throw std::runtime_error("Invalid move. Move out of bounds. " + std::to_string(currentPos) + ".");
-            if((controlBitboard)&(1ll<<currentPos))
-                throw std::runtime_error("Invalid move. Friendly piece present at " + std::to_string(currentPos) + ".");
-            if(static_cast<int>(direction)>=3 && !isKing)
-            {
-                throw std::runtime_error("Invalid move. Non-king piece moving backwards with piece move=" + std::to_string(orig_move) + ".");
-            }
-            else if (static_cast<int>(direction)>4||static_cast<int>(direction)==0)
-                throw std::runtime_error("Invalid direction.");
-#endif
             if(enemyBitboard & (1ll<<currentPos))
                 enemyBitboard &= (~((1ll<<currentPos) | (1ll<<(currentPos+32))));
             else
                 break;
         }
-
-#if CHECK_VALID_MOVES
-        if(currentPos > 31)
-            throw std::runtime_error("Invalid move. Move out of bounds after jump. " + std::to_string(currentPos));
-        if((controlBitboard|enemyBitboard)&(1ll<<currentPos))
-            throw std::runtime_error("Invalid move. Incorrect jump. Piece present at " + std::to_string(currentPos) + ".");
-#endif
 
         if (king_row(currentPos))
             isKing = true;
