@@ -1,4 +1,5 @@
 #include "includes/app.hpp"
+#include <chrono>
 
 PieceSprite::PieceSprite(Piece piece)
         : sf::CircleShape((float)TILE_SIZE / 2.3f),  // Adjusting for a small border
@@ -94,8 +95,13 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
             }
         }
         if((agent1 && game.getGameState().nextBlack) || (agent2 && !game.getGameState().nextBlack)) {
+            std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
             std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game)
                                                                                 : agent2->findBestMove(game);
+            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+            std::cout<<"Elapsed time in milliseconds : "
+                     << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
+                     << " ms"<<std::endl;
             ui.lastMove = game.getGameState().getMove(bestMove.second).path;
             game.makeMove(bestMove.second);
         }
@@ -187,12 +193,10 @@ void App::gameLoop(Game &game, std::optional<Agent> agent1, std::optional<Agent>
     }
 }
 
-void App::launch() {
+void App::launch(std::optional<Agent> &agent1, std::optional<Agent> &agent2) {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
     Game game{};
     UI ui;
-    Agent agent1(AGENTS_PATH / "agent1");
-    Agent agent2(AGENTS_PATH / "agent2");
-    gameLoop(game, agent1, std::nullopt, ui);
+    gameLoop(game, agent1, agent2, ui);
 }

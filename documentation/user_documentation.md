@@ -3,7 +3,7 @@ Welcome to the user documentation for the checkers project. This documentation w
 to get familiar with the project.
 
 ## App
-As a user, you have limited options to interact with the system. By default, once you build the project, you will
+As a user, you have limited options to interact with the system. By default, once you build (and launch) the project, you will
 be asked to provide paths for two agents (their folders), by default agent1 plays for the black color first. If you type: `human` instead of a path, you will be the agent. 
 Then you will be asked how many games you want to be played, to that you answer with a number.
 

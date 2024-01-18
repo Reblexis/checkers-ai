@@ -44,7 +44,7 @@ public:
     void drawUI(const UI &ui);
     void drawWindow(const Game &game, const UI &ui);
     void gameLoop(Game& game, std::optional<Agent> agent1, std::optional<Agent> agent2, UI &ui);
-    void launch();
+    void launch(std::optional<Agent> &agent1, std::optional<Agent> &agent2);
 
 private:
     sf::RenderWindow window;
