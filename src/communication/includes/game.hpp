@@ -40,7 +40,6 @@ using bitboard = uint32_t;
  */
 using piece_move = uint64_t;
 struct Move {
-    // Nice version of piece_move
     piece_move id;
     std::vector<Pos> path;
     bool rotated = false;

@@ -17,6 +17,7 @@ Currently, there is an abstraction in-place that allows for 3 different types of
 ### Protocol
 The agent executable should be able to repeatedly receive the current game state information and respond with the desired move.
 The output should contain the move that the agent wants to take.
+By default, the board orientation is set in such a way, that the white pieces are at the bottom and the black pieces are at the top of the board.
 
 #### Initial input
 First the agent should accept the following lines:
@@ -37,6 +38,5 @@ For each game loop input, the agent should respond with:
 #### Game loop output
 - **Line 1: move**. The first line will contain the move the agent wants to make.
 First number `n` will represent the amount of different positions the agent visits during the move (including the starting and ending one).
-The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the column (from 0 to 7 left to right), 
-the second number will represent the row (from 0 to 7 top to bottom).
-- **Line 2: resulting board**. The second line will contain the resulting board state after the move. The format is the same as the input format.
+The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the row (from 0 to 7 top to bottom), 
+the second number will represent the column (from 0 to 7 left to right).

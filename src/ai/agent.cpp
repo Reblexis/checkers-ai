@@ -86,7 +86,7 @@ std::string ExecutableAgent::formatInput(Game &game, const Timer& timer) {
     std::ostringstream input;
 
     input<< timer.getRemainingTime()<<'\n';
-    input<<game.getGameState();
+    input<<game.getGameState().board;
 
     return input.str();
 }
