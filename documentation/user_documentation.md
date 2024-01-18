@@ -4,30 +4,37 @@ to get familiar with the project.
 
 ## App
 As a user, you have limited options to interact with the system. By default, once you build (and launch) the project, you will
-be asked to provide paths for two agents (their folders), by default agent1 plays for the black color first. If you type: `human` instead of a path, you will be the agent. 
-Then you will be asked how many games you want to be played, to that you answer with a number.
-
-After-wards an app will open, where the games will be played. If you chose to play (by typing `human`), you will be
-able to control the pieces once it is your turn by selecting them and the target squares.
-
-After all games are finished, you will get the final statistics in the console (agent 1 wins, agent 2 wins, draws).
+be able to customize and create a tournament via console interface. You will provide basic tournament settings and also the competitors' paths or ids.
+When you are happy with the settings, you can launch the tournament and analyze their performance.
+You will have an option to visualize the matches via a graphical interface. You will also be able to specify a path to save the tournament results to for each agent individually.
 
 ## Agents
-Each agent has its own folder. In the folder, there should always be a file called `hyperparameters.json`, which controls 
-the agent's behavior (you can find an example of such file in the [data/default_hyperparameters.json](../data/default_hyperparameters.json) file) or an executable (called `agent`)
-adhering to the desired protocol.
+Currently, there is an abstraction in-place that allows for 3 different types of agents.
+- **Human**. This agent is controlled by a human player via the graphical interface. In order to specify this agent (when creating a tournament), you just need to give him a unique id.
+- **Hyperparameters agent**. This agent uses local scripts defined in this repository. The strategy that it will use is defined by the hyperparameters file that you will provide (you can find an example of such file here [default_hyperparameters.json](../data/default_hyperparameters.json)).
+- **Executable agent**. This type of agent allows for support of external agents, which may be provided in form of an executable that adheres to the specified protocol (see [Protocol](#protocol)).
 
 ### Protocol
-The agent executable should be able to receive the current game state and respond with the desired move.
-The output contains the move and the board state as well (board serves for simple reading of the new state and the move serves as a proof of the validity of the move).
+The agent executable should be able to repeatedly receive the current game state information and respond with the desired move.
+The output should contain the move that the agent wants to take.
 
-#### Input
-- **Line 1: color**. The first line will either be `black` or `white` representing for which color should the agent play.
+#### Initial input
+First the agent should accept the following lines:
+- **Line 1: color** - Either `black` or `white` representing for which color should the agent play.
+- **Line 2: time left** - The total amount of time the agent has from the start.
+
+#### Initial output
+The agent outputs nothing as of this moment.
+
+After-wards, the game starts and the game states are represented by:
+#### Game loop input
+- **Line 1: time left** - The amount of time the agent has left to make a move.
 - **Lines 2-9: board**. The next 8 lines will contain the board state. Each line will contain 8 characters separated by space, each representing
 a square on the board. The characters will be either `.` (empty square), `b` (black piece), `w` (white piece), `B` (black king), `W` (white king).
 The board is from white's perspective (white pawns can move up, black pawns can move down).
 
-#### Output
+For each game loop input, the agent should respond with:
+#### Game loop output
 - **Line 1: move**. The first line will contain the move the agent wants to make.
 First number `n` will represent the amount of different positions the agent visits during the move (including the starting and ending one).
 The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the column (from 0 to 7 left to right), 
