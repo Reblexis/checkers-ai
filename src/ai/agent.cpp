@@ -21,7 +21,6 @@ Agent::Agent(std::string id) : id(std::move(id)) {
         setuid(1001);
 }
 
-
 void HyperparametersAgent::initialize(){
     if(subprocess_pid == 0){
         exit(0);
@@ -47,10 +46,6 @@ HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperpar
 HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(std::move(id)), hyperparameters(std::move(hyperparameters))
 {
     initialize();
-}
-
-void HyperparametersAgent::newGame() {
-
 }
 
 void HyperparametersAgent::runInBackground() {
@@ -153,10 +148,6 @@ std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &outpu
     return {0, bestMove.getPieceMove()};
 }
 
-void ExecutableAgent::newGame() {
-    
-}
-
 void ExecutableAgent::runInBackground() {
     dup2(inpipe_fd[0], STDIN_FILENO);
     dup2(outpipe_fd[1], STDOUT_FILENO);
@@ -169,3 +160,26 @@ void ExecutableAgent::runInBackground() {
     execl(executablePath.c_str(), executablePath.c_str(), (char *)NULL);
     exit(1);
 }
+
+Player::Player(std::string id) : Agent(std::move(id)) {
+    pipe(inpipe_fd);
+    pipe(outpipe_fd);
+
+    subprocess_pid = fork();
+    if(subprocess_pid == 0)
+        setuid(1001);
+}
+
+void Player::runInBackground() {
+    app.launch();
+    Game game{};
+
+    bool run = true;
+    while(run):
+        app.gameLoop(game, this, nullptr);
+}
+
+std::pair<int, piece_move> Player::findBestMove(Game &game, const Timer& timer) {
+
+}
+

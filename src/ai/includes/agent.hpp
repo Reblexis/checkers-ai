@@ -7,19 +7,19 @@
 #include "search_algorithms.hpp"
 #include "evaluation.hpp"
 #include "../../meta/includes/timer.hpp"
+#include "../../app/includes/app.hpp"
 
 const std::filesystem::path AGENTS_PATH = DATA_PATH / "agents/";
 
 class Agent {
-public:
-    const std::string id;
+protected:
+    virtual void runInBackground() = 0;
     pid_t subprocess_pid;
     int inpipe_fd[2];
     int outpipe_fd[2];
-
+public:
+    const std::string id;
     explicit Agent(std::string id);
-    virtual void newGame() = 0;
-    virtual void runInBackground() = 0;
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) = 0; // Pure virtual function
 };
 
@@ -35,7 +35,6 @@ private:
 public:
     HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id);
     HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id);
-    void newGame() override;
     std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) override;
 };
 
@@ -53,7 +52,15 @@ private:
 public:
     ExecutableAgent(const std::filesystem::path &executablePath, std::string id);
     std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) override;
-    void newGame() override;
 };
 
+class Player: public Agent {
+private:
+    App app;
+    void runInBackground() override;
+
+public:
+    Player(std::string id);
+    std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) override;
+};
 #endif // AGENT_HPP
