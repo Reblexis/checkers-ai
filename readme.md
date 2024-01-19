@@ -1,5 +1,6 @@
 # Checkers AI
-This repository contains an implementation of the checkers simulateGame and agents that can play it (with many different strategies).
+This repository contains an implementation of the checkers game and agents that can play it (with many different strategies).
+It also contains a tournament system using which you can test your checkers bots or play against them.
 The project uses the following rules: https://www.officialgamerules.org/checkers .
 
 ## External libraries
