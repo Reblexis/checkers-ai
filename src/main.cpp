@@ -13,7 +13,6 @@
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
-#define APP
 //#define TOURNAMENT
 
 int main()
@@ -23,13 +22,6 @@ int main()
     HyperparametersAgent agent = HyperparametersAgent(std::move(hyperparameters), "first_agent");
     ConsoleInterface consoleInterface(&agent);
     consoleInterface.run();
-#endif
-#ifdef APP
-    App app;
-    HyperparametersAgent agent = HyperparametersAgent(AGENTS_PATH/"basic_agent.json", "basic_agent");
-    app.launch();
-    Game game{};
-    app.gameLoop(game, &agent, nullptr);
 #endif
 #ifdef TOURNAMENT
     Tournament tournament("fight_test", true, 60, 0);
