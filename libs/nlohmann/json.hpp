@@ -9,7 +9,7 @@
 /****************************************************************************\
  * Note on documentation: The source files contain links to the online      *
  * documentation of the public API at https://json.nlohmann.me. This URL    *
- * contains the most recent documentation and should also be applicable to  *
+ * contains the most recent documentation and should also be aplicable to  *
  * previous versions; documentation for deprecated functions is not         *
  * removed, but marked deprecated. See "Generate documentation" section in  *
  * file docs/README.md.                                                     *
@@ -20681,7 +20681,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     @tparam ThisType will be deduced as `basic_json` or `const basic_json`
 
-    @throw type_error.303 if ReferenceType does not simulateMatch underlying value
+    @throw type_error.303 if ReferenceType does not match underlying value
     type of the current JSON
     */
     template<typename ReferenceType, typename ThisType>
@@ -20939,7 +20939,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @liveexample{The example below shows how pointers to internal values of a
     JSON value can be requested. Note that no type conversions are made and a
     `nullptr` is returned if the value and the requested pointer type does not
-    simulateMatch.,get__PointerType}
+    match.,get__PointerType}
 
     @sa see @ref get_ptr() for explicit pointer-member access
 

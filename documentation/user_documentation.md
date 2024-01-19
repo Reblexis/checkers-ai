@@ -15,7 +15,7 @@ Currently, there is an abstraction in-place that allows for 3 different types of
 - **Executable agent**. This type of agent allows for support of external agents, which may be provided in form of an executable that adheres to the specified protocol (see [Protocol](#protocol)).
 
 ### Protocol
-The agent executable should be able to repeatedly receive the current simulateGame state information and respond with the desired move.
+The agent executable should be able to repeatedly receive the current game state information and respond with the desired move.
 The output should contain the move that the agent wants to take.
 By default, the board orientation is set in such a way, that the white pieces are at the bottom and the black pieces are at the top of the board.
 
@@ -27,14 +27,14 @@ First the agent should accept the following lines:
 #### Initial output
 The agent outputs nothing as of this moment.
 
-After-wards, the game starts and the simulateGame states are represented by:
+After-wards, the game starts and the game states are represented by:
 #### Game loop input
 - **Line 1: time left** - The amount of time the agent has left to make a move.
 - **Lines 2-9: board**. The next 8 lines will contain the board state. Each line will contain 8 characters separated by space, each representing
 a square on the board. The characters will be either `.` (empty square), `b` (black piece), `w` (white piece), `B` (black king), `W` (white king).
 The board is from white's perspective (white pawns can move up, black pawns can move down).
 
-For each simulateGame loop input, the agent should respond with:
+For each game loop input, the agent should respond with:
 #### Game loop output
 - **Line 1: move**. The first line will contain the move the agent wants to make.
 First number `n` will represent the amount of different positions the agent visits during the move (including the starting and ending one).
