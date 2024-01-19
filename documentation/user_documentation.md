@@ -38,5 +38,5 @@ For each simulateGame loop input, the agent should respond with:
 #### Game loop output
 - **Line 1: move**. The first line will contain the move the agent wants to make.
 First number `n` will represent the amount of different positions the agent visits during the move (including the starting and ending one).
-The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the row (from 0 to 7 top to bottom), 
-the second number will represent the column (from 0 to 7 left to right).
+The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the column (from 0 to 7 left to right), 
+the second number will represent the row (from 0 to 7 top to bottom).
