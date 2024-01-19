@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <array>
 #include <format>
+#include <fcntl.h>
 
 #include "../includes/constants.hpp"
 #include "includes/agent.hpp"
@@ -14,14 +15,17 @@
 
 Agent::Agent(std::string id) : id(std::move(id)) {}
 
-void Agent::initialize(long long timeLimit) {
+void Agent::initialize(long long timeLimit, bool isBlack) {
+    this->timeLimit = timeLimit;
+    this->isBlack = isBlack;
+
     pipe(inpipe_fd);
     pipe(outpipe_fd);
     subprocess_pid = fork();
 
     if (subprocess_pid == 0) {
         setuid(1001);
-        runInBackground(timeLimit);
+        runInBackground();
     } else {
         close(inpipe_fd[0]);
         close(outpipe_fd[1]);
@@ -37,7 +41,7 @@ std::string Agent::serializeGameState(Game &game, const Timer& timer) {
     return input.str();
 }
 
-void Agent::deserializeGameState(const std::string &input, Game& game, Timer& timer){
+void Agent::deserializeGameState(const std::string &input, Game& game, Timer& timer) const{
     std::istringstream inputStream(input);
 
     long long milliseconds;
@@ -45,17 +49,19 @@ void Agent::deserializeGameState(const std::string &input, Game& game, Timer& ti
     timer.reset(milliseconds);
 
     Board board(getBoardFromStream(inputStream));
-    game.addGameState(GameState(board, game.getGameState().nextBlack));
+    game.addGameState(GameState(board, isBlack));
 }
 std::string Agent::communicateWithSubprocess(const std::string& input) {
     write(inpipe_fd[1], input.c_str(), input.size());
 
     std::string output;
     std::array<char, 1024> buffer{};
-    ssize_t bytes_read = read(outpipe_fd[0], buffer.data(), buffer.size() - 1);
-    if (bytes_read > 0) {
-        buffer[bytes_read] = '\0';
-        output = buffer.data();
+    while(output.empty()) {
+        ssize_t bytes_read = read(outpipe_fd[0], buffer.data(), buffer.size() - 1);
+        if (bytes_read > 0) {
+            buffer[bytes_read] = '\0';
+            output = buffer.data();
+        }
     }
 
     return output;
@@ -92,7 +98,7 @@ std::pair<int, piece_move> Agent::findBestMove(Game &game, const Timer& timer) {
     return deserializeMove(output, game);
 }
 
-void HyperparametersAgent::initialize(long long timeLimit){
+void HyperparametersAgent::initialize(long long milliseconds, bool isBlack) {
     if(hyperparameters.get<int>(EVALUATION_ALGORITHM_ID) == USE_ADVANCED_EVALUATION)
         evaluation = new AdvancedEvaluation(hyperparameters);
     else
@@ -110,7 +116,7 @@ HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperpar
 
 HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(std::move(id)), hyperparameters(std::move(hyperparameters)){}
 
-void HyperparametersAgent::runInBackground(long long timeLimit){
+void HyperparametersAgent::runInBackground(){
 
 }
 
@@ -124,7 +130,6 @@ ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, st
     if (!std::filesystem::exists(executablePath)) {
         throw std::invalid_argument(std::format("Executable path {} does not exist.", executablePath.string()));
     }
-
 }
 
 std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer &timer){
@@ -133,8 +138,7 @@ std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer
     return deserializeMove(output, game);
 }
 
-
-void ExecutableAgent::runInBackground(long long timeLimit) {
+void ExecutableAgent::runInBackground() {
     dup2(inpipe_fd[0], STDIN_FILENO);
     dup2(outpipe_fd[1], STDOUT_FILENO);
 
@@ -149,20 +153,25 @@ void ExecutableAgent::runInBackground(long long timeLimit) {
 
 Player::Player(std::string id) : Agent(std::move(id)) {}
 
-void Player::runInBackground(long long timeLimit) {
+void Player::runInBackground() {
     App app = App();
     auto timer = Timer(timeLimit);
     app.launch();
     Game game{};
 
     std::array<char, 1024> buffer{};
+
+    // Make the input pipe non-blocking
+    int flags = fcntl(inpipe_fd[0], F_GETFL, 0);
+    fcntl(inpipe_fd[0], F_SETFL, flags | O_NONBLOCK);
+
     while(!game.isFinished())
     {
         ssize_t bytes_read = read(inpipe_fd[0], buffer.data(), buffer.size() - 1);
         if (bytes_read > 0) {
             buffer[bytes_read] = '\0';
 
-            // Convert the received string back to game state
+            // Convert the received string back to simulateGame state
             std::string receivedData(buffer.data());
             deserializeGameState(receivedData, game, timer);
 

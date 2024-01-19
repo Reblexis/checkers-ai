@@ -51,7 +51,7 @@ void ConsoleInterface::run(){
         }
         std::cout<<std::endl;
 
-       // std::cout<<game.getGameState().board;
+       // std::cout<<simulateGame.getGameState().board;
     }
 }
 

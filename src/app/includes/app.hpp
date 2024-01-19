@@ -40,7 +40,7 @@ public:
 class App {
 public:
     bool refresh(const Game &game);
-    Move getMove(Game &game);
+    Move getMove(Game &game, Timer& timer);
     void launch();
 
 private:

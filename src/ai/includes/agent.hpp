@@ -13,20 +13,23 @@ const std::filesystem::path AGENTS_PATH = DATA_PATH / "agents/";
 
 class Agent {
 protected:
-    virtual void runInBackground(long long timeLimit) = 0;
+    long long timeLimit;
+    bool isBlack;
+
+    virtual void runInBackground() = 0;
     pid_t subprocess_pid;
     int inpipe_fd[2];
     int outpipe_fd[2];
 
     static std::string serializeGameState(Game &game, const Timer &timer);
-    void deserializeGameState(const std::string &input, Game &game, Timer &timer);
+    void deserializeGameState(const std::string &input, Game &game, Timer &timer) const;
     std::string communicateWithSubprocess(const std::string& input);
     static std::string serializeMove(const Move &move);
     static std::pair<int, piece_move> deserializeMove(const std::string &input, Game &game);
 public:
     const std::string id;
     explicit Agent(std::string id);
-    void initialize(long long timeLimit);
+    void initialize(long long timeLimit, bool isBlack);
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer);
 };
 
@@ -36,8 +39,8 @@ private:
     Hyperparameters hyperparameters;
     Evaluation *evaluation;
     SearchAlgorithm *searchAlgorithm;
-    void initialize(long long timeLimit);
-    void runInBackground(long long timeLimit) override;
+    void initialize(long long timeLimit, bool isBlack);
+    void runInBackground() override;
 
 public:
     HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id);
@@ -50,8 +53,7 @@ class ExecutableAgent : public Agent {
 private:
     const std::filesystem::path executablePath;
 
-    std::string runExecutable(const std::string &input) const;
-    void runInBackground(long long timeLimit) override;
+    void runInBackground() override;
 
 public:
     ExecutableAgent(const std::filesystem::path &executablePath, std::string id);
@@ -60,10 +62,9 @@ public:
 
 class Player: public Agent {
 private:
-    void runInBackground(long long timeLimit) override;
+    void runInBackground() override;
 
 public:
     Player(std::string id);
-    std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) override;
 };
 #endif // AGENT_HPP

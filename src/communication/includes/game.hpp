@@ -40,7 +40,7 @@ using bitboard = uint32_t;
  */
 using piece_move = uint64_t;
 struct Move {
-    piece_move id;
+    piece_move id=0;
     std::vector<Pos> path;
     bool rotated = false;
     piece_move getSubMove(unsigned int index);

@@ -20681,7 +20681,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     @tparam ThisType will be deduced as `basic_json` or `const basic_json`
 
-    @throw type_error.303 if ReferenceType does not match underlying value
+    @throw type_error.303 if ReferenceType does not simulateMatch underlying value
     type of the current JSON
     */
     template<typename ReferenceType, typename ThisType>
@@ -20939,7 +20939,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @liveexample{The example below shows how pointers to internal values of a
     JSON value can be requested. Note that no type conversions are made and a
     `nullptr` is returned if the value and the requested pointer type does not
-    match.,get__PointerType}
+    simulateMatch.,get__PointerType}
 
     @sa see @ref get_ptr() for explicit pointer-member access
 

@@ -74,7 +74,7 @@ void App::drawWindow(const Game &game){
 }
 
 bool App::refresh(const Game &game){
-    sf::Event event;
+    sf::Event event{};
 
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed){
@@ -87,7 +87,7 @@ bool App::refresh(const Game &game){
     return true;
 }
 
-Move App::getMove(Game &game){
+Move App::getMove(Game &game, Timer &timer){
     std::vector<Move> possibleMoves = game.getGameState().getAvailableMoves2();
     int currentSubMove = 1;
 
@@ -143,6 +143,8 @@ Move App::getMove(Game &game){
                 }
                 else{
                     ui.selectedSquare = std::nullopt;
+                    ui.lastMove.clear();
+                    ui.possibleMoves.clear();
                     return madeMove.value();
                 }
             }
@@ -167,14 +169,15 @@ Move App::getMove(Game &game){
                     ui.selectedSquare = std::nullopt;
                 }
             }
-            mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
         }
-
+        mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
         refresh(game);
     }
-};
+    return {};
+}
 
 void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
     window.setFramerateLimit(60);
+    ui = UI();
 }

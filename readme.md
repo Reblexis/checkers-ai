@@ -1,5 +1,5 @@
 # Checkers AI
-This repository contains an implementation of the checkers game and agents that can play it (with many different strategies).
+This repository contains an implementation of the checkers simulateGame and agents that can play it (with many different strategies).
 The project uses the following rules: https://www.officialgamerules.org/checkers .
 
 ## External libraries
@@ -19,7 +19,7 @@ cmake --build . --config Release
 ```
 
 ## Current state
-- [x] Implemented the rules of the game into move generation
+- [x] Implemented the rules of the simulateGame into move generation
 - [x] Agent using iterative-deepening, alpha-beta pruning, cache and move reordering
 - [x] Simple state evaluation algorithm
 - [x] Visualization of moves in the console

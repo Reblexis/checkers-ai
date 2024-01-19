@@ -13,7 +13,7 @@
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
-//#define TOURNAMENT
+#define TOURNAMENT
 
 int main()
 {
@@ -25,10 +25,10 @@ int main()
 #endif
 #ifdef TOURNAMENT
     Tournament tournament("fight_test", true, 60, 0);
-    HyperparametersAgent agent1 = HyperparametersAgent(AGENTS_PATH/"random_agent.json", "random_agent");
-    HyperparametersAgent agent2 = HyperparametersAgent(AGENTS_PATH/"basic_agent.json", "basic_agent");
-    ExecutableAgent muj = ExecutableAgent(AGENTS_PATH/"basic_agent", "basic_agent");
-    HyperparametersAgent agent3 = HyperparametersAgent(AGENTS_PATH/"basic_agent_no_cache.json", "basic_agent_no_cache");
-    tournament.randomMatches(agents, 200);
+    Player player1("player1");
+    Player player2("player2");
+    player1.initialize(60 * 1000, true);
+    player2.initialize(60 * 1000, false);
+    tournament.simulateMatch(&player2, &player1);
 #endif
 }

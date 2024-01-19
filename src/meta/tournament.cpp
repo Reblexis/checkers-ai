@@ -19,7 +19,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     unsigned int moves = 0;
     Statistics whiteStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (whiteAgent->id + ".json"));
     Statistics blackStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (blackAgent->id + ".json"));
-    message("Starting new game!", true);
+    message("Starting new simulateGame!", true);
     std::cout<<std::format("{} (white, rating: {}) vs {} (black, rating: {})\n", whiteAgent->id, whiteStatistics.getRating(), blackAgent->id, blackStatistics.getRating());
 
     Timer timerWhite(timeLimit * 1000);
@@ -30,7 +30,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     App app;
     if(visualize){
         app.launch();
-        app.refreshWindow(game, UI({}, {}));
+        app.refresh(game);
     }
 
     while(!game.isFinished() && moves < MAX_MOVES){
@@ -51,7 +51,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
         game.makeMove(receivedMove.second);
         moves++;
         if(visualize){
-            app.refreshWindow(game, UI({}, game.getGameState().getMove(receivedMove.second).path));
+            app.refresh(game);
         }
     }
 
@@ -89,7 +89,7 @@ void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, std::op
     std::uniform_int_distribution<> dis(0, agents.size() - 1);
 
     for(int i = 0; i < matches; i++){
-        message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
+        message("Starting simulateMatch " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
 
         int agent1Index = focusAgent.value_or(dis(g));
         int agent2Index = dis(g);
