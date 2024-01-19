@@ -19,7 +19,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     unsigned int moves = 0;
     Statistics whiteStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (whiteAgent->id + ".json"));
     Statistics blackStatistics = Statistics(TOURNAMENT_LOGS_PATH / id / (blackAgent->id + ".json"));
-    message("Starting new simulateGame!", true);
+    message("Starting new game!", true);
     std::cout<<std::format("{} (white, rating: {}) vs {} (black, rating: {})\n", whiteAgent->id, whiteStatistics.getRating(), blackAgent->id, blackStatistics.getRating());
 
     Timer timerWhite(timeLimit * 1000);

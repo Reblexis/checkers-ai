@@ -13,8 +13,8 @@
 #include "meta/includes/tournament.hpp"
 
 //#define CLI
-//#define TOURNAMENT
-#define TESTS
+#define TOURNAMENT
+//#define TESTS
 
 int main()
 {
@@ -70,10 +70,10 @@ int main()
     tournament.roundRobin(agents);
 #endif
 #ifdef TESTS
-    Tournament tournament("test", false, 60, 0);
+    Tournament tournament("test", true, 60, 0);
     std::vector<Agent *> agents;
     agents.push_back(new HyperparametersAgent("/home/cihalvi/src/checkers/data/default_hyperparameters.json", "agent1"));
-    agents.push_back(new Player( "agent2"));
+    agents.push_back(new ExecutableAgent("/home/cihalvi/src/checkers/data/agents/executable_agent/checkers", "agent2"));
     tournament.roundRobin(agents);
 #endif
 }

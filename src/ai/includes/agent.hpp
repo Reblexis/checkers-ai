@@ -23,7 +23,7 @@ protected:
 
     static std::string serializeGameState(Game &game, const Timer &timer);
     void deserializeGameState(const std::string &input, Game &game, Timer &timer) const;
-    std::string communicateWithSubprocess(const std::string& input, const Timer& timer);
+    std::string communicateWithSubprocess(const std::string& input, const Timer& timer, bool receiveOutput = true);
     static std::string serializeMove(const Move &move);
     static std::pair<int, piece_move> deserializeMove(const std::string &input, Game &game);
 public:

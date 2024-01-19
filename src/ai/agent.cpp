@@ -30,6 +30,7 @@ void Agent::initialize(long long timeLimit, bool isBlack) {
     } else {
         close(inpipe_fd[0]);
         close(outpipe_fd[1]);
+        communicateWithSubprocess(std::format("{}\n{}\n", timeLimit, (isBlack?"black":"white")), Timer(timeLimit), false);
     }
 }
 
@@ -52,12 +53,12 @@ void Agent::deserializeGameState(const std::string &input, Game& game, Timer& ti
     Board board(getBoardFromStream(inputStream));
     game.addGameState(GameState(board, isBlack));
 }
-std::string Agent::communicateWithSubprocess(const std::string& input, const Timer& timer) {
+std::string Agent::communicateWithSubprocess(const std::string& input, const Timer& timer, bool receiveOutput) {
     write(inpipe_fd[1], input.c_str(), input.size());
 
     std::string output;
     std::array<char, 1024> buffer{};
-    while(output.empty()&&!timer.isFinished()) {
+    while(output.empty()&&!timer.isFinished()&&receiveOutput){
         ssize_t bytes_read = read(outpipe_fd[0], buffer.data(), buffer.size() - 1);
         if (bytes_read > 0) {
             buffer[bytes_read] = '\0';
@@ -169,11 +170,25 @@ void ExecutableAgent::runInBackground() {
 
 Player::Player(std::string id) : Agent(std::move(id)) {}
 
+std::string readLine(int pipe)
+{
+    std::string line;
+    char c;
+    while(read(pipe, &c, 1) > 0 && c != '\n')
+    {
+        line.push_back(c);
+    }
+    return line;
+}
+
 void Player::runInBackground() {
     App app = App();
     app.launch("player_controls_id_" + id);
     auto timer = Timer(timeLimit);
     Game game{};
+
+    readLine(inpipe_fd[0]);
+    readLine(inpipe_fd[0]);
 
     std::array<char, 1024> buffer{};
 
