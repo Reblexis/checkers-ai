@@ -50,7 +50,7 @@ void App::highlightField(Pos pos, sf::Color color)
     window.draw(selectedSquare);
 }
 
-void App::drawUI(const UI &ui) {
+void App::drawUI() {
     if (ui.selectedSquare) {
         highlightField(*(ui.selectedSquare), SELECTED_TILE_COLOR);
 
@@ -65,139 +65,114 @@ void App::drawUI(const UI &ui) {
     }
 }
 
-void App::drawWindow(const Game &game, const UI &ui){
+void App::drawWindow(const Game &game){
     window.clear();
     drawBoard(game.getGameState().board);
-    drawUI(ui);
+    drawUI();
     drawPieces(game.getGameState().board);
     window.display();
 }
 
-void App::refreshWindow(const Game &game, const UI &ui){
+bool App::refresh(const Game &game){
     sf::Event event;
 
     while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed)
+        if (event.type == sf::Event::Closed){
             window.close();
+            return false;
+        }
+        if(event.type == sf::Event::KeyPressed){}
     }
-    drawWindow(game, ui);
+    drawWindow(game);
+    return true;
 }
 
-void App::gameLoop(Game &game, Agent* agent1, Agent* agent2) {
-    UI ui({}, {});
-    std::vector<Move> possibleMoves;
+Move App::getMove(Game &game){
+    std::vector<Move> possibleMoves = game.getGameState().getAvailableMoves2();
     int currentSubMove = 1;
-    bool newMove = true;
+
     bool mousePressed = false;
 
-    while (window.isOpen()) {
-        sf::Event event;
+    while(window.isOpen()){
+        /*
+         * Allows the human to select a piece and then select a destination for it. If there is forced jump it forces the human to select the next move.
+         */
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!mousePressed&&window.hasFocus()){
+            sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+            Pos highlightedPiecePos(mousePosition.x / TILE_SIZE, mousePosition.y / TILE_SIZE);
 
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-            if(event.type == sf::Event::KeyPressed){
-                if(event.key.code == sf::Keyboard::R)
+            bool isMove = false;
+            for (auto move : ui.possibleMoves)
+            {
+                if (move == highlightedPiecePos)
                 {
-                    game = Game(GameState(Board(0xfff00000, 0xfff), true));
-                    newMove = true;
+                    isMove = true;
                 }
             }
-        }
-        if((agent1!=nullptr && game.getGameState().nextBlack) || (agent2!=nullptr && !game.getGameState().nextBlack)) {
-            Timer timer(1000000000);
-            std::pair<int, piece_move> bestMove = game.getGameState().nextBlack ? agent1->findBestMove(game, timer)
-                                                                                : agent2->findBestMove(game, timer);
-            ui.lastMove = game.getGameState().getMove(bestMove.second).path;
-            game.makeMove(bestMove.second);
-        }
-        else {
-            if(newMove) {
-                possibleMoves = game.getGameState().getAvailableMoves2();
-                currentSubMove = 1;
-                newMove = false;
-            }
-            /*
-             *Human-controlled
-             * Allows the human to select a piece and then select a destination for it. If there is forced jump it forces the human to select the next move.
-             */
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!mousePressed&&window.hasFocus()){
-                sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-                Pos highlightedPiecePos(mousePosition.x / TILE_SIZE, mousePosition.y / TILE_SIZE);
-
-                bool isMove = false;
-                for (auto move : ui.possibleMoves)
+            if(isMove)
+            {
+                std::vector<Move> newPossibilities;
+                std::optional<Move> madeMove;
+                ui.possibleMoves.clear();
+                for(auto move : possibleMoves)
                 {
-                    if (move == highlightedPiecePos)
+                    if(move.path[currentSubMove] == highlightedPiecePos && (move.path[currentSubMove-1] == ui.selectedSquare || currentSubMove > 1))
                     {
-                        isMove = true;
+                        madeMove = move;
+                        if(move.path.size() > currentSubMove + 1)
+                        {
+                            newPossibilities.emplace_back(move);
+                            ui.possibleMoves.push_back(move.path[currentSubMove+1]);
+                        }
                     }
                 }
-                if(isMove)
+                if(!madeMove)
+                    throw std::runtime_error("No fitting move found!");
+
+                game.makeMove(madeMove->getSubMove(currentSubMove-1),  newPossibilities.empty());
+                possibleMoves = newPossibilities;
+                if(currentSubMove == 1){
+                    ui.lastMove = madeMove->path;
+                }
+                else
+                    ui.lastMove.push_back(highlightedPiecePos);
+
+                if(!possibleMoves.empty())
                 {
-                    std::vector<Move> newPossibilities;
-                    std::optional<Move> madeMove;
+                    currentSubMove++;
+                }
+                else{
+                    ui.selectedSquare = std::nullopt;
+                    return madeMove.value();
+                }
+            }
+            else if(currentSubMove == 1){
+                std::optional <Piece> piece = game.getGameState().board.getAt(highlightedPiecePos);
+
+                if (piece)
+                {
+                    ui.selectedSquare = highlightedPiecePos;
                     ui.possibleMoves.clear();
                     for(auto move : possibleMoves)
                     {
-                        if(move.path[currentSubMove] == highlightedPiecePos && (move.path[currentSubMove-1] == ui.selectedSquare || currentSubMove > 1))
+                        if(move.path[0] == highlightedPiecePos)
                         {
-                            madeMove = move;
-                            if(move.path.size() > currentSubMove + 1)
-                            {
-                                newPossibilities.emplace_back(move);
-                                ui.possibleMoves.push_back(move.path[currentSubMove+1]);
-                            }
+                            ui.possibleMoves.push_back(move.path[1]);
                         }
                     }
-                    if(!madeMove)
-                        throw std::runtime_error("No fitting move found!");
-
-                    game.makeMove(madeMove->getSubMove(currentSubMove-1),  newPossibilities.empty());
-                    possibleMoves = newPossibilities;
-                    if(currentSubMove == 1){
-                        ui.lastMove = madeMove->path;
-                    }
-                    else
-                        ui.lastMove.push_back(highlightedPiecePos);
-
-                    if(!possibleMoves.empty())
-                    {
-                        currentSubMove++;
-                    }
-                    else{
-                        newMove = true;
-                        ui.selectedSquare = std::nullopt;
-                    }
                 }
-                else if(currentSubMove == 1){
-                    std::optional <Piece> piece = game.getGameState().board.getAt(highlightedPiecePos);
-
-                    if (piece)
-                    {
-                        ui.selectedSquare = highlightedPiecePos;
-                        ui.possibleMoves.clear();
-                        for(auto move : possibleMoves)
-                        {
-                            if(move.path[0] == highlightedPiecePos)
-                            {
-                                ui.possibleMoves.push_back(move.path[1]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ui.possibleMoves.clear();
-                        ui.selectedSquare = std::nullopt;
-                    }
+                else
+                {
+                    ui.possibleMoves.clear();
+                    ui.selectedSquare = std::nullopt;
                 }
-           }
+            }
             mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
         }
 
-        drawWindow(game, ui);
+        refresh(game);
     }
-}
+};
 
 void App::launch() {
     window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");

@@ -36,9 +36,7 @@ int main()
     HyperparametersAgent agent1 = HyperparametersAgent(AGENTS_PATH/"random_agent.json", "random_agent");
     HyperparametersAgent agent2 = HyperparametersAgent(AGENTS_PATH/"basic_agent.json", "basic_agent");
     ExecutableAgent muj = ExecutableAgent(AGENTS_PATH/"basic_agent", "basic_agent");
-    ExecutableAgent patrik = ExecutableAgent(AGENTS_PATH/"patrikuv_bot", "patrik");
     HyperparametersAgent agent3 = HyperparametersAgent(AGENTS_PATH/"basic_agent_no_cache.json", "basic_agent_no_cache");
-    std::vector<Agent*> agents = {&patrik, &muj};
     tournament.randomMatches(agents, 200);
 #endif
 }

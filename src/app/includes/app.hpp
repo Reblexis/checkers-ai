@@ -39,17 +39,18 @@ public:
 
 class App {
 public:
-    void drawBoard(const Board &board);
-    void drawPieces(const Board &board);
-    void drawUI(const UI &ui);
-    void drawWindow(const Game &game, const UI &ui);
-    void refreshWindow(const Game &game, const UI &ui);
-    void gameLoop(Game& game, Agent* agent1, Agent* agent2);
+    bool refresh(const Game &game);
+    Move getMove(Game &game);
     void launch();
 
 private:
     sf::RenderWindow window;
+    UI ui;
 
+    void drawWindow(const Game &game);
+    void drawUI();
+    void drawBoard(const Board &board);
+    void drawPieces(const Board &board);
     void highlightField(Pos pos, sf::Color color);
 };
 
