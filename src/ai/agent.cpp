@@ -12,72 +12,23 @@
 #include "includes/hyperparameters.hpp"
 #include "includes/search_algorithms.hpp"
 
-Agent::Agent(std::string id) : id(std::move(id)) {
+Agent::Agent(std::string id) : id(std::move(id)) {}
+
+void Agent::initialize(long long timeLimit) {
     pipe(inpipe_fd);
     pipe(outpipe_fd);
-
     subprocess_pid = fork();
-    if(subprocess_pid == 0)
-        setuid(1001);
-}
-
-void HyperparametersAgent::initialize(){
-    if(subprocess_pid == 0){
-        exit(0);
-    }
-    if(hyperparameters.get<int>(EVALUATION_ALGORITHM_ID) == USE_ADVANCED_EVALUATION)
-        evaluation = new AdvancedEvaluation(hyperparameters);
-    else
-        evaluation = new BasicEvaluation(hyperparameters);
-
-    if(hyperparameters.get<int>(SEARCH_ALGORITHM_ID) == USE_MINIMAX)
-        searchAlgorithm = new Minimax(hyperparameters, *evaluation);
-    else if(hyperparameters.get<int>(SEARCH_ALGORITHM_ID) == USE_ITERATIVE_MINIMAX)
-        searchAlgorithm = new IterativeMinimax(hyperparameters, *evaluation);
-    else
-        searchAlgorithm = new RandomSearch();
-}
-
-HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id): Agent(std::move(id)), hyperparameters(hyperparametersPath)
-{
-    initialize();
-}
-
-HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(std::move(id)), hyperparameters(std::move(hyperparameters))
-{
-    initialize();
-}
-
-void HyperparametersAgent::runInBackground() {
-
-}
-
-std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game, const Timer& timer) {
-    std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game, timer);
-    return bestMove;
-}
-
-ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, std::string id)
-        : Agent(std::move(id)), executablePath(executablePath) {
-    if (!std::filesystem::exists(executablePath)) {
-        throw std::invalid_argument(std::format("Executable path {} does not exist.", executablePath.string()));
-    }
 
     if (subprocess_pid == 0) {
-        runInBackground();
+        setuid(1001);
+        runInBackground(timeLimit);
     } else {
         close(inpipe_fd[0]);
         close(outpipe_fd[1]);
     }
 }
 
-std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer &timer){
-    std::string input = formatInput(game, timer);
-    std::string output = communicateWithSubprocess(input);
-    return parseOutput(output, game);
-}
-
-std::string ExecutableAgent::formatInput(Game &game, const Timer& timer) {
+std::string Agent::serializeGameState(Game &game, const Timer& timer) {
     std::ostringstream input;
 
     input<< timer.getRemainingTime()<<'\n';
@@ -86,43 +37,21 @@ std::string ExecutableAgent::formatInput(Game &game, const Timer& timer) {
     return input.str();
 }
 
-std::string ExecutableAgent::runExecutable(const std::string &input) const {
-    auto tempInputPath = std::filesystem::temp_directory_path() / "agent_input.txt";
-    auto tempOutputPath = std::filesystem::temp_directory_path() / "agent_output.txt";
+void Agent::deserializeGameState(const std::string &input, Game& game, Timer& timer){
+    std::istringstream inputStream(input);
 
-    std::ofstream inputFile(tempInputPath);
-    if (!inputFile) {
-        throw std::runtime_error("Failed to create input file");
-    }
-    inputFile << input;
-    inputFile.close();
+    long long milliseconds;
+    inputStream>>milliseconds;
+    timer.reset(milliseconds);
 
-    std::string command = executablePath.string() + " < " + tempInputPath.string() + " > " + tempOutputPath.string();
-
-    int result = system(command.c_str());
-    if (result != 0) {
-        throw std::runtime_error("Failed to execute command");
-    }
-
-    std::ifstream outputFile(tempOutputPath);
-    if (!outputFile) {
-        throw std::runtime_error("Failed to open output file");
-    }
-    std::stringstream outputBuffer;
-    outputBuffer << outputFile.rdbuf();
-    outputFile.close();
-
-    std::filesystem::remove(tempInputPath);
-    std::filesystem::remove(tempOutputPath);
-
-    return outputBuffer.str();
+    Board board(getBoardFromStream(inputStream));
+    game.addGameState(GameState(board, game.getGameState().nextBlack));
 }
-
-std::string ExecutableAgent::communicateWithSubprocess(const std::string& input) {
+std::string Agent::communicateWithSubprocess(const std::string& input) {
     write(inpipe_fd[1], input.c_str(), input.size());
 
     std::string output;
-    std::array<char, 256> buffer{};
+    std::array<char, 1024> buffer{};
     ssize_t bytes_read = read(outpipe_fd[0], buffer.data(), buffer.size() - 1);
     if (bytes_read > 0) {
         buffer[bytes_read] = '\0';
@@ -132,8 +61,17 @@ std::string ExecutableAgent::communicateWithSubprocess(const std::string& input)
     return output;
 }
 
-std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &output, Game &game) {
-    std::istringstream outputStream(output);
+std::string Agent::serializeMove(const Move &move) {
+    std::ostringstream outputStream;
+    outputStream << move.path.size() << " ";
+    for (Pos pos: move.path) {
+        outputStream << pos.x << " " << pos.y << " ";
+    }
+    return outputStream.str();
+}
+
+std::pair<int, piece_move> Agent::deserializeMove(const std::string &input, Game &game) {
+    std::istringstream outputStream(input);
     int numberOfPositions;
     Move bestMove;
     bestMove.rotated = game.getGameState().nextBlack;
@@ -148,7 +86,55 @@ std::pair<int, piece_move> ExecutableAgent::parseOutput(const std::string &outpu
     return {0, bestMove.getPieceMove()};
 }
 
-void ExecutableAgent::runInBackground() {
+std::pair<int, piece_move> Agent::findBestMove(Game &game, const Timer& timer) {
+    std::string input = serializeGameState(game, timer);
+    std::string output = communicateWithSubprocess(input);
+    return deserializeMove(output, game);
+}
+
+void HyperparametersAgent::initialize(long long timeLimit){
+    if(hyperparameters.get<int>(EVALUATION_ALGORITHM_ID) == USE_ADVANCED_EVALUATION)
+        evaluation = new AdvancedEvaluation(hyperparameters);
+    else
+        evaluation = new BasicEvaluation(hyperparameters);
+
+    if(hyperparameters.get<int>(SEARCH_ALGORITHM_ID) == USE_MINIMAX)
+        searchAlgorithm = new Minimax(hyperparameters, *evaluation);
+    else if(hyperparameters.get<int>(SEARCH_ALGORITHM_ID) == USE_ITERATIVE_MINIMAX)
+        searchAlgorithm = new IterativeMinimax(hyperparameters, *evaluation);
+    else
+        searchAlgorithm = new RandomSearch();
+}
+
+HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperparametersPath, std::string id): Agent(std::move(id)), hyperparameters(hyperparametersPath){}
+
+HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(std::move(id)), hyperparameters(std::move(hyperparameters)){}
+
+void HyperparametersAgent::runInBackground(long long timeLimit){
+
+}
+
+std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game, const Timer& timer) {
+    std::pair<int, piece_move> bestMove = searchAlgorithm->findBestMove(game, timer);
+    return bestMove;
+}
+
+ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, std::string id)
+        : Agent(std::move(id)), executablePath(executablePath) {
+    if (!std::filesystem::exists(executablePath)) {
+        throw std::invalid_argument(std::format("Executable path {} does not exist.", executablePath.string()));
+    }
+
+}
+
+std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer &timer){
+    std::string input = serializeGameState(game, timer);
+    std::string output = communicateWithSubprocess(input);
+    return deserializeMove(output, game);
+}
+
+
+void ExecutableAgent::runInBackground(long long timeLimit) {
     dup2(inpipe_fd[0], STDIN_FILENO);
     dup2(outpipe_fd[1], STDOUT_FILENO);
 
@@ -161,25 +147,32 @@ void ExecutableAgent::runInBackground() {
     exit(1);
 }
 
-Player::Player(std::string id) : Agent(std::move(id)) {
-    pipe(inpipe_fd);
-    pipe(outpipe_fd);
+Player::Player(std::string id) : Agent(std::move(id)) {}
 
-    subprocess_pid = fork();
-    if(subprocess_pid == 0)
-        setuid(1001);
-}
-
-void Player::runInBackground() {
+void Player::runInBackground(long long timeLimit) {
+    App app = App();
+    auto timer = Timer(timeLimit);
     app.launch();
     Game game{};
 
-    bool run = true;
-    while(run):
-        app.gameLoop(game, this, nullptr);
-}
+    std::array<char, 1024> buffer{};
+    while(!game.isFinished())
+    {
+        ssize_t bytes_read = read(inpipe_fd[0], buffer.data(), buffer.size() - 1);
+        if (bytes_read > 0) {
+            buffer[bytes_read] = '\0';
 
-std::pair<int, piece_move> Player::findBestMove(Game &game, const Timer& timer) {
+            // Convert the received string back to game state
+            std::string receivedData(buffer.data());
+            deserializeGameState(receivedData, game, timer);
 
+            Move move = app.getMove(game, timer);
+
+            // Now send the best move back to the main process, if necessary
+            std::string serializedMove = serializeMove(move);
+            write(outpipe_fd[1], serializedMove.c_str(), serializedMove.size());
+        }
+        app.refresh(game);
+    }
 }
 

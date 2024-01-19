@@ -13,14 +13,21 @@ const std::filesystem::path AGENTS_PATH = DATA_PATH / "agents/";
 
 class Agent {
 protected:
-    virtual void runInBackground() = 0;
+    virtual void runInBackground(long long timeLimit) = 0;
     pid_t subprocess_pid;
     int inpipe_fd[2];
     int outpipe_fd[2];
+
+    static std::string serializeGameState(Game &game, const Timer &timer);
+    void deserializeGameState(const std::string &input, Game &game, Timer &timer);
+    std::string communicateWithSubprocess(const std::string& input);
+    static std::string serializeMove(const Move &move);
+    static std::pair<int, piece_move> deserializeMove(const std::string &input, Game &game);
 public:
     const std::string id;
     explicit Agent(std::string id);
-    virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer) = 0; // Pure virtual function
+    void initialize(long long timeLimit);
+    virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer);
 };
 
 // Contains agent controlled by hyperparameters and local scripts
@@ -29,8 +36,8 @@ private:
     Hyperparameters hyperparameters;
     Evaluation *evaluation;
     SearchAlgorithm *searchAlgorithm;
-    void initialize();
-    void runInBackground() override;
+    void initialize(long long timeLimit);
+    void runInBackground(long long timeLimit) override;
 
 public:
     HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id);
@@ -43,11 +50,8 @@ class ExecutableAgent : public Agent {
 private:
     const std::filesystem::path executablePath;
 
-    static std::string formatInput(Game &game, const Timer &timer);
     std::string runExecutable(const std::string &input) const;
-    static std::pair<int, piece_move> parseOutput(const std::string &output, Game &game);
-    void runInBackground() override;
-    std::string communicateWithSubprocess(const std::string& input);
+    void runInBackground(long long timeLimit) override;
 
 public:
     ExecutableAgent(const std::filesystem::path &executablePath, std::string id);
@@ -56,8 +60,7 @@ public:
 
 class Player: public Agent {
 private:
-    App app;
-    void runInBackground() override;
+    void runInBackground(long long timeLimit) override;
 
 public:
     Player(std::string id);

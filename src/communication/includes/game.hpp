@@ -76,6 +76,8 @@ private:
     static bitboard_all reverseBoard(bitboard_all boardToReverse) ;
 };
 
+Board getBoardFromStream(std::istream& inputStream);
+
 struct GameState {
 public:
     const Board board;

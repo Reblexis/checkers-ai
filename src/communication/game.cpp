@@ -113,6 +113,23 @@ piece_move Move::getPieceMove() const {
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
+Board getBoardFromStream(std::istream& is){
+    bitboard_all whiteBitboard = 0;
+    bitboard_all blackBitboard = 0;
+
+    for(unsigned long long i = 0; i<32; i++)
+    {
+        char c;
+        is>>c;
+        whiteBitboard |= (long long)(tolower(c) == 'w') << i;
+        whiteBitboard |= (long long)(c == 'W') << (i + 32);
+        blackBitboard |= (long long)(tolower(c) == 'b') << i;
+        blackBitboard |= (long long)(c == 'B') << (i + 32);
+    }
+
+    return {whiteBitboard, blackBitboard};
+}
+
 std::optional<Piece> Board::getAt(Pos piecePos) const
 {
     // Compressed means that 0<x<4 and 0<y<8 meaning that we only consider the fields where any piece can even stand
