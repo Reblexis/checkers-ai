@@ -23,12 +23,14 @@ protected:
 
     static std::string serializeGameState(Game &game, const Timer &timer);
     void deserializeGameState(const std::string &input, Game &game, Timer &timer) const;
-    std::string communicateWithSubprocess(const std::string& input);
+    std::string communicateWithSubprocess(const std::string& input, const Timer& timer);
     static std::string serializeMove(const Move &move);
     static std::pair<int, piece_move> deserializeMove(const std::string &input, Game &game);
 public:
     const std::string id;
     explicit Agent(std::string id);
+    void die();
+    ~Agent();
     void initialize(long long timeLimit, bool isBlack);
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer);
 };

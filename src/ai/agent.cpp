@@ -6,6 +6,7 @@
 #include <array>
 #include <format>
 #include <fcntl.h>
+#include <signal.h>
 
 #include "../includes/constants.hpp"
 #include "includes/agent.hpp"
@@ -24,7 +25,7 @@ void Agent::initialize(long long timeLimit, bool isBlack) {
     subprocess_pid = fork();
 
     if (subprocess_pid == 0) {
-        setuid(1001);
+        //setuid(1001);
         runInBackground();
     } else {
         close(inpipe_fd[0]);
@@ -51,12 +52,12 @@ void Agent::deserializeGameState(const std::string &input, Game& game, Timer& ti
     Board board(getBoardFromStream(inputStream));
     game.addGameState(GameState(board, isBlack));
 }
-std::string Agent::communicateWithSubprocess(const std::string& input) {
+std::string Agent::communicateWithSubprocess(const std::string& input, const Timer& timer) {
     write(inpipe_fd[1], input.c_str(), input.size());
 
     std::string output;
     std::array<char, 1024> buffer{};
-    while(output.empty()) {
+    while(output.empty()&&!timer.isFinished()) {
         ssize_t bytes_read = read(outpipe_fd[0], buffer.data(), buffer.size() - 1);
         if (bytes_read > 0) {
             buffer[bytes_read] = '\0';
@@ -77,6 +78,9 @@ std::string Agent::serializeMove(const Move &move) {
 }
 
 std::pair<int, piece_move> Agent::deserializeMove(const std::string &input, Game &game) {
+    if(input.empty())
+        return {0, 0};
+
     std::istringstream outputStream(input);
     int numberOfPositions;
     Move bestMove;
@@ -94,8 +98,18 @@ std::pair<int, piece_move> Agent::deserializeMove(const std::string &input, Game
 
 std::pair<int, piece_move> Agent::findBestMove(Game &game, const Timer& timer) {
     std::string input = serializeGameState(game, timer);
-    std::string output = communicateWithSubprocess(input);
+    std::string output = communicateWithSubprocess(input, timer);
     return deserializeMove(output, game);
+}
+
+void Agent::die(){
+    kill(subprocess_pid, SIGTERM);
+    close(inpipe_fd[1]);
+    close(outpipe_fd[0]);
+}
+
+Agent::~Agent() {
+   die();
 }
 
 void HyperparametersAgent::initialize(long long milliseconds, bool isBlack) {
@@ -134,7 +148,7 @@ ExecutableAgent::ExecutableAgent(const std::filesystem::path &executablePath, st
 
 std::pair<int, piece_move> ExecutableAgent::findBestMove(Game &game, const Timer &timer){
     std::string input = serializeGameState(game, timer);
-    std::string output = communicateWithSubprocess(input);
+    std::string output = communicateWithSubprocess(input, timer);
     return deserializeMove(output, game);
 }
 
@@ -155,8 +169,8 @@ Player::Player(std::string id) : Agent(std::move(id)) {}
 
 void Player::runInBackground() {
     App app = App();
+    app.launch("player_controls_id_" + id);
     auto timer = Timer(timeLimit);
-    app.launch();
     Game game{};
 
     std::array<char, 1024> buffer{};
@@ -177,7 +191,6 @@ void Player::runInBackground() {
 
             Move move = app.getMove(game, timer);
 
-            // Now send the best move back to the main process, if necessary
             std::string serializedMove = serializeMove(move);
             write(outpipe_fd[1], serializedMove.c_str(), serializedMove.size());
         }

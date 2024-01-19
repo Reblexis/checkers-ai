@@ -27,8 +27,6 @@ int main()
     Tournament tournament("fight_test", true, 60, 0);
     Player player1("player1");
     Player player2("player2");
-    player1.initialize(60 * 1000, true);
-    player2.initialize(60 * 1000, false);
     tournament.simulateMatch(&player2, &player1);
 #endif
 }

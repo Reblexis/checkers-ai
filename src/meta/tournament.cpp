@@ -24,14 +24,18 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
 
     Timer timerWhite(timeLimit * 1000);
     Timer timerBlack(timeLimit * 1000);
-    timerWhite.isFinished();
-    timerBlack.isFinished();
 
+    whiteAgent->initialize(timeLimit * 1000, false);
+    blackAgent->initialize(timeLimit * 1000, true);
+
+    // TODO: fix errors related to multiple X11 calls (XInitThreads)
+    // When agent initialization is moved below this, errors start appearing
     App app;
     if(visualize){
-        app.launch();
+        app.launch("visualizer");
         app.refresh(game);
     }
+
 
     while(!game.isFinished() && moves < MAX_MOVES){
         bool nextBlack = game.getGameState().nextBlack;
@@ -54,6 +58,9 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
             app.refresh(game);
         }
     }
+
+    whiteAgent->die();
+    blackAgent->die();
 
     int whiteRating = whiteStatistics.getRating();
     int blackRating = blackStatistics.getRating();

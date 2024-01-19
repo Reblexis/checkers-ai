@@ -97,7 +97,7 @@ Move App::getMove(Game &game, Timer &timer){
         /*
          * Allows the human to select a piece and then select a destination for it. If there is forced jump it forces the human to select the next move.
          */
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!mousePressed&&window.hasFocus()){
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)&&!mousePressed){ //&&window.hasFocus()
             sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
             Pos highlightedPiecePos(mousePosition.x / TILE_SIZE, mousePosition.y / TILE_SIZE);
 
@@ -176,8 +176,8 @@ Move App::getMove(Game &game, Timer &timer){
     return {};
 }
 
-void App::launch() {
-    window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), "Checkers");
+void App::launch(const std::string& title) {
+    window.create(sf::VideoMode(BOARD_DIMENSION, BOARD_DIMENSION), title);
     window.setFramerateLimit(60);
     ui = UI();
 }

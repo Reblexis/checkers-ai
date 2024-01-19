@@ -41,7 +41,7 @@ class App {
 public:
     bool refresh(const Game &game);
     Move getMove(Game &game, Timer& timer);
-    void launch();
+    void launch(const std::string& title="Checkers");
 
 private:
     sf::RenderWindow window;
