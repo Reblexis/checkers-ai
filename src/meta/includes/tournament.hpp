@@ -27,6 +27,7 @@ public:
     void simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) const;
     void simulateMatch(Agent *agent1, Agent *agent2) const;
     void randomMatches(std::vector<Agent *> &agents, int matches, std::optional<int> focusAgent = std::nullopt) const;
+    void roundRobin(std::vector<Agent *> &agents) const;
 };
 
 #endif //CHECKERS_TOURNAMENT_HPP

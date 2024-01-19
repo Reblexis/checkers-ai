@@ -17,7 +17,7 @@ protected:
     bool isBlack;
 
     virtual void runInBackground() = 0;
-    pid_t subprocess_pid;
+    pid_t subprocess_pid=0;
     int inpipe_fd[2];
     int outpipe_fd[2];
 
@@ -31,7 +31,7 @@ public:
     explicit Agent(std::string id);
     void die();
     ~Agent();
-    void initialize(long long timeLimit, bool isBlack);
+    virtual void initialize(long long timeLimit, bool isBlack);
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer);
 };
 
@@ -41,7 +41,7 @@ private:
     Hyperparameters hyperparameters;
     Evaluation *evaluation;
     SearchAlgorithm *searchAlgorithm;
-    void initialize(long long timeLimit, bool isBlack);
+    void initialize(long long timeLimit, bool isBlack) override;
     void runInBackground() override;
 
 public:

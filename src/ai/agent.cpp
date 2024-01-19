@@ -25,7 +25,7 @@ void Agent::initialize(long long timeLimit, bool isBlack) {
     subprocess_pid = fork();
 
     if (subprocess_pid == 0) {
-        //setuid(1001);
+        //setuid(1001); //TODO: Ascertain process security
         runInBackground();
     } else {
         close(inpipe_fd[0]);
@@ -103,6 +103,8 @@ std::pair<int, piece_move> Agent::findBestMove(Game &game, const Timer& timer) {
 }
 
 void Agent::die(){
+    if(subprocess_pid == 0)
+        return;
     kill(subprocess_pid, SIGTERM);
     close(inpipe_fd[1]);
     close(outpipe_fd[0]);
@@ -131,7 +133,7 @@ HyperparametersAgent::HyperparametersAgent(const std::filesystem::path &hyperpar
 HyperparametersAgent::HyperparametersAgent(Hyperparameters &&hyperparameters, std::string id): Agent(std::move(id)), hyperparameters(std::move(hyperparameters)){}
 
 void HyperparametersAgent::runInBackground(){
-
+    exit(0);
 }
 
 std::pair<int, piece_move> HyperparametersAgent::findBestMove(Game &game, const Timer& timer) {

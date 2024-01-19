@@ -3,14 +3,18 @@
 ConsoleInterface::ConsoleInterface(Agent *agent) : agent(agent) {}
 
 void ConsoleInterface::run(){
+    long long timeLimit; // in milliseconds
+    std::cin>>timeLimit;
+    std::string color;
+    std::cin>>color;
+    bool isBlack = color == "black";
+
+    agent->initialize(timeLimit, isBlack);
+
     while(true)
     {
         int timeLeft; // in milliseconds
         std::cin>>timeLeft;
-        std::string color;
-        std::cin>>color;
-
-        bool nextBlack = color == "black";
 
         std::vector<std::string> boardState(8);
         for(unsigned int i = 0; i < 8; i++) {
@@ -34,7 +38,7 @@ void ConsoleInterface::run(){
         }
 
         Board board(whiteBitboard, blackBitboard);
-        GameState gameState(board, nextBlack);
+        GameState gameState(board, isBlack);
         Game game(gameState);
 
         Timer timer(timeLeft);

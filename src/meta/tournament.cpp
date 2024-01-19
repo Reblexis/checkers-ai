@@ -96,7 +96,7 @@ void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, std::op
     std::uniform_int_distribution<> dis(0, agents.size() - 1);
 
     for(int i = 0; i < matches; i++){
-        message("Starting simulateMatch " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
+        message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
 
         int agent1Index = focusAgent.value_or(dis(g));
         int agent2Index = dis(g);
@@ -107,6 +107,15 @@ void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, std::op
         Agent *agent2 = agents[agent2Index];
 
         simulateMatch(agent1, agent2);
+    }
+}
+
+void Tournament::roundRobin(std::vector<Agent*> &agents) const{
+    for(int i = 0; i < agents.size(); i++){
+        for(int j = i + 1; j < agents.size(); j++){
+            message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(agents.size() * (agents.size() - 1) / 2) + "!", true);
+            simulateMatch(agents[i], agents[j]);
+        }
     }
 }
 
