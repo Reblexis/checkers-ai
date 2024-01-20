@@ -41,7 +41,7 @@ For each game loop input, the agent should respond with:
   The next `n` pairs of numbers will represent the visited positions. The first number in the pair will represent the column (from 0 to 7 left to right),
   the second number will represent the row (from 0 to 7 top to bottom).
 
-### Example interaction
+#### Example interaction
 This is an example of a game where the agent plays as black and has 60 seconds in total for all moves. The initial input and two iterations of the game loop are shown.
 ```
 // Initial input
