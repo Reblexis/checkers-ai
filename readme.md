@@ -39,7 +39,7 @@ You will have an option to visualize the matches via a graphical interface. You 
 Currently, there is an abstraction in-place that allows for 3 different types of agents.
 - **Human**. This agent is controlled by a human player via the graphical interface. In order to specify this agent (when creating a tournament), you just need to give him a unique id.
 - **Hyperparameters agent**. This agent uses local scripts defined in this repository. The strategy that it will use is defined by the hyperparameters file that you will provide (you can find an example of such file here [default_hyperparameters.json](../data/default_hyperparameters.json)).
-- **Executable agent**. This type of agent allows for support of external agents, which may be provided in form of an executable that adheres to the specified protocol (see [Protocol](#protocol)).
+- **Executable agent**. This type of agent allows for support of external agents, which may be provided in form of an executable that adheres to the specified protocol (see [protocol](#protocol)).
 
 ### Protocol
 The agent executable should be able to repeatedly receive the current game state information and respond with the desired move.
