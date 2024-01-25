@@ -30,9 +30,14 @@ public:
     const std::string id;
     explicit Agent(std::string id);
     void die();
-    virtual ~Agent();
     virtual void initialize(long long timeLimit, bool isBlack);
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer);
+
+    virtual ~Agent();
+    Agent(const Agent&) = delete;
+    Agent& operator=(const Agent&) = delete;
+    Agent(Agent&&) = delete;
+    Agent& operator=(Agent&&) = delete;
 };
 
 // Contains agent controlled by hyperparameters and local scripts
