@@ -30,7 +30,7 @@ public:
     const std::string id;
     explicit Agent(std::string id);
     void die();
-    ~Agent();
+    virtual ~Agent();
     virtual void initialize(long long timeLimit, bool isBlack);
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer &timer);
 };
