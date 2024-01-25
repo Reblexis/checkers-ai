@@ -66,7 +66,7 @@ int main()
     std::cout<<"Launching tournament!\n";
     // TODO: Add advanced settings support
 
-    Tournament tournament(tournamentID, true, 60, 0);
+    Tournament tournament(tournamentID, true, 10, 0);
     tournament.roundRobin(agents);
 #endif
 #ifdef TESTS

@@ -56,6 +56,11 @@ void Agent::deserializeGameState(const std::string &input, Game& game, Timer& ti
 std::string Agent::communicateWithSubprocess(const std::string& input, const Timer& timer, bool receiveOutput) {
     write(inpipe_fd[1], input.c_str(), input.size());
 
+
+    // Make the output pipe non-blocking
+    int flags = fcntl(outpipe_fd[0], F_GETFL, 0);
+    fcntl(outpipe_fd[0], F_SETFL, flags | O_NONBLOCK);
+
     std::string output;
     std::array<char, 1024> buffer{};
     while(output.empty()&&!timer.isFinished()&&receiveOutput){
