@@ -90,7 +90,7 @@ void Tournament::simulateMatch(Agent *agent1, Agent *agent2) const{
     simulateGame(agent2, agent1, game2);
 }
 
-void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, std::optional<int> focusAgent) const{
+void Tournament::randomMatches(std::vector<std::unique_ptr<Agent>> &agents, int matches, std::optional<int> focusAgent) const{
     std::random_device rd;
     std::mt19937 g(rd());
     std::uniform_int_distribution<> dis(0, agents.size() - 1);
@@ -103,18 +103,18 @@ void Tournament::randomMatches(std::vector<Agent*> &agents, int matches, std::op
         while(agent1Index == agent2Index){
             agent2Index = dis(g);
         }
-        Agent *agent1 = agents[agent1Index];
-        Agent *agent2 = agents[agent2Index];
+        Agent *agent1 = agents[agent1Index].get();
+        Agent *agent2 = agents[agent2Index].get();
 
         simulateMatch(agent1, agent2);
     }
 }
 
-void Tournament::roundRobin(std::vector<Agent*> &agents) const{
+void Tournament::roundRobin(std::vector<std::unique_ptr<Agent>> &agents) const{
     for(int i = 0; i < agents.size(); i++){
         for(int j = i + 1; j < agents.size(); j++){
             message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(agents.size() * (agents.size() - 1) / 2) + "!", true);
-            simulateMatch(agents[i], agents[j]);
+            simulateMatch(agents[i].get(), agents[j].get());
         }
     }
 }

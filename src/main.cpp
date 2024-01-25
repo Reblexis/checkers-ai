@@ -27,7 +27,7 @@ int main()
 #ifdef TOURNAMENT
     std::string tournamentID;
     int numberOfAgents;
-    std::vector<Agent *> agents;
+    std::vector<std::unique_ptr<Agent>> agents;
 
     std::cout<<"Hello! Welcome to the tournament system!\nHere you can create your own checkers tournament not only for the artificially intelligent agents.\n"
                "First, you have to specify a few things for your tournament.\n";
@@ -52,15 +52,15 @@ int main()
             std::cin>>agentPath;
         }
 
-        Agent* agent;
+        std::unique_ptr<Agent> agent;
         if(agentType == 'h'){
-            agent = new HyperparametersAgent(agentPath, agentID);
+            agent = std::make_unique<HyperparametersAgent>(agentPath, agentID);
         }else if(agentType == 'e'){
-            agent = new ExecutableAgent(agentPath, agentID);
+            agent = std::make_unique<ExecutableAgent>(agentPath, agentID);
         }else if(agentType == 'p'){
-            agent = new Player(agentID);
+            agent = std::make_unique<Player>(agentID);
         }
-        agents.push_back(agent);
+        agents.push_back(std::move(agent));
     }
 
     std::cout<<"Launching tournament!\n";
