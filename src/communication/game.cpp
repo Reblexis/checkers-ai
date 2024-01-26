@@ -325,6 +325,37 @@ std::vector<Move> GameState::getAvailableMoves2() const {
     return moves;
 }
 
+void GameState::searchMoves(piece_move currentMove, unsigned int jumpCount, position lastPos, bitboard curEnemyPieces, bool isKing, bitboard controlPieces)
+{
+        bool anyJumps = false;
+        isKing |= king_row(lastPos);
+        bitboard anyPieces = controlPieces | curEnemyPieces;
+        // Jump top-left
+        if(lastPos > 7 && lastPos % 4 != 0 && (curEnemyPieces&(1<<(tl(lastPos))) && (anyPieces&(1<<(tl(tl(lastPos))))) == 0)){
+            searchMoves(currentMove | (1<<(jumpCount*3 + 5)), jumpCount+1, tl(tl(lastPos)), curEnemyPieces^(1<<(tl(lastPos))), isKing, controlPieces);
+            anyJumps = true;
+        }
+        // Jump top-right
+        if(lastPos > 7 && lastPos % 4 != 3 && (curEnemyPieces&(1<<(tr(lastPos))) && (anyPieces&(1<<(tr(tr(lastPos))))) == 0)){
+            searchMoves(currentMove | (2<<(jumpCount*3 + 5)), jumpCount+1, tr(tr(lastPos)), curEnemyPieces^(1<<(tr(lastPos))), isKing, controlPieces);
+            anyJumps = true;
+        }
+        // Jump bottom-left
+        if(isKing && lastPos < 24 && lastPos % 4 != 0 && (curEnemyPieces&(1<<(bl(lastPos))) && (anyPieces&(1<<bl(bl(lastPos)))) == 0)){
+            searchMoves(currentMove | (3<<(jumpCount*3 + 5)), jumpCount+1, bl(bl(lastPos)), curEnemyPieces^(1<<(bl(lastPos))), isKing, controlPieces);
+            anyJumps = true;
+        }
+        // Jump bottom-right
+        if(isKing && lastPos < 24 && lastPos % 4 != 3 && (curEnemyPieces&(1<<br(lastPos)) && (anyPieces&(1<<br(br(lastPos)))) == 0)){
+            searchMoves(currentMove | (4<<(jumpCount*3 + 5)), jumpCount+1, br(br(lastPos)), curEnemyPieces^(1<<br(lastPos)), isKing, controlPieces);
+            anyJumps = true;
+        }
+
+        if(!anyJumps&&jumpCount>0){
+            availableMoves.push_back(currentMove);
+        }
+};
+
 void GameState::calculateAvailableMoves() {
     availableMoves.clear();
 
@@ -336,40 +367,10 @@ void GameState::calculateAvailableMoves() {
     bitboard controlKings = controlBitboard>>32;
     bitboard enemyPieces = enemyBitboard&0xffffffff;
 
-    std::function<void(piece_move, unsigned int, position, bitboard, bool)> calculateMoves = [&](piece_move currentMove, unsigned int jumpCount, position lastPos, bitboard curEnemyPieces, bool isKing){
-        bool anyJumps = false;
-        isKing |= king_row(lastPos);
-        bitboard anyPieces = controlPieces | curEnemyPieces;
-        // Jump top-left
-        if(lastPos > 7 && lastPos % 4 != 0 && (curEnemyPieces&(1<<(tl(lastPos))) && (anyPieces&(1<<(tl(tl(lastPos))))) == 0)){
-            calculateMoves(currentMove | (1<<(jumpCount*3 + 5)), jumpCount+1, tl(tl(lastPos)), curEnemyPieces^(1<<(tl(lastPos))), isKing);
-            anyJumps = true;
-        }
-        // Jump top-right
-        if(lastPos > 7 && lastPos % 4 != 3 && (curEnemyPieces&(1<<(tr(lastPos))) && (anyPieces&(1<<(tr(tr(lastPos))))) == 0)){
-            calculateMoves(currentMove | (2<<(jumpCount*3 + 5)), jumpCount+1, tr(tr(lastPos)), curEnemyPieces^(1<<(tr(lastPos))), isKing);
-            anyJumps = true;
-        }
-        // Jump bottom-left
-        if(isKing && lastPos < 24 && lastPos % 4 != 0 && (curEnemyPieces&(1<<(bl(lastPos))) && (anyPieces&(1<<bl(bl(lastPos)))) == 0)){
-            calculateMoves(currentMove | (3<<(jumpCount*3 + 5)), jumpCount+1, bl(bl(lastPos)), curEnemyPieces^(1<<(bl(lastPos))), isKing);
-            anyJumps = true;
-        }
-        // Jump bottom-right
-        if(isKing && lastPos < 24 && lastPos % 4 != 3 && (curEnemyPieces&(1<<br(lastPos)) && (anyPieces&(1<<br(br(lastPos)))) == 0)){
-            calculateMoves(currentMove | (4<<(jumpCount*3 + 5)), jumpCount+1, br(br(lastPos)), curEnemyPieces^(1<<br(lastPos)), isKing);
-            anyJumps = true;
-        }
-
-        if(!anyJumps&&jumpCount>0){
-            availableMoves.push_back(currentMove);
-        }
-    };
-
     for(int i = 0; i < BOARD_SIZE; i++){
         if(controlKings&(1<<i))
         {
-            calculateMoves(i, 0, i, enemyPieces, true);
+            searchMoves(i, 0, i, enemyPieces, true, controlPieces);
         }
     }
     if(!availableMoves.empty())
@@ -379,7 +380,7 @@ void GameState::calculateAvailableMoves() {
     for(int i = 0; i < BOARD_SIZE; i++){
         if((controlPawns)&(1<<i))
         {
-            calculateMoves(i, 0, i, enemyPieces, false);
+            searchMoves(i, 0, i, enemyPieces, false, controlPieces);
         }
     }
     if(!availableMoves.empty())

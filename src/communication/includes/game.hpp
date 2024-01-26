@@ -93,6 +93,7 @@ public:
 
 private:
     void calculateAvailableMoves();
+    void searchMoves(piece_move currentMove, unsigned int jumpCount, position lastPos, bitboard curEnemyPieces, bool isKing, bitboard controlPieces);
     std::vector<piece_move> availableMoves;
 };
 
