@@ -31,6 +31,9 @@ be able to customize and create a tournament via console interface. You will pro
 When you are happy with the settings, you can launch the tournament and analyze their performance.
 You will have an option to visualize the matches via a graphical interface. You will also be able to specify a path to save the tournament results to for each agent individually.
 
+![checkers_screenshot](https://github.com/Reblexis/checkers/assets/80317928/e26bcf98-468c-4bcc-bea5-31ff1b0795f6)
+
+
 ## Agents
 Currently, there is an abstraction in-place that allows for 3 different types of agents.
 - **Human**. This agent is controlled by a human player via the graphical interface. In order to specify this agent (when creating a tournament), you just need to give him a unique id.
