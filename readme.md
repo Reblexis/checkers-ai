@@ -23,7 +23,7 @@ make
 - [x] Hyperparameters controlling different aspects of an agent (fx. depth of search, evaluation function, strategy, etc.)
 - [x] Agent saving
 - [x] Tournament system for agents and players comparison
-- [x] Support for search in the background (while the other agent is moving) 
+- [x] Support for background search (while the other agent is thinking) 
 
 ## App
 As a user, you have limited options to interact with the system. By default, once you build (and launch) the project, you will
