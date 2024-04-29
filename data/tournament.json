@@ -7,12 +7,13 @@
             "path": "data/default_hyperparameters.json"
         },
         {
-        "type": "executable",
-        "id": "exec1",
-        "path": "/home/cihalvi/src/checkers/data/agents/executable2/checkers"
+            "type": "hyperparameters",
+            "id": "hyp2",
+            "path": "data/default_hyperparameters2.json"
         }
     ],
     "tournamentType": "randomMatches",
     "visualize": true,
-    "timeLimit": 100000
+    "timeLimit": 100000,
+    "maxMoves": 100
 }

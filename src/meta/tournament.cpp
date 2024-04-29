@@ -6,7 +6,7 @@
 #include "includes/tournament.hpp"
 #include "includes/timer.hpp"
 
-Tournament::Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize, int timeLimit): id(std::move(id)), agents(std::move(agents)), tournamentType(tournamentType), visualize(visualize), timeLimit(timeLimit)
+Tournament::Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize, int timeLimit, int maxMoves): id(std::move(id)), agents(std::move(agents)), tournamentType(tournamentType), visualize(visualize), timeLimit(timeLimit), maxMoves(maxMoves)
 {
     std::filesystem::create_directories(TOURNAMENT_LOGS_PATH / id);
 
@@ -48,7 +48,7 @@ Tournament Tournament::createFromFile(const std::filesystem::path &path){
     if(!TOURNAMENT_TYPE_MAP.contains(json["tournamentType"])){
         throw std::runtime_error(std::format("Unknown tournament type: {}", json["tournamentType"].dump()));
     }
-    return Tournament(json["id"], std::move(agents), TOURNAMENT_TYPE_MAP.at(json["tournamentType"]), json["visualize"], json["timeLimit"]);
+    return Tournament(json["id"], std::move(agents), TOURNAMENT_TYPE_MAP.at(json["tournamentType"]), json["visualize"], json["timeLimit"], json["maxMoves"]);
 }
 
 void Tournament::launch(){
@@ -85,7 +85,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     }
 
 
-    while(!game.isFinished() && moves < MAX_MOVES){
+    while(!game.isFinished() && moves < maxMoves){
         bool nextBlack = game.getGameState().nextBlack;
 
         Timer *timer = nextBlack ? &timerBlack : &timerWhite;
@@ -113,12 +113,12 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     int whiteRating = whiteStatistics.getRating();
     int blackRating = blackStatistics.getRating();
     double result = game.getGameState().nextBlack ? 1 : 0;
-    if(moves >= MAX_MOVES){
+    if(moves >= maxMoves){
         result = 0.5;
     }
 
     whiteStatistics.addGame(blackRating, result);
-    blackStatistics.addGame(whiteRating,  1 - result);
+    blackStatistics.addGame(whiteRating,  (double)1 - result);
 
 
     std::cout<<"Game finished! Result: "<<result<<"\n";

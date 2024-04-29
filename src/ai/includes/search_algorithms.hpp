@@ -9,6 +9,7 @@
 #include "evaluation.hpp"
 #include <utility>
 #include <vector>
+#include <random>
 
 class SearchAlgorithm {
 public:
@@ -20,11 +21,13 @@ class Minimax : public SearchAlgorithm {
 private:
     bool useAlphaBeta;
     bool useCache;
+    bool useTranspositionTable;
     bool reorderMoves;
     int maxDepth;
     long long moveTimeLimit; // Milliseconds
     Evaluation &evaluation;
     Cache<> cache; // Assuming template specialization if needed
+    std::mt19937 randomEngine;
 
 public:
     Minimax(Hyperparameters &hyperparameters, Evaluation &evaluation);

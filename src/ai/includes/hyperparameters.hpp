@@ -29,6 +29,7 @@ const std::string USE_ALPHA_BETA_ID = "use_alpha_beta";
 const std::string MAX_DEPTH_ID = "max_depth";
 
 const std::string USE_CACHE_ID = "use_cache";
+const std::string USE_TRANSPOSITION_TABLE_ID = "use_transposition_table";
 
 const std::string REORDER_MOVES_ID = "reorder_moves";
 

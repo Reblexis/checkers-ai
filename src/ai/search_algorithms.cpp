@@ -6,8 +6,9 @@
 
 Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
         : evaluation(eval), cache(), maxDepth(hyperparameters.get<int>(MAX_DEPTH_ID)), useAlphaBeta(hyperparameters.get<bool>(USE_ALPHA_BETA_ID)),
-        useCache(hyperparameters.get<bool>(USE_CACHE_ID)), reorderMoves(hyperparameters.get<bool>(REORDER_MOVES_ID)),
-        moveTimeLimit(hyperparameters.get<long long>(MOVE_TIME_LIMIT_ID))
+        useCache(hyperparameters.get<bool>(USE_CACHE_ID)), useTranspositionTable(hyperparameters.get<bool>(USE_TRANSPOSITION_TABLE_ID)),
+        reorderMoves(hyperparameters.get<bool>(REORDER_MOVES_ID)),
+        moveTimeLimit(hyperparameters.get<long long>(MOVE_TIME_LIMIT_ID)), randomEngine(std::random_device()())
 {
 }
 
@@ -53,7 +54,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
             if (it != possibleMoves.end())
                 std::iter_swap(possibleMoves.begin(), it);
         }
-        if (leftDepth == cacheInfo.depth && upperBound <= cacheInfo.upperBound && lowerBound >= cacheInfo.lowerBound)
+        if (useTranspositionTable && leftDepth == cacheInfo.depth && upperBound <= cacheInfo.upperBound && lowerBound >= cacheInfo.lowerBound)
         {
             //std::cout << cache.fillRate() << '\n';
             return {cacheInfo.score, cacheInfo.bestMove};
@@ -75,7 +76,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         std::pair<int, piece_move> moveInfo = minimax(game, timer, leftDepth-1, alpha, beta);
         moveInfo.first *= -1;
 
-        if(moveInfo.first > bestScore)
+        if(moveInfo.first > bestScore || (moveInfo.first == bestScore && std::uniform_int_distribution<int>(0, 1)(randomEngine)))
         {
             bestScore = moveInfo.first;
             bestMove = nextMove;

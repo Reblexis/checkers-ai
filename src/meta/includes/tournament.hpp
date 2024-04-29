@@ -13,8 +13,6 @@
 
 const std::filesystem::path TOURNAMENT_LOGS_PATH = DATA_PATH / "tournament_logs/";
 
-constexpr int MAX_MOVES = 200;
-
 enum class TournamentType{
     ROUND_ROBIN,
     RANDOM_MATCHES
@@ -34,7 +32,7 @@ private:
     TournamentType tournamentType;
     bool visualize;
     int timeLimit;
-    int randomStartMoves;
+    int maxMoves;
 
     void simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) const;
     void simulateMatch(Agent *agent1, Agent *agent2) const;
@@ -43,7 +41,7 @@ private:
     void launch();
 
 public:
-    explicit Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize = false, int timeLimit = 60);
+    explicit Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize = false, int timeLimit = 60, int maxMoves = 100);
     static Tournament createFromFile(const std::filesystem::path &path);
 };
 
