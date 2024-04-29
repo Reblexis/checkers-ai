@@ -3,16 +3,16 @@
     "agents": [
         {
             "type": "hyperparameters",
-            "id": "agent1",
+            "id": "hyp1",
             "path": "data/default_hyperparameters.json"
         },
         {
-        "type": "hyperparameters",
-        "id": "agent2",
-            "path": "data/default_hyperparameters.json"
+        "type": "executable",
+        "id": "exec2",
+        "path": "/home/cihalvi/src/checkers/data/agents/executable2/checkers"
         }
     ],
     "tournamentType": "randomMatches",
     "visualize": true,
-    "timeLimit": 100
+    "timeLimit": 100000
 }
