@@ -118,7 +118,7 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     }
 
     whiteStatistics.addGame(blackRating, result);
-    blackStatistics.addGame(whiteRating,  (double)1 - result);
+    blackStatistics.addGame(whiteRating,  1 - result);
 
 
     std::cout<<"Game finished! Result: "<<result<<"\n";
