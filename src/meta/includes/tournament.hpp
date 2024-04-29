@@ -43,7 +43,7 @@ private:
     void launch();
 
 public:
-    explicit Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize = false, int timeLimit = 60, int randomStartMoves = 6);
+    explicit Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize = false, int timeLimit = 60);
     static Tournament createFromFile(const std::filesystem::path &path);
 };
 

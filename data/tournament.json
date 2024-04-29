@@ -12,6 +12,5 @@
     ],
     "tournamentType": "roundRobin",
     "visualize": true,
-    "timeLimit": 1000,
-    "randomStartMoves": 5
+    "timeLimit": 1000
 }

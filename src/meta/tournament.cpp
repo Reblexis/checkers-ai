@@ -6,7 +6,7 @@
 #include "includes/tournament.hpp"
 #include "includes/timer.hpp"
 
-Tournament::Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize, int timeLimit, int randomStartMoves): id(std::move(id)), agents(std::move(agents)), tournamentType(tournamentType), visualize(visualize), timeLimit(timeLimit), randomStartMoves(randomStartMoves)
+Tournament::Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize, int timeLimit): id(std::move(id)), agents(std::move(agents)), tournamentType(tournamentType), visualize(visualize), timeLimit(timeLimit)
 {
     std::filesystem::create_directories(TOURNAMENT_LOGS_PATH / id);
 
@@ -48,7 +48,7 @@ Tournament Tournament::createFromFile(const std::filesystem::path &path){
     if(!TOURNAMENT_TYPE_MAP.contains(json["tournamentType"])){
         throw std::runtime_error(std::format("Unknown tournament type: {}", json["tournamentType"].dump()));
     }
-    return Tournament(json["id"], std::move(agents), TOURNAMENT_TYPE_MAP.at(json["tournamentType"]), json["visualize"], json["timeLimit"], json["randomStartMoves"]);
+    return Tournament(json["id"], std::move(agents), TOURNAMENT_TYPE_MAP.at(json["tournamentType"]), json["visualize"], json["timeLimit"]);
 }
 
 void Tournament::launch(){
@@ -128,10 +128,6 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
 
 void Tournament::simulateMatch(Agent *agent1, Agent *agent2) const{
     Game game{};
-    RandomSearch randomSearch;
-    for(int i = 0; i < randomStartMoves; i++){
-        game.makeMove(randomSearch.findBestMove(game, Timer(0)).second);
-    }
     Game game2 = game;
 
     simulateGame(agent1, agent2, game);
