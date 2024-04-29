@@ -86,7 +86,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
             else
                 beta = std::max(beta, bestScore);
 
-            if((gameState.nextBlack && -beta <= alpha) || (!gameState.nextBlack && beta >= -alpha))
+            if(-beta <= alpha)
                 break;
         }
     }
