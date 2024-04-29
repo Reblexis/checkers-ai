@@ -11,12 +11,11 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
 {
 }
 
-std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int leftDepth, int alpha, int beta)
+std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int leftDepth, long long alpha, long long beta)
 {
     const GameState& gameState = game.getGameState();
 
-    bool maximizing = gameState.nextBlack;
-    int bestScore = maximizing ? INT32_MIN : INT32_MAX;
+    long long bestScore = INT32_MIN;
     piece_move bestMove = 0;
 
     if(leftDepth==0)
@@ -38,8 +37,6 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         std::sort(scores.begin(), scores.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b){
             return (a.first > b.first);
         });
-        if(!maximizing)
-            std::reverse(scores.begin(), scores.end());
         std::vector<piece_move> newMoves(possibleMoves.size());
         for(int i = 0; i < possibleMoves.size(); i++)
             newMoves[i] = possibleMoves[scores[i].second];
@@ -61,7 +58,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
 
     if(possibleMoves.empty())
     {
-        return {maximizing ? INT32_MIN+1 : INT32_MAX-1, 0};
+        return {INT32_MIN+1, 0};
     }
 
     for(piece_move nextMove: possibleMoves)
@@ -72,8 +69,9 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         game.makeMove(nextMove);
 
         std::pair<int, piece_move> moveInfo = minimax(game, timer, leftDepth-1, alpha, beta);
+        moveInfo.first *= -1;
 
-        if(maximizing ? moveInfo.first > bestScore : moveInfo.first < bestScore)
+        if(moveInfo.first > bestScore)
         {
             bestScore = moveInfo.first;
             bestMove = nextMove;
@@ -83,12 +81,12 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
 
         if(useAlphaBeta)
         {
-            if(maximizing)
+            if(gameState.nextBlack)
                 alpha = std::max(alpha, bestScore);
             else
-                beta = std::min(beta, bestScore);
+                beta = std::max(beta, bestScore);
 
-            if(beta <= alpha)
+            if((gameState.nextBlack && -beta <= alpha) || (!gameState.nextBlack && beta >= -alpha))
                 break;
         }
     }
@@ -97,7 +95,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         cache.set(gameState, leftDepth, bestScore, bestMove);
 
     if(timer.isFinished())
-        return {maximizing ? INT32_MIN+1 : INT32_MAX-1, bestMove};
+        return {INT32_MIN+1, bestMove};
 
     return {bestScore, bestMove};
 }
@@ -126,7 +124,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
     const GameState& gameState = game.getGameState();
 
     std::pair<int, piece_move> bestMove;
-    bestMove.first = gameState.nextBlack ? INT32_MIN : INT32_MAX;
+    bestMove.first = INT32_MIN;
     bestMove.second = gameState.getAvailableMoves()[0];
 
     Timer localTimer = Timer(std::min(moveTimeLimit, timer.getRemainingTime()/4));
@@ -138,7 +136,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
         if(candidate.second != 0 && !localTimer.isFinished())
             bestMove = candidate;
 
-        if((bestMove.first==INT32_MAX && gameState.nextBlack) || (bestMove.first == INT32_MIN && !gameState.nextBlack) || candidate.second == 0 || localTimer.isFinished())
+        if(bestMove.first==INT32_MAX || candidate.second == 0 || localTimer.isFinished())
         {
             break;
         }
@@ -154,7 +152,7 @@ std::pair<int, piece_move> RandomSearch::findBestMove(Game &game, const Timer& t
     const GameState& gameState = game.getGameState();
     std::span<const piece_move> possibleMoves = gameState.getAvailableMoves();
     if(possibleMoves.empty())
-        return {gameState.nextBlack ? INT32_MIN : INT32_MAX, 0};
+        return {INT32_MIN, 0};
 
     // Generate random move
     std::random_device rd;

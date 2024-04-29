@@ -13,8 +13,9 @@ int BasicEvaluation::evaluate(const GameState& gameState)
 {
     const Board& board = gameState.board;
     if(gameState.getAvailableMoves().empty())
-        return gameState.nextBlack ? INT32_MIN : INT32_MAX;
-    return (board.blackPawnsCount() - board.whitePawnsCount()) * pawnValue + (board.blackKingsCount() - board.whiteKingsCount()) * kingValue;
+        return INT32_MIN;
+    int score = (board.blackPawnsCount() - board.whitePawnsCount()) * pawnValue + (board.blackKingsCount() - board.whiteKingsCount()) * kingValue;
+    return score * (gameState.nextBlack ? 1 : -1);
 }
 
 AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
@@ -29,9 +30,8 @@ AdvancedEvaluation::AdvancedEvaluation(Hyperparameters &hyperparameters)
 int AdvancedEvaluation::evaluate(const GameState &gameState)
 {
     if (gameState.getAvailableMoves().empty())
-        return gameState.nextBlack ? INT32_MIN : INT32_MAX;
+        return INT32_MIN;
 
-    int score = 0;
     int pawnTableScore = 0;
     int kingTableScore = 0;
     Board board = gameState.board;
@@ -66,7 +66,8 @@ int AdvancedEvaluation::evaluate(const GameState &gameState)
     kingTableScore *= kingValue;
     pawnTableScore *= pawnValue;
 
-    score = static_cast<int>(pawnDiff + kingDiff) + kingTableScore + pawnTableScore;
-    return score;
+    int score = static_cast<int>(pawnDiff + kingDiff) + kingTableScore + pawnTableScore;
+
+    return score * (gameState.nextBlack ? 1 : -1);
 }
 

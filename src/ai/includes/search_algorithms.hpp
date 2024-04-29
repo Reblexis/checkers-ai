@@ -28,7 +28,7 @@ private:
 
 public:
     Minimax(Hyperparameters &hyperparameters, Evaluation &evaluation);
-    std::pair<int, piece_move> minimax(Game &game, const Timer& timer, int leftDepth, int alpha = INT32_MIN, int beta = INT32_MAX);
+    std::pair<int, piece_move> minimax(Game &game, const Timer& timer, int leftDepth, long long alpha = INT32_MIN, long long beta = INT32_MIN);
     std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) override;
     void setMaxDepth(int newDepth);
 };
