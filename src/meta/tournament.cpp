@@ -93,8 +93,8 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
         std::pair<int, piece_move> receivedMove = nextBlack ? blackAgent->findBestMove(game, *timer) : whiteAgent->findBestMove(game, *timer);
         timer->pause();
 
-        std::cout<< std::format("White agent (id: {}) has {} ms left.\n", whiteAgent->id, timerWhite.getRemainingTime());
-        std::cout<< std::format("Black agent (id: {}) has {} ms left.\n", blackAgent->id, timerBlack.getRemainingTime());
+        // std::cout<< std::format("White agent (id: {}) has {} ms left.\n", whiteAgent->id, timerWhite.getRemainingTime());
+        // std::cout<< std::format("Black agent (id: {}) has {} ms left.\n", blackAgent->id, timerBlack.getRemainingTime());
         if(timer->isFinished()){
             std::cout<<"Time limit exceeded!\n";
             break;

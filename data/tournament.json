@@ -8,11 +8,11 @@
         },
         {
         "type": "executable",
-        "id": "exec2",
+        "id": "exec1",
         "path": "/home/cihalvi/src/checkers/data/agents/executable2/checkers"
         }
     ],
     "tournamentType": "randomMatches",
-    "visualize": false,
+    "visualize": true,
     "timeLimit": 100000
 }

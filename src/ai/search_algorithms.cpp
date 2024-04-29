@@ -17,6 +17,8 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
 
     long long bestScore = INT32_MIN;
     piece_move bestMove = 0;
+    long long upperBound = (gameState.nextBlack ? -beta : -alpha);
+    long long lowerBound = (gameState.nextBlack ? alpha : beta);
 
     if(leftDepth==0)
     {
@@ -43,17 +45,19 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         possibleMoves = newMoves;
     }
 
-    if(useCache)
-    {
+    if(useCache) {
         const cacheEntry &cacheInfo = cache.get(game.getGameState());
         bestMove = cacheInfo.bestMove;
-        if(bestMove!=0){
+        if (bestMove != 0) {
             auto it = std::find(possibleMoves.begin(), possibleMoves.end(), bestMove);
-            if(it != possibleMoves.end())
+            if (it != possibleMoves.end())
                 std::iter_swap(possibleMoves.begin(), it);
         }
-        //if(leftDepth < cacheInfo.depth)
-          //  return {cacheInfo.score, cacheInfo.bestMove};
+        if (leftDepth == cacheInfo.depth && upperBound <= cacheInfo.upperBound && lowerBound >= cacheInfo.lowerBound)
+        {
+            //std::cout << cache.fillRate() << '\n';
+            return {cacheInfo.score, cacheInfo.bestMove};
+        }
     }
 
     if(possibleMoves.empty())
@@ -92,7 +96,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
     }
 
     if(useCache)
-        cache.set(gameState, leftDepth, bestScore, bestMove);
+        cache.set(gameState, leftDepth, bestScore, upperBound, lowerBound, bestMove);
 
     if(timer.isFinished())
         return {INT32_MIN+1, bestMove};
@@ -130,7 +134,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
     Timer localTimer = Timer(std::min(moveTimeLimit, timer.getRemainingTime()/4));
     localTimer.resume();
 
-    for(int i = 1; i <= maxDepth; i++)
+    for(int i = 1; i <= maxDepth; ++i)
     {
         std::pair<int, piece_move> candidate = minimax.minimax(game, localTimer, i);
         if(candidate.second != 0 && !localTimer.isFinished())
