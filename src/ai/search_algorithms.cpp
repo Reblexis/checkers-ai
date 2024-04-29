@@ -127,7 +127,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
 
     std::pair<int, piece_move> bestMove;
     bestMove.first = gameState.nextBlack ? INT32_MIN : INT32_MAX;
-    bestMove.second = 0;
+    bestMove.second = gameState.getAvailableMoves()[0];
 
     Timer localTimer = Timer(std::min(moveTimeLimit, timer.getRemainingTime()/4));
     localTimer.resume();

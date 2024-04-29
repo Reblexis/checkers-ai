@@ -1,4 +1,6 @@
 #include "includes/game.hpp"
+#include <sstream>
+#include <format>
 
 Pos::Pos(int x, int y) : x(x), y(y) {}
 
@@ -453,15 +455,15 @@ std::ostream& operator<<(std::ostream& os, const GameState& gameState) {
 
 void Game::makeMove(piece_move pieceMove, bool final) {
     // Final indicates whether the sub-move is the last one of the whole move (with multiple jumps there is only one final sub-move)
-
 #if CHECK_VALID_MOVES
     if (std::find(gameHistory.back().getAvailableMoves().begin(), gameHistory.back().getAvailableMoves().end(), pieceMove) == gameHistory.back().getAvailableMoves().end()) {
-        throw std::runtime_error("Invalid move. Move not in available moves.");
+        std::ostringstream oss;
+        Move move = gameHistory.back().getMove(pieceMove);
+        oss<<"Invalid move: "<<move<<"(id: "<<pieceMove<<") is not in available moves. For board state:\n"<<gameHistory.back();
+
+        throw std::runtime_error(oss.str());
     }
 #endif
-    if (pieceMove == 0) {
-        throw std::runtime_error("Invalid move. Move is 0.");
-    }
 
     unsigned int currentPos = pieceMove & 0x1f;
 

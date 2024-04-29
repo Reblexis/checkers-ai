@@ -70,11 +70,11 @@ void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) 
     message("Starting new game!", true);
     std::cout<<std::format("{} (white, rating: {}) vs {} (black, rating: {})\n", whiteAgent->id, whiteStatistics.getRating(), blackAgent->id, blackStatistics.getRating());
 
-    Timer timerWhite(timeLimit * 1000);
-    Timer timerBlack(timeLimit * 1000);
+    Timer timerWhite(timeLimit);
+    Timer timerBlack(timeLimit);
 
-    whiteAgent->initialize(timeLimit * 1000, false);
-    blackAgent->initialize(timeLimit * 1000, true);
+    whiteAgent->initialize(timeLimit, false);
+    blackAgent->initialize(timeLimit, true);
 
     // TODO: fix errors related to multiple X11 calls (XInitThreads)
     // When agent initialization is moved below this, errors start appearing

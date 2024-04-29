@@ -12,7 +12,7 @@
             "path": "data/default_hyperparameters.json"
         }
     ],
-    "tournamentType": "roundRobin",
+    "tournamentType": "randomMatches",
     "visualize": true,
-    "timeLimit": 1000
+    "timeLimit": 100
 }
