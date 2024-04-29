@@ -2,12 +2,14 @@
     "id": "test",
     "agents": [
         {
-            "type": "player",
-            "id": "player1"
+            "type": "hyperparameters",
+            "id": "agent1",
+            "path": "data/default_hyperparameters.json"
         },
         {
-        "type": "player",
-        "id": "player2"
+        "type": "hyperparameters",
+        "id": "agent2",
+            "path": "data/default_hyperparameters.json"
         }
     ],
     "tournamentType": "roundRobin",
