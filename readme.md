@@ -13,27 +13,26 @@ Make sure that you have the SFML library installed on your system.
 cmake CMakeLists.txt
 make
 ```
-### Windows
-```
-cmake CMakeLists.txt
-cmake --build . --config Release
-```
+### There are no other platforms supported at the moment
 
 ## Current state
 - [x] Implemented the rules of the game into move generation
-- [x] Agent using iterative-deepening, alpha-beta pruning, cache and move reordering
-- [x] Simple state evaluation algorithm
+- [x] Agent using iterative-deepening, alpha-beta pruning, cache and basic state evaluation
+- [x] Evaluation and search algorithm abstractions
 - [x] Visualization of moves in the console
-- [x] Graphical interface for playing against an agent (or another player) or watching agents fight each other
 - [x] Hyperparameters controlling different aspects of an agent (fx. depth of search, evaluation function, strategy, etc.)
 - [x] Agent saving
-- [x] Tournament system for agents comparison
+- [x] Tournament system for agents and players comparison
+- [x] Support for background search (while the other agent is thinking) 
 
 ## App
 As a user, you have limited options to interact with the system. By default, once you build (and launch) the project, you will
 be able to customize and create a tournament via console interface. You will provide basic tournament settings and also the competitors' paths or ids.
 When you are happy with the settings, you can launch the tournament and analyze their performance.
 You will have an option to visualize the matches via a graphical interface. You will also be able to specify a path to save the tournament results to for each agent individually.
+
+![checkers_screenshot](https://github.com/Reblexis/checkers/assets/80317928/e26bcf98-468c-4bcc-bea5-31ff1b0795f6)
+
 
 ## Agents
 Currently, there is an abstraction in-place that allows for 3 different types of agents.
