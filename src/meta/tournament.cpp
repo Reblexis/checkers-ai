@@ -6,9 +6,57 @@
 #include "includes/tournament.hpp"
 #include "includes/timer.hpp"
 
-Tournament::Tournament(std::string id, bool visualize, int timeLimit, int randomStartMoves) : id(std::move(id)), visualize(visualize), timeLimit(timeLimit), randomStartMoves(randomStartMoves)
+Tournament::Tournament(std::string id, std::vector<std::unique_ptr<Agent>> &&agents, TournamentType tournamentType, bool visualize, int timeLimit, int randomStartMoves): id(std::move(id)), agents(std::move(agents)), tournamentType(tournamentType), visualize(visualize), timeLimit(timeLimit), randomStartMoves(randomStartMoves)
 {
     std::filesystem::create_directories(TOURNAMENT_LOGS_PATH / id);
+
+    if (this->agents.size() <= 1) {
+        throw std::runtime_error(std::format("Tournament {} has less than 2 agents! Agent count: {}", id, agents.size()));
+    }
+    if (timeLimit <= 0) {
+        throw std::runtime_error(std::format("Tournament {} has invalid time limit: {}", id, timeLimit));
+    }
+
+    launch();
+}
+
+Tournament Tournament::createFromFile(const std::filesystem::path &path){
+    if (!std::filesystem::exists(path)) {
+        throw std::runtime_error(std::format("Tournament config file {} not found.", path.string()));
+    }
+
+    std::ifstream
+    file(path);
+    nlohmann::json json;
+    file>>json;
+    std::vector<std::unique_ptr<Agent>> agents;
+    for(const auto &agentJson : json["agents"]){
+        std::string type = agentJson["type"];
+        if(type == "hyperparameters"){
+            agents.push_back(std::make_unique<HyperparametersAgent>(agentJson["path"], agentJson["id"]));
+        } else if(type == "executable"){
+            agents.push_back(std::make_unique<ExecutableAgent>(agentJson["path"], agentJson["id"]));
+        }
+        else if (type=="player") {
+            agents.push_back(std::make_unique<Player>(agentJson["id"]));
+        }
+        else{
+            throw std::runtime_error(std::format("Unknown agent type: {}", type));
+        }
+    }
+
+    if(!TOURNAMENT_TYPE_MAP.contains(json["tournamentType"])){
+        throw std::runtime_error(std::format("Unknown tournament type: {}", json["tournamentType"].dump()));
+    }
+    return Tournament(json["id"], std::move(agents), TOURNAMENT_TYPE_MAP.at(json["tournamentType"]), json["visualize"], json["timeLimit"], json["randomStartMoves"]);
+}
+
+void Tournament::launch(){
+    if(tournamentType == TournamentType::ROUND_ROBIN){
+        roundRobin(agents);
+    } else if(tournamentType == TournamentType::RANDOM_MATCHES){
+        randomMatches(agents, 10);
+    }
 }
 
 void Tournament::simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) const{

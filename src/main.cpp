@@ -25,49 +25,20 @@ int main()
     consoleInterface.run();
 #endif
 #ifdef TOURNAMENT
-    std::string tournamentID;
-    int numberOfAgents;
-    std::vector<std::unique_ptr<Agent>> agents;
 
-    std::cout<<"Hello! Welcome to the tournament system!\nHere you can create your own checkers tournament not only for the artificially intelligent agents.\n"
-               "First, you have to specify a few things for your tournament.\n";
-    std::cout<<"Please enter the tournament ID (no special characters): ";
-    std::cin>>tournamentID;
-    std::cout<<"Great! Now, specify the agents that will be taking part in the tournament!\n";
-    std::cout<<"Number of agents: ";
-    std::cin>>numberOfAgents;
-    for(int i = 0; i < numberOfAgents; i++){
-        char agentType;
-        std::filesystem::path agentPath;
+    std::cout<<"Hello! Welcome to the tournament system!\nHere you can launch your own checkers tournament not only for the artificially intelligent agents.\n"
+               "Please specify the path to your tournament config file (default: tournament.json): ";
 
-        std::cout<<std::format("Agent ({}/{}): \n", i+1, numberOfAgents);
-        std::cout<<"Agent ID: ";
-        std::string agentID;
-        std::cin>>agentID;
-        std::cout<<"Type of the agent (h/e/p), h = hyperparameters agent, e = executable agent, p = player: ";
-        std::cin>>agentType;
 
-        if(agentType == 'h' || agentType=='e'){
-            std::cout<<"Full or local path to the agent file:";
-            std::cin>>agentPath;
-        }
-
-        std::unique_ptr<Agent> agent;
-        if(agentType == 'h'){
-            agent = std::make_unique<HyperparametersAgent>(agentPath, agentID);
-        }else if(agentType == 'e'){
-            agent = std::make_unique<ExecutableAgent>(agentPath, agentID);
-        }else if(agentType == 'p'){
-            agent = std::make_unique<Player>(agentID);
-        }
-        agents.push_back(std::move(agent));
+    std::filesystem::path tournamentConfigFile;
+    std::string tournamentConfigFileInput;
+    std::getline(std::cin, tournamentConfigFileInput);
+    tournamentConfigFile = tournamentConfigFileInput;
+    if(tournamentConfigFileInput.empty()){
+        tournamentConfigFile = DATA_PATH / "tournament.json";
     }
+    Tournament tournament = Tournament::createFromFile(tournamentConfigFile);
 
-    std::cout<<"Launching tournament!\n";
-    // TODO: Add advanced settings support
-
-    Tournament tournament(tournamentID, true, 60, 0);
-    tournament.roundRobin(agents);
 #endif
 #ifdef TESTS
     Tournament tournament("test", true, 60, 0);

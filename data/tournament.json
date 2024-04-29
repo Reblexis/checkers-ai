@@ -1,0 +1,17 @@
+{
+    "id": "test",
+    "agents": [
+        {
+            "type": "player",
+            "id": "player1"
+        },
+        {
+        "type": "player",
+        "id": "player2"
+        }
+    ],
+    "tournamentType": "roundRobin",
+    "visualize": true,
+    "timeLimit": 1000,
+    "randomStartMoves": 5
+}
