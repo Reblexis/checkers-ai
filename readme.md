@@ -59,7 +59,7 @@ There are the following parameters that you have to specify:
 The default setup in the [default_tournament.json](data/default_tournament.json) file allows for a simple match between an agent and a player.
 
 ## Statistics
-You can view the tournament statistics under [data/tournament_logs/](data/tournament_logs/).
+Once you launch the tournament, you can view the tournament statistics under [data/tournament_logs/](data/tournament_logs/).
 There you can find a folder by the tournament id, that you specified in the tournament config file. For each agent that participated in the tournament, you can find a file with the statistics of the agent's matches and rating.
 
 ### Protocol
