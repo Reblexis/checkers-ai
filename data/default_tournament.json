@@ -8,7 +8,7 @@
         },
         {
             "type": "player",
-            "id": "player1",
+            "id": "player1"
         }
     ],
     "tournamentType": "roundRobin",
