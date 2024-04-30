@@ -5,7 +5,7 @@
 #include <string>
 
 // Paths
-const std::filesystem::path DATA_PATH = std::filesystem::current_path().parent_path() / "data/";
+const std::filesystem::path DATA_PATH = std::filesystem::current_path().parent_path() / "data/"; ///< Path to the data folder
 
 
 const std::string CURRENT_AGENT_CONFIG = R"(
@@ -42,5 +42,5 @@ const std::string CURRENT_AGENT_CONFIG = R"(
     "use_cache": true,
     "reorder_moves": false
 }
-)";
+)"; ///< The default configuration for the agent, used for building the executable agent
 #endif
