@@ -48,11 +48,13 @@ struct Move {
 };
 
 using position = uint8_t;
+using board_id = __int128;
 
 class Board {
 public:
     Board(bitboard_all whiteBitboard, bitboard_all blackBitboard);
 
+    board_id getID() const;
     std::optional<Piece> getAt(Pos pos) const;
     Board getBoardRev() const;
     int allPiecesCount() const;
@@ -70,6 +72,7 @@ public:
     const bitboard_all blackBitboard;
 
     friend std::ostream& operator<<(std::ostream& os, const Board& obj);
+    bool operator==(const Board& other) const;
 
 private:
     static bitboard reverseBitboard(bitboard bitboardToReverse) ;

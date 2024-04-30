@@ -13,7 +13,7 @@
         }
     ],
     "tournamentType": "randomMatches",
-    "visualize": true,
+    "visualize": false,
     "timeLimit": 100000,
     "maxMoves": 100
 }

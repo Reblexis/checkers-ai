@@ -12,6 +12,7 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
 {
 }
 
+int incorrectcache = 0;
 std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int leftDepth, long long alpha, long long beta)
 {
     const GameState& gameState = game.getGameState();
@@ -46,6 +47,10 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         possibleMoves = newMoves;
     }
 
+    //shuffle(possibleMoves.begin(), possibleMoves.end(), randomEngine);
+
+    int observedScore = -1;
+    int observedMove = -1;
     if(useCache) {
         const cacheEntry &cacheInfo = cache.get(game.getGameState());
         bestMove = cacheInfo.bestMove;
@@ -54,10 +59,11 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
             if (it != possibleMoves.end())
                 std::iter_swap(possibleMoves.begin(), it);
         }
-        if (useTranspositionTable && leftDepth == cacheInfo.depth && upperBound <= cacheInfo.upperBound && lowerBound >= cacheInfo.lowerBound)
+        if (useTranspositionTable && leftDepth == cacheInfo.depth && upperBound == cacheInfo.upperBound && lowerBound == cacheInfo.lowerBound)
         {
-            //std::cout << cache.fillRate() << '\n';
-            return {cacheInfo.score, cacheInfo.bestMove};
+            observedScore = cacheInfo.score;
+            observedMove = cacheInfo.bestMove;
+            //return {cacheInfo.score, cacheInfo.bestMove};
         }
     }
 
@@ -76,7 +82,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         std::pair<int, piece_move> moveInfo = minimax(game, timer, leftDepth-1, alpha, beta);
         moveInfo.first *= -1;
 
-        if(moveInfo.first > bestScore || (moveInfo.first == bestScore && std::uniform_int_distribution<int>(0, 1)(randomEngine)))
+        if(moveInfo.first > bestScore)
         {
             bestScore = moveInfo.first;
             bestMove = nextMove;
@@ -96,11 +102,23 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         }
     }
 
-    if(useCache)
-        cache.set(gameState, leftDepth, bestScore, upperBound, lowerBound, bestMove);
 
     if(timer.isFinished())
         return {INT32_MIN+1, bestMove};
+
+
+    if(observedScore != -1&&observedScore!=bestScore)
+    {
+        /*
+        std::cout<<"Observed score: "<<observedScore<<", best score: "<<bestScore<<"\n";
+        std::cout<<"Observed move: "<<observedMove<<", best move: "<<bestMove<<"\n";
+        std::cout<<"--------------------------------\n";
+        */
+        incorrectcache++;
+    }
+
+    if(useCache)
+        cache.set(gameState, leftDepth, bestScore, upperBound, lowerBound, bestMove);
 
     return {bestScore, bestMove};
 }
@@ -135,6 +153,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
     Timer localTimer = Timer(std::min(moveTimeLimit, timer.getRemainingTime()/4));
     localTimer.resume();
 
+    incorrectcache = 0;
     for(int i = 1; i <= maxDepth; ++i)
     {
         std::pair<int, piece_move> candidate = minimax.minimax(game, localTimer, i);
@@ -146,6 +165,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
             break;
         }
     }
+    //std::cout<<"Incorrect cache: "<<incorrectcache<<"\n";
 
     return bestMove;
 }

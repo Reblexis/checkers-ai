@@ -115,6 +115,10 @@ piece_move Move::getPieceMove() const {
 Board::Board(const bitboard_all whiteBitboard, const bitboard_all blackBitboard)
         : whiteBitboard(whiteBitboard), blackBitboard(blackBitboard) {}
 
+bool Board::operator==(const Board& other) const {
+    return whiteBitboard == other.whiteBitboard && blackBitboard == other.blackBitboard;
+}
+
 Board getBoardFromStream(std::istream& is){
     std::vector<std::string> boardState(8);
     for(unsigned int i = 0; i < 8; i++) {
@@ -138,6 +142,10 @@ Board getBoardFromStream(std::istream& is){
     }
 
     return {whiteBitboard, blackBitboard};
+}
+
+board_id Board::getID() const {
+    return (static_cast<board_id>(whiteBitboard) << 64) | blackBitboard;
 }
 
 std::optional<Piece> Board::getAt(Pos piecePos) const
