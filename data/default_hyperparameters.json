@@ -26,7 +26,7 @@
     ],
     "pawn_value": 1,
     "search_algorithm": 2,
-    "move_time_limit": 10,
+    "move_time_limit": 500,
     "use_alpha_beta": true,
     "use_cache": true,
     "use_transposition_table": false,

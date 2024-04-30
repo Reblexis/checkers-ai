@@ -4,7 +4,7 @@
         {
             "type": "hyperparameters",
             "id": "hyp1",
-            "path": "data/default_hyperparameters.json"
+            "path": "../data/default_hyperparameters.json"
         },
         {
             "type": "player",
