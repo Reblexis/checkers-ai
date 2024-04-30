@@ -52,9 +52,9 @@ Tournament Tournament::createFromFile(const std::filesystem::path &path){
 }
 
 void Tournament::launch(){
-    if(tournamentType == TournamentType::ROUND_ROBIN){
+    if(tournamentType == TournamentType::roundRobin){
         roundRobin(agents);
-    } else if(tournamentType == TournamentType::RANDOM_MATCHES){
+    } else if(tournamentType == TournamentType::randomMatches){
         randomMatches(agents, 10);
     }
 }

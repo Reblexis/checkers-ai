@@ -73,6 +73,12 @@ void App::drawWindow(const Game &game){
     window.display();
 }
 
+/**
+* Redraws the window and checks for events
+* @param game The game to be displayed
+* @return Whether the window should stay open
+*/
+
 bool App::refresh(const Game &game){
     sf::Event event{};
 
@@ -87,6 +93,13 @@ bool App::refresh(const Game &game){
     return true;
 }
 
+/**
+ * @brief Gets the move from the human player.
+ * Allows a human to make a move using the GUI.
+ * @param game The game to get the move for
+ * @param timer Instance of a timer containing the time left information
+ * @return The move made by the human player
+ */
 Move App::getMove(Game &game, Timer &timer){
     std::vector<Move> possibleMoves = game.getGameState().getAvailableMoves2();
     int currentSubMove = 1;

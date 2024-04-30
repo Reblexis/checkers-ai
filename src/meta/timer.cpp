@@ -7,7 +7,7 @@ Timer::Timer(long long milliseconds)
 {}
 
 void Timer::update() {
-    if(!isRunning)
+    if(!isRunning) // If the timer is not running, no need to update
         lastStartTime = std::chrono::steady_clock::now();
     auto now = std::chrono::steady_clock::now();
     leftTime -= std::chrono::duration_cast<std::chrono::milliseconds>(now - lastStartTime);
@@ -31,7 +31,7 @@ void Timer::pause() {
 
 long long Timer::getRemainingTime() const {
     long long remainingTime = std::chrono::duration_cast<std::chrono::milliseconds>(leftTime).count();
-    if(isRunning)
+    if(isRunning) // If the timer is running, update the time
         remainingTime -= std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastStartTime).count();
     return remainingTime;
 }
