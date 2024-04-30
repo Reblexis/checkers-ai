@@ -28,7 +28,7 @@ public:
  * @brief Minimax search algorithm.
  *
  * Searches the best move in a given game state using the minimax algorithm.
- * More here: https://en.wikipedia.org/wiki/Minimax
+ * More here: https://en.wikipedia.org/wiki/Minimax.
  *
  * @var useAlphaBeta Whether to use alpha-beta pruning
  * @var useCache Whether to use a cache
@@ -64,7 +64,7 @@ public:
  * @brief Iterative deepening minimax search algorithm.
  *
  * Searches the best move in a given game state using the minimax algorithm with iterative deepening.
- * More here: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search
+ * More here: https://en.wikipedia.org/wiki/Iterative_deepening_depth-first_search.
  *
  * @var minimax The minimax search algorithm
  * @var maxDepth The maximum depth of the search
