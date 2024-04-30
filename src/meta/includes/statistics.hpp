@@ -15,6 +15,7 @@ const std::string DRAWS_ID = "draws";
 const std::string LOSSES_ID = "losses";
 
 /**
+ * @class Statistics
  * @brief Class for managing statistics for the agent.
  *
  * The statistics class is used to manage the statistics for the agent whilst playing tournaments.

@@ -6,6 +6,7 @@
 #include <chrono>
 
 /**
+ * @class Timer
  * @brief Class for managing a timer.
  *
  * A timer that can be paused, resumed and reset.

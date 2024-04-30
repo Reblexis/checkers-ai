@@ -21,6 +21,7 @@ const sf::Color BLACK_PIECE_COLOR = sf::Color(0, 0,0); ///< Color of the black p
 const sf::Color WHITE_PIECE_COLOR = sf::Color(200,200,200); ///< Color of the white pieces
 
 /**
+ * @class UI
  * @brief Class for managing the user interface of the game.
  *
  * The UI class is used to manage certain aspects needed for the user interface of the game.
@@ -37,6 +38,7 @@ public:
 };
 
 /**
+ * @class PieceSprite
  * @brief Sprite class for the pieces.
  *
  * @var isWhitePiece Whether the piece is white or black
@@ -53,6 +55,7 @@ public:
 };
 
 /**
+ * @class App
  * @brief Class for managing the GUI.
  *
  * The App class is used to manage the GUI of the game for the player and also for visualization of the game as such.
