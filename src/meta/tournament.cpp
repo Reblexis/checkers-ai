@@ -139,7 +139,7 @@ void Tournament::randomMatches(int matches, std::optional<int> focusAgent) const
     std::mt19937 g(rd());
     std::uniform_int_distribution<> dis(0, agents.size() - 1);
 
-    while(true){
+    for(int i = 0; ; i++){
         message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
 
         int agent1Index = focusAgent.value_or(dis(g));
