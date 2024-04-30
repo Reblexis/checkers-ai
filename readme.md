@@ -98,11 +98,25 @@ w . w . w . w .
 // Game loop output (2)
 2 1 2 0 3
 ```
-## Documentation
-If you want to learn more specific details about the project you can generate the developer documentation using Doxygen.
+
+## Tournament
+The tournament system allows for the comparison of different agents (including players and other executables implementing the protocol).
+It is controlled by a config file (see example [default_tournament.json](data/default_tournament.json)) that specifies the tournament settings and the agents that will participate.
+There are the following parameters that you have to specify:
+- **id** - A unique identifier of the tournament. This will be then used to save the results of the tournament.
+- **agents** - A list of agents that will participate in the tournament. Each agent should have a unique id and a path to the executable or a hyperparameters file (unless it is a player - then the path is not needed).
+- **tournamentType** - The type of the tournament. Currently, there are two types of tournaments supported: `roundRobin` (https://en.wikipedia.org/wiki/Round-robin_tournament) and `randomMatches` (matches are played between random agents until user termination).
+- **timeLimit** - The time limit for each agent in the tournament (in milliseconds).
+- **maxMoves** - The maximum amount of moves that can be played in a single match (if the game is not finished by then, the match is considered a draw).
+
+The default setup in the [default_tournament.json](data/default_tournament.json) file allows for a simple match between an agent and a player.
+
+## Developer Documentation
+If you want to learn more specific code details about the project you can generate the developer documentation using Doxygen once you clone the project.
 ```
 doxygen Doxyfile
 ```
+Then you can open the [documentation/html/index.html](documentation/html/index.html) file in your browser.
 
 ## Contact
 If you have any questions or if you find any suspicious behaviour of the software, please contact me at: `viktor.cihal@gmail.com` or write it in the issues section of this repository.

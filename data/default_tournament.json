@@ -7,13 +7,12 @@
             "path": "data/default_hyperparameters.json"
         },
         {
-            "type": "hyperparameters",
-            "id": "hyp2",
-            "path": "data/default_hyperparameters2.json"
+            "type": "player",
+            "id": "player1",
         }
     ],
-    "tournamentType": "randomMatches",
-    "visualize": true,
+    "tournamentType": "roundRobin",
+    "visualize": false,
     "timeLimit": 100000,
     "maxMoves": 100
 }

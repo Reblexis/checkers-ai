@@ -14,11 +14,12 @@
 
 //#define CLI
 #define TOURNAMENT
-//#define TESTS
 
 int main()
 {
 #ifdef CLI
+    // Build an executable agent
+
     Hyperparameters hyperparameters = Hyperparameters(CURRENT_AGENT_CONFIG);
     HyperparametersAgent agent = HyperparametersAgent(std::move(hyperparameters), "first_agent");
     ConsoleInterface consoleInterface(&agent);
@@ -26,8 +27,10 @@ int main()
 #endif
 #ifdef TOURNAMENT
 
+    // Launch a tournament
+
     std::cout<<"Hello! Welcome to the tournament system!\nHere you can launch your own checkers tournament not only for the artificially intelligent agents.\n"
-               "Please specify the path to your tournament config file (default: tournament.json): ";
+               "Please specify the path to your tournament config file (default: default_tournament.json): ";
 
 
     std::filesystem::path tournamentConfigFile;
@@ -35,16 +38,9 @@ int main()
     std::getline(std::cin, tournamentConfigFileInput);
     tournamentConfigFile = tournamentConfigFileInput;
     if(tournamentConfigFileInput.empty()){
-        tournamentConfigFile = DATA_PATH / "tournament.json";
+        tournamentConfigFile = DATA_PATH / "default_tournament.json";
     }
     Tournament tournament = Tournament::createFromFile(tournamentConfigFile);
 
-#endif
-#ifdef TESTS
-    Tournament tournament("test", true, 60, 0);
-    std::vector<Agent *> agents;
-    agents.push_back(new HyperparametersAgent("/home/cihalvi/src/checkers/data/default_hyperparameters.json", "agent1"));
-    agents.push_back(new ExecutableAgent("/home/cihalvi/src/checkers/data/agents/executable_agent/checkers", "agent2"));
-    tournament.roundRobin(agents);
 #endif
 }
