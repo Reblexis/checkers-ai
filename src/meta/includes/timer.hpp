@@ -7,7 +7,7 @@
 
 /**
  * @class Timer
- * @brief Class for managing a timer.
+ * @brief Manages a timer.
  *
  * A timer that can be paused, resumed and reset.
  *

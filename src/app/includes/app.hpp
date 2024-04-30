@@ -22,9 +22,9 @@ const sf::Color WHITE_PIECE_COLOR = sf::Color(200,200,200); ///< Color of the wh
 
 /**
  * @class UI
- * @brief Class for managing the user interface of the game.
+ * @brief Manages the user interface of the game.
  *
- * The UI class is used to manage certain aspects needed for the user interface of the game.
+ * Used to manage certain aspects needed for the user interface of the game.
  *
  * @var selectedSquare The currently selected square
  * @var possibleMoves The possible moves for the selected piece
@@ -39,7 +39,7 @@ public:
 
 /**
  * @class PieceSprite
- * @brief Sprite class for the pieces.
+ * @brief Controls the piece sprites.
  *
  * @var isWhitePiece Whether the piece is white or black
  * @var isKing Whether the piece is a king
@@ -56,9 +56,9 @@ public:
 
 /**
  * @class App
- * @brief Class for managing the GUI.
+ * @brief Manages the GUI.
  *
- * The App class is used to manage the GUI of the game for the player and also for visualization of the game as such.
+ * Used to manage the GUI of the game for the player and also for visualization of the game as such.
  *
  * @var window The window of the application
  * @var ui The user interface of the application

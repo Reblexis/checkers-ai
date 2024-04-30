@@ -26,7 +26,7 @@ const std::map<std::string, TournamentType> TOURNAMENT_TYPE_MAP = {
 
 /**
  * @class Tournament
- * @brief Class for managing a tournament between agents.
+ * @brief Manages tournament between all kinds of agents.
  *
  * The tournament class is used to manage a tournament between agents.
  * The tournament can be run in two different ways:

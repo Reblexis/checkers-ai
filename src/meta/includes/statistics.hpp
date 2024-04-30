@@ -16,9 +16,9 @@ const std::string LOSSES_ID = "losses";
 
 /**
  * @class Statistics
- * @brief Class for managing statistics for the agent.
+ * @brief Manages statistics for an agent.
  *
- * The statistics class is used to manage the statistics for the agent whilst playing tournaments.
+ * Used to manage the statistics for the agent whilst playing tournaments.
  * They are stored in a JSON file and are loaded and saved as needed.
  * The following statistics are stored:
  * - Rating: The current rating of the agent
