@@ -13,6 +13,10 @@ Make sure that you have the SFML library installed on your system.
 cmake CMakeLists.txt
 make
 ```
+Then launch the executable.
+```
+./out/checkers
+```
 ### There are no other platforms supported at the moment
 
 ## Current state
@@ -104,7 +108,7 @@ The tournament system allows for the comparison of different agents (including p
 It is controlled by a config file (see example [default_tournament.json](data/default_tournament.json)) that specifies the tournament settings and the agents that will participate.
 There are the following parameters that you have to specify:
 - **id** - A unique identifier of the tournament. This will be then used to save the results of the tournament.
-- **agents** - A list of agents that will participate in the tournament. Each agent should have a unique id and a path to the executable or a hyperparameters file (unless it is a player - then the path is not needed).
+- **agents** - A list of agents that will participate in the tournament. Each agent should have a unique id and a path to the executable or a hyperparameters file (unless it is a player - then the path is not needed). There are the following types of agents you can specify: `player`, `hyperparameters`, `executable`.
 - **tournamentType** - The type of the tournament. Currently, there are two types of tournaments supported: `roundRobin` (https://en.wikipedia.org/wiki/Round-robin_tournament) and `randomMatches` (matches are played between random agents until user termination).
 - **timeLimit** - The time limit for each agent in the tournament (in milliseconds).
 - **maxMoves** - The maximum amount of moves that can be played in a single match (if the game is not finished by then, the match is considered a draw).

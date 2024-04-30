@@ -54,8 +54,8 @@ private:
 
     void simulateGame(Agent *whiteAgent, Agent *blackAgent, Game &game) const; ///< Simulates a game between two agents
     void simulateMatch(Agent *agent1, Agent *agent2) const; ///< Simulates a match between two agents (two games with reversed colors)
-    void randomMatches(std::vector<std::unique_ptr<Agent>> &agents, int matches, std::optional<int> focusAgent = std::nullopt) const; ///< Simulates a set number of random matches between agents
-    void roundRobin(std::vector<std::unique_ptr<Agent>> &agents) const; ///< Simulates a round robin tournament between agents
+    void randomMatches(int matches=-1, std::optional<int> focusAgent = std::nullopt) const; ///< Simulates a set number of random matches between agents
+    void roundRobin() const; ///< Simulates a round robin tournament between agents
     void launch(); ///< Launches the tournament
 
 public:

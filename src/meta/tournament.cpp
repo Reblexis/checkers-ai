@@ -53,9 +53,9 @@ Tournament Tournament::createFromFile(const std::filesystem::path &path){
 
 void Tournament::launch(){
     if(tournamentType == TournamentType::roundRobin){
-        roundRobin(agents);
+        roundRobin();
     } else if(tournamentType == TournamentType::randomMatches){
-        randomMatches(agents, 10);
+        randomMatches();
     }
 }
 
@@ -134,12 +134,12 @@ void Tournament::simulateMatch(Agent *agent1, Agent *agent2) const{
     simulateGame(agent2, agent1, game2);
 }
 
-void Tournament::randomMatches(std::vector<std::unique_ptr<Agent>> &agents, int matches, std::optional<int> focusAgent) const{
+void Tournament::randomMatches(int matches, std::optional<int> focusAgent) const{
     std::random_device rd;
     std::mt19937 g(rd());
     std::uniform_int_distribution<> dis(0, agents.size() - 1);
 
-    for(int i = 0; i < matches; i++){
+    while(true){
         message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(matches) + "!", true);
 
         int agent1Index = focusAgent.value_or(dis(g));
@@ -154,7 +154,7 @@ void Tournament::randomMatches(std::vector<std::unique_ptr<Agent>> &agents, int 
     }
 }
 
-void Tournament::roundRobin(std::vector<std::unique_ptr<Agent>> &agents) const{
+void Tournament::roundRobin() const{
     for(int i = 0; i < agents.size(); i++){
         for(int j = i + 1; j < agents.size(); j++){
             message("Starting match " + std::to_string(i + 1) + " of " + std::to_string(agents.size() * (agents.size() - 1) / 2) + "!", true);
