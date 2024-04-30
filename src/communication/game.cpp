@@ -37,6 +37,12 @@ void visualize_bitboard(bitboard_all bitboard){
     std::cout<<std::endl;
 }
 
+/**
+ * @brief Returns the index of the position on the board
+ *
+ * The index is used to represent the position on the board as a single number which can then be used to index in bitboards.
+ * @return The index of the position on the board
+ */
 unsigned int Pos::indexFromPos() const{
     return x/2 + y*4;
 }
