@@ -99,7 +99,10 @@ w . w . w . w .
 2 1 2 0 3
 ```
 ## Documentation
-If you want to learn more specific details about the project you can proceed to the [developer documentation](documentation/developer_documentation.md).
+If you want to learn more specific details about the project you can generate the developer documentation using Doxygen.
+```
+doxygen Doxyfile
+```
 
 ## Contact
 If you have any questions or if you find any suspicious behaviour of the software, please contact me at: `viktor.cihal@gmail.com` or write it in the issues section of this repository.

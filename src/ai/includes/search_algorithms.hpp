@@ -11,12 +11,34 @@
 #include <vector>
 #include <random>
 
+/**
+ * @class SearchAlgorithm
+ * @brief Abstract class for search algorithms.
+ *
+ * Serves for finding the best move in a given game state.
+ */
 class SearchAlgorithm {
 public:
     virtual std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) = 0;
     virtual ~SearchAlgorithm() = default;
 };
 
+/**
+ * @class Minimax
+ * @brief Minimax search algorithm.
+ *
+ * Searches the best move in a given game state using the minimax algorithm.
+ *
+ * @var useAlphaBeta Whether to use alpha-beta pruning
+ * @var useCache Whether to use a cache
+ * @var useTranspositionTable Whether to consider the cache results as final and return them
+ * @var reorderMoves Whether to reorder moves
+ * @var maxDepth The maximum depth of the search
+ * @var moveTimeLimit The time limit for each move
+ * @var evaluation The evaluation algorithm
+ * @var cache The cache for storing best moves and scores
+ * @var randomEngine Random engine used for non-deterministic moves
+ */
 class Minimax : public SearchAlgorithm {
 private:
     bool useAlphaBeta;
@@ -36,6 +58,16 @@ public:
     void setMaxDepth(int newDepth);
 };
 
+/**
+ * @class IterativeMinimax
+ * @brief Iterative deepening minimax search algorithm.
+ *
+ * Searches the best move in a given game state using the minimax algorithm with iterative deepening.
+ *
+ * @var minimax The minimax search algorithm
+ * @var maxDepth The maximum depth of the search
+ * @var moveTimeLimit The time limit for each move
+ */
 class IterativeMinimax : public SearchAlgorithm {
 private:
     Minimax minimax;
@@ -47,6 +79,12 @@ public:
     std::pair<int, piece_move> findBestMove(Game &game, const Timer& timer) override;
 };
 
+/**
+ * @class RandomSearch
+ * @brief Random search algorithm.
+ *
+ * Randomly chooses moves.
+ */
 class RandomSearch : public SearchAlgorithm {
 public:
     RandomSearch();

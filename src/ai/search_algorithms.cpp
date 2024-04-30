@@ -12,16 +12,26 @@ Minimax::Minimax(Hyperparameters &hyperparameters, Evaluation &eval)
 {
 }
 
+/**
+ * @brief Minimax search algorithm.
+ * @param game The game manager class allowing for game state manipulation and available moves retrieval.
+ * @param timer Allows for termination of the search algorithm after a specified time limit.
+ * @param leftDepth The remaining depth of the search.
+ * @param alpha The alpha value for alpha-beta pruning from the perspective of the alpha player.
+ * @param beta The beta value for alpha-beta pruning from the perspective of the beta player.
+ * @return The best move found by the search algorithm and its score.
+ */
 std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int leftDepth, long long alpha, long long beta)
 {
     const GameState& gameState = game.getGameState();
 
     long long bestScore = INT32_MIN;
     piece_move bestMove = 0;
-    long long upperBound = (gameState.nextBlack ? -beta : -alpha);
+    // Upper bound and lower bound of the possible score for the current state
+    long long upperBound = (gameState.nextBlack ? -beta : -alpha); // Negate beta and alpha because of the different perspective of the other player
     long long lowerBound = (gameState.nextBlack ? alpha : beta);
 
-    if(leftDepth==0)
+    if(leftDepth==0) // Leaf node
     {
         int score = evaluation.evaluate(gameState);
         return {score, 0};
@@ -46,23 +56,25 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         possibleMoves = newMoves;
     }
 
+    // Shuffle for random move selection
     shuffle(possibleMoves.begin(), possibleMoves.end(), randomEngine);
 
     if(useCache) {
         const CacheEntry &cacheInfo = cache.get(game.getGameState());
         bestMove = cacheInfo.bestMove;
         if (bestMove != 0) {
+            // Move the best found move from the cache to the front of the vector for more efficient search (using alpha-beta pruning)
             auto it = std::find(possibleMoves.begin(), possibleMoves.end(), bestMove);
             if (it != possibleMoves.end())
                 std::iter_swap(possibleMoves.begin(), it);
         }
-        if (useTranspositionTable && leftDepth == cacheInfo.depth && upperBound == cacheInfo.upperBound && lowerBound == cacheInfo.lowerBound)
+        if (useTranspositionTable && leftDepth == cacheInfo.depth && upperBound == cacheInfo.upperBound && lowerBound == cacheInfo.lowerBound) // Retrieve only if the search parameters match
         {
             return {cacheInfo.score, cacheInfo.bestMove};
         }
     }
 
-    if(possibleMoves.empty())
+    if(possibleMoves.empty()) // No moves available = loss
     {
         return {INT32_MIN+1, 0};
     }
@@ -75,7 +87,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
         game.makeMove(nextMove);
 
         std::pair<int, piece_move> moveInfo = minimax(game, timer, leftDepth-1, alpha, beta);
-        moveInfo.first *= -1;
+        moveInfo.first *= -1; // Align to the current player's perspective
 
         if(moveInfo.first > bestScore)
         {
@@ -92,13 +104,13 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
             else
                 beta = std::max(beta, bestScore);
 
-            if(-beta <= alpha)
+            if(-beta <= alpha) // Prune whilst counting with the different perspective
                 break;
         }
     }
 
 
-    if(timer.isFinished())
+    if(timer.isFinished()) // If the search was interrupted, return the best move found so far
         return {INT32_MIN+1, bestMove};
 
     if(useCache)
@@ -124,6 +136,12 @@ IterativeMinimax::IterativeMinimax(Hyperparameters &hyperparameters, Evaluation 
 {
 }
 
+/**
+ * @brief Iterative deepening minimax search algorithm.
+ * @param game The game manager class allowing for game state manipulation and available moves retrieval.
+ * @param timer Allows for termination of the search algorithm after a specified time limit.
+ * @return The best move found by the search algorithm and its score.
+ */
 std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Timer& timer)
 {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -143,7 +161,7 @@ std::pair<int, piece_move> IterativeMinimax::findBestMove(Game &game, const Time
         if(candidate.second != 0 && !localTimer.isFinished())
             bestMove = candidate;
 
-        if(bestMove.first==INT32_MAX || candidate.second == 0 || localTimer.isFinished())
+        if(bestMove.first==INT32_MAX || candidate.second == 0 || localTimer.isFinished()) // If winning path was found or the search was interrupted, end
         {
             break;
         }

@@ -6,6 +6,17 @@
 
 constexpr uint16_t UNSET_DEPTH = 0;
 
+/**
+ * @struct CacheEntry
+ * @brief Represents an entry in the cache.
+ *
+ * @var board The board ID used as the key (verification)
+ * @var bestMove The best move
+ * @var score The score of the board
+ * @var depth The depth of the search
+ * @var upperBound The upper bound of the score
+ * @var lowerBound The lower bound of the score
+ */
 struct CacheEntry {
     board_id board;
 	piece_move bestMove=0;
@@ -15,6 +26,17 @@ struct CacheEntry {
     long long lowerBound = INT32_MAX;
 };
 
+
+/**
+ * @class Cache
+ * @brief Manages a cache for storing best moves and scores.
+ *
+ * A cache that stores the best moves and scores for a given board state. The cache is implemented as a hash table with buckets.
+ * It also attempts to be work efficiently with alpha beta pruning.
+ *
+ * @tparam table_size The size of the cache
+ * @tparam bucket_size The size of each bucket
+ */
 template<size_t table_size=4194304, size_t bucket_size=3> // table size must be a power of 2!
 class Cache {
 private:
@@ -34,12 +56,22 @@ private:
     }
     int filled = 0;
 public:
+    /**
+     * @brief Attempts to save the best move and score for a given board state
+     * @param gameState The game state
+     * @param depth The depth of the search
+     * @param score The found score for the board
+     * @param upperBound The upper bound of the score
+     * @param lowerBound The lower bound of the score
+     * @param best The found best move
+     */
     inline void set(const GameState &gameState, uint16_t depth, long long score, long long upperBound, long long lowerBound, piece_move best) {
-        Board perspectiveBoard = gameState.getPerspectiveBoard();
+        Board perspectiveBoard = gameState.getPerspectiveBoard(); // Get the board from the perspective of the current player optimal moves should be the same for both sides with correct evaluation
         board_id boardID = perspectiveBoard.getID();
         uint64_t hash = getHash(perspectiveBoard);
-		size_t idx = bucket_size * (hash & (table_size-1));
+		size_t idx = bucket_size * (hash & (table_size-1)); // Hash % table_size only for power of 2
         for(int i = 0; i < bucket_size; i++){
+            // If the board is already in the cache and the new score is found for wider alpha beta window, update the entry
             if(table[idx + i].board == boardID && table[idx + i].depth <= depth && table[idx + i].upperBound <= upperBound && table[idx + i].lowerBound >= lowerBound){
                 table[idx + i] = {boardID, best, score, depth, upperBound, lowerBound};
                 return;
@@ -47,8 +79,9 @@ public:
         }
 
         for(int i = 0; i < bucket_size; i++){
+            // If the bucket is empty or the depth is lower than the current entry, fill the bucket
             if(table[idx + i].depth < depth){
-                if(table[idx + i].depth == UNSET_DEPTH)
+                if(table[idx + i].depth == UNSET_DEPTH) // Count the number of filled entries
                     filled++;
                 table[idx + i] = {boardID, best, score, depth, upperBound, lowerBound};
                 return;

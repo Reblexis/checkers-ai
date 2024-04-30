@@ -22,7 +22,7 @@ void Agent::initialize(long long timeLimit, bool isBlack) {
 
     pipe(inpipe_fd);
     pipe(outpipe_fd);
-    subprocess_pid = fork();
+    subprocess_pid = fork(); // Create a new process
 
     if (subprocess_pid == 0) {
         //setuid(1001); //TODO: Ascertain process security
@@ -179,7 +179,7 @@ std::string readLine(int pipe)
 {
     std::string line;
     char c;
-    while(read(pipe, &c, 1) > 0 && c != '\n')
+    while(read(pipe, &c, 1) > 0 && c != '\n') // Read until newline
     {
         line.push_back(c);
     }
@@ -211,9 +211,12 @@ void Player::runInBackground() {
             std::string receivedData(buffer.data());
             deserializeGameState(receivedData, game, timer);
 
+            // Get the move from the player using the GUI
             Move move = app.getMove(game, timer);
 
             std::string serializedMove = serializeMove(move);
+
+            // Send the move to the subprocess
             write(outpipe_fd[1], serializedMove.c_str(), serializedMove.size());
         }
         app.refresh(game);

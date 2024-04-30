@@ -36,6 +36,15 @@ const std::string REORDER_MOVES_ID = "reorder_moves";
 const std::string MOVE_TIME_LIMIT_ID= "move_time_limit";
 const std::string DEBUG_BIT_ID = "debug_bit";
 
+/**
+ * @class Hyperparameters
+ * @brief Manages hyperparameters for the hyperparameters agent.
+ *
+ * Manages hyperparameters stored in a JSON file.
+ *
+ * @var filePath The path to the hyperparameters file
+ * @var data The JSON data containing the hyperparameters
+ */
 class Hyperparameters
 {
 private:

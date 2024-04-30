@@ -10,6 +10,12 @@
 #include <format>
 #include "../includes/constants.hpp"
 
+/**
+ * @brief Constructs a new Hyperparameters object.
+ * Loads the hyperparameters from the specified file. If the file does not exist or if some hyperparameters are missing, the default hyperparameters are used
+ * and saved to the file.
+ * @param path The path to the hyperparameters file
+ */
 Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(path)
 {
     nlohmann::json defaultData;
@@ -45,8 +51,18 @@ Hyperparameters::Hyperparameters(const std::filesystem::path &path): filePath(pa
     message("Hyperparameters loaded from " + filePath);
 }
 
+/**
+ * @brief Constructs a new Hyperparameters object.
+ * Loads the hyperparameters from the specified string.
+ * Used for building the executable agent.
+ * Now it can be delivered as an executable without an additional JSON file.
+ * @param hyperparameters The hyperparameters string
+ */
 Hyperparameters::Hyperparameters(const std::string &hyperparameters): data(nlohmann::json::parse(hyperparameters)){}
 
+/**
+ * @brief Saves the hyperparameters to the file.
+ */
 void Hyperparameters::save() const
 {
     std::ofstream output(filePath);
