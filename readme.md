@@ -15,7 +15,8 @@ make
 ```
 Then launch the executable.
 ```
-./out/checkers
+cd out
+./checkers
 ```
 ### There are no other platforms supported at the moment
 
