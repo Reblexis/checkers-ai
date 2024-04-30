@@ -31,10 +31,10 @@ cd out
 - [x] Support for background search (while the other agent is thinking) 
 
 ## App
-As a user, you have limited options to interact with the system. By default, once you build (and launch) the project, you will
-be able to customize and create a tournament via console interface. You will provide basic tournament settings and also the competitors' paths or ids.
-When you are happy with the settings, you can launch the tournament and analyze their performance.
-You will have an option to visualize the matches via a graphical interface. You will also be able to specify a path to save the tournament results to for each agent individually.
+As a user, you have limited options to interact with the system. By default, you are
+able to customize and create a tournament via the tournament config file (more on that in the tournament section below). 
+You will provide basic tournament settings and also the competitors' paths and ids.
+You have an option to visualize the matches via a graphical interface. 
 
 ![checkers_screenshot](https://github.com/Reblexis/checkers/assets/80317928/e26bcf98-468c-4bcc-bea5-31ff1b0795f6)
 
@@ -44,6 +44,23 @@ Currently, there is an abstraction in-place that allows for 3 different types of
 - **Human**. This agent is controlled by a human player via the graphical interface. In order to specify this agent (when creating a tournament), you just need to give him a unique id.
 - **Hyperparameters agent**. This agent uses local scripts defined in this repository. The strategy that it will use is defined by the hyperparameters file that you will provide (you can find an example of such file here [default_hyperparameters.json](../data/default_hyperparameters.json)).
 - **Executable agent**. This type of agent allows for support of external agents, which may be provided in form of an executable that adheres to the specified protocol (see [protocol](#protocol)).
+
+
+## Tournament
+The tournament system allows for the comparison of different agents (including players and other executables implementing the protocol).
+It is controlled by a config file (see example [default_tournament.json](data/default_tournament.json)) that specifies the tournament settings and the agents that will participate.
+There are the following parameters that you have to specify:
+- **id** - A unique identifier of the tournament. This will be then used to save the results of the tournament.
+- **agents** - A list of agents that will participate in the tournament. Each agent should have a unique id and a path to the executable or a hyperparameters file (unless it is a player - then the path is not needed). There are the following types of agents you can specify: `player`, `hyperparameters`, `executable`.
+- **tournamentType** - The type of the tournament. Currently, there are two types of tournaments supported: `roundRobin` (https://en.wikipedia.org/wiki/Round-robin_tournament) and `randomMatches` (matches are played between random agents until user termination).
+- **timeLimit** - The time limit for each agent in the tournament (in milliseconds).
+- **maxMoves** - The maximum amount of moves that can be played in a single match (if the game is not finished by then, the match is considered a draw).
+
+The default setup in the [default_tournament.json](data/default_tournament.json) file allows for a simple match between an agent and a player.
+
+## Statistics
+You can view the tournament statistics under [data/tournament_logs/](data/tournament_logs/).
+There you can find a folder by the tournament id, that you specified in the tournament config file. For each agent that participated in the tournament, you can find a file with the statistics of the agent's matches and rating.
 
 ### Protocol
 The agent executable should be able to repeatedly receive the current game state information and respond with the desired move.
@@ -103,19 +120,6 @@ w . w . w . w .
 // Game loop output (2)
 2 1 2 0 3
 ```
-
-## Tournament
-The tournament system allows for the comparison of different agents (including players and other executables implementing the protocol).
-It is controlled by a config file (see example [default_tournament.json](data/default_tournament.json)) that specifies the tournament settings and the agents that will participate.
-There are the following parameters that you have to specify:
-- **id** - A unique identifier of the tournament. This will be then used to save the results of the tournament.
-- **agents** - A list of agents that will participate in the tournament. Each agent should have a unique id and a path to the executable or a hyperparameters file (unless it is a player - then the path is not needed). There are the following types of agents you can specify: `player`, `hyperparameters`, `executable`.
-- **tournamentType** - The type of the tournament. Currently, there are two types of tournaments supported: `roundRobin` (https://en.wikipedia.org/wiki/Round-robin_tournament) and `randomMatches` (matches are played between random agents until user termination).
-- **timeLimit** - The time limit for each agent in the tournament (in milliseconds).
-- **maxMoves** - The maximum amount of moves that can be played in a single match (if the game is not finished by then, the match is considered a draw).
-
-The default setup in the [default_tournament.json](data/default_tournament.json) file allows for a simple match between an agent and a player.
-
 ## Developer Documentation
 If you want to learn more specific code details about the project you can generate the developer documentation using Doxygen once you clone the project.
 ```
