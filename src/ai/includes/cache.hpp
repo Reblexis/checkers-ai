@@ -6,7 +6,7 @@
 
 constexpr uint16_t UNSET_DEPTH = 0;
 
-struct cacheEntry {
+struct CacheEntry {
     board_id board;
 	piece_move bestMove=0;
     long long score{};
@@ -55,7 +55,7 @@ public:
             }
         }
 	}
-    inline const cacheEntry &get(const GameState &gameState) const {
+    inline const CacheEntry &get(const GameState &gameState) const {
         Board perspectiveBoard = gameState.getPerspectiveBoard();
         uint64_t hash = getHash(perspectiveBoard);
 		size_t idx = 3 * (hash & (table_size-1));
@@ -68,8 +68,8 @@ public:
 	}
 	inline float fillRate() const { return static_cast<float>(filled) / static_cast<float>(table_size * 3); }
 private:
-	std::array<cacheEntry, bucket_size * table_size> table{};
-	cacheEntry null_entry;
+	std::array<CacheEntry, bucket_size * table_size> table{};
+	CacheEntry null_entry;
 #ifdef MEASURE_CACHE_FILL
 	size_t filled = 0;
 #endif

@@ -49,7 +49,7 @@ std::pair<int, piece_move> Minimax::minimax(Game &game, const Timer& timer, int 
     shuffle(possibleMoves.begin(), possibleMoves.end(), randomEngine);
 
     if(useCache) {
-        const cacheEntry &cacheInfo = cache.get(game.getGameState());
+        const CacheEntry &cacheInfo = cache.get(game.getGameState());
         bestMove = cacheInfo.bestMove;
         if (bestMove != 0) {
             auto it = std::find(possibleMoves.begin(), possibleMoves.end(), bestMove);
